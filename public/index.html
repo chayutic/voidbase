@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Homelab Hub</title>
+
+  <!-- Main stylesheet -->
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- Font preconnects -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+
+<body>
+
+
+<header class="header">
+  <div class="header__inner">
+    <h1>VOIDBASE</h1>
+
+    <div class="header__separator"></div>
+
+    <div class="header__meta">
+      <div id="clockDate"></div>
+
+      <div class="header__aqi">
+        <span class="header__aqi-dot"></span>
+        <span id="aqInfo"></span>
+      </div>
+
+      <div class="header__location">
+        Bangkok · UTC+7
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ================= DOCK WRAPPER ================= -->
+<div class="dock">
+  <nav class="dock__list">
+    <a href="https://youtube.com" class="dock__item" aria-label="YouTube">
+      <svg fill="currentColor" viewBox="0 -1 16 16">
+        <path d="M8.051 1.999h.089c.822.003 4.987.033 6.11.335a2.01 2.01 0 0 1 1.415 1.42c.101.38.172.883.22 1.402l.01.104.022.26.008.104c.065.914.073 1.77.074 1.957v.075c-.001.194-.01 1.108-.082 2.06l-.008.105-.009.104c-.05.572-.124 1.14-.235 1.558a2.01 2.01 0 0 1-1.415 1.42c-1.16.312-5.569.334-6.18.335h-.142c-.309 0-1.587-.006-2.927-.052l-.17-.006-.087-.004-.171-.007-.171-.007c-1.11-.049-2.167-.128-2.654-.26a2.01 2.01 0 0 1-1.415-1.419c-.111-.417-.185-.986-.235-1.558L.09 9.82l-.008-.104A31 31 0 0 1 0 7.68v-.123c.002-.215.01-.958.064-1.778l.007-.103.003-.052.008-.104.022-.26.01-.104c.048-.519.119-1.023.22-1.402a2.01 2.01 0 0 1 1.415-1.42c.487-.13 1.544-.21 2.654-.26l.17-.007.172-.006.086-.003.171-.007A100 100 0 0 1 7.858 2zM6.4 5.209v4.818l4.157-2.408z"/>
+      </svg>
+    </a>
+
+    <a href="https://reddit.com" class="dock__item" aria-label="Reddit">
+      <svg fill="currentColor" viewBox="0 0 16 16">
+        <path d="M6.167 8a.83.83 0 0 0-.83.83c0 .459.372.84.83.831a.831.831 0 0 0 0-1.661m1.843 3.647c.315 0 1.403-.038 1.976-.611a.23.23 0 0 0 0-.306.213.213 0 0 0-.306 0c-.353.363-1.126.487-1.67.487-.545 0-1.308-.124-1.671-.487a.213.213 0 0 0-.306 0 .213.213 0 0 0 0 .306c.564.563 1.652.61 1.977.61zm.992-2.807c0 .458.373.83.831.83s.83-.381.83-.83a.831.831 0 0 0-1.66 0z"/>
+        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.828-1.165c-.315 0-.602.124-.812.325-.801-.573-1.9-.945-3.121-.993l.534-2.501 1.738.372a.83.83 0 1 0 .83-.869.83.83 0 0 0-.744.468l-1.938-.41a.2.2 0 0 0-.153.028.2.2 0 0 0-.086.134l-.592 2.788c-1.24.038-2.358.41-3.17.992-.21-.2-.496-.324-.81-.324a1.163 1.163 0 0 0-.478 2.224q-.03.17-.029.353c0 1.795 2.091 3.256 4.669 3.256s4.668-1.451 4.668-3.256c0-.114-.01-.238-.029-.353.401-.181.688-.592.688-1.069 0-.65-.525-1.165-1.165-1.165"/>
+      </svg>
+    </a>
+
+    <a href="https://spotify.com" class="dock__item" aria-label="Spotify">
+      <svg fill="currentColor" viewBox="0 0 16 16">
+        <path d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0m3.669 11.538a.5.5 0 0 1-.686.165c-1.879-1.147-4.243-1.407-7.028-.77a.499.499 0 0 1-.222-.973c3.048-.696 5.662-.397 7.77.892a.5.5 0 0 1 .166.686m.979-2.178a.624.624 0 0 1-.858.205c-2.15-1.321-5.428-1.704-7.972-.932a.625.625 0 0 1-.362-1.194c2.905-.881 6.517-.454 8.986 1.063a.624.624 0 0 1 .206.858m.084-2.268C10.154 5.56 5.9 5.419 3.438 6.166a.748.748 0 1 1-.434-1.432c2.825-.857 7.523-.692 10.492 1.07a.747.747 0 1 1-.764 1.288"/>
+      </svg>
+    </a>
+
+    <a href="https://www.twitch.tv/laneige/videos" class="dock__item" aria-label="Twitch (Laneige)">
+      <svg fill="currentColor" viewBox="0 0 16 16">
+        <path d="M3.857 0 1 2.857v10.286h3.429V16l2.857-2.857H9.57L14.714 8V0zm9.714 7.429-2.285 2.285H9l-2 2v-2H4.429V1.143h9.142z"/>
+        <path d="M11.857 3.143h-1.143V6.57h1.143zm-3.143 0H7.571V6.57h1.143z"/>
+      </svg>
+    </a>
+
+    <a href="https://gmail.com" class="dock__item" aria-label="Gmail">
+      <svg fill="currentColor" viewBox="0 0 32 32">
+        <path d="M30.996 7.824v17.381c0 0 0 0 0 0.001 0 1.129-0.915 2.044-2.044 2.044-0 0-0 0-0.001 0h-4.772v-11.587l-8.179 6.136-8.179-6.136v11.588h-4.772c0 0 0 0-0 0-1.129 0-2.044-0.915-2.044-2.044 0-0 0-0.001 0-0.001v0-17.381c0-0 0-0.001 0-0.001 0-1.694 1.373-3.067 3.067-3.067 0.694 0 1.334 0.231 1.848 0.619l-0.008-0.006 10.088 7.567 10.088-7.567c0.506-0.383 1.146-0.613 1.84-0.613 1.694 0 3.067 1.373 3.067 3.067v0z"/>
+      </svg>
+    </a>
+
+    <a href="https://drive.google.com" class="dock__item" aria-label="Google Drive">
+      <svg fill="currentColor" viewBox="0 0 28 28">
+        <path xmlns="http://www.w3.org/2000/svg" d="m9.375 0h8.678l8.735 15.165h-8.628zm1.446 16.393h16.607l-4.339 7.607h-16.607zm-2.571-14.519 4.446 7.607-8.357 14.519-4.339-7.608z"/>
+      </svg>
+    </a>
+
+    <a href="https://outlook.live.com" class="dock__item" aria-label="Outlook Mail">
+      <svg fill="currentColor" viewBox="0 2 50 50">
+        <path d="M 25.505859 4.0253906 C 24.180859 4.0266406 22.854219 4.4051563 21.699219 5.1601562 L 6.5 15.019531 C 5.57 15.619531 5 16.659531 5 17.769531 L 5 18.810547 C 5 18.870547 4.9997656 18.94 5.0097656 19 L 13.849609 19 L 29.230469 9.2304688 C 29.920469 8.7904688 30.329141 8.0697656 30.369141 7.2597656 C 30.399141 6.4597656 30.059687 5.7204688 29.429688 5.2304688 L 29.410156 5.2109375 L 29.310547 5.1503906 C 28.155547 4.4003906 26.830859 4.0241406 25.505859 4.0253906 z M 32.359375 7.1308594 L 32.359375 7.3496094 C 32.299375 8.8196094 31.550781 10.120156 30.300781 10.910156 L 17.160156 19.259766 C 19.360156 19.949766 20.98 22.019219 21 24.449219 L 37.140625 14.220703 C 37.850625 13.770703 38.25 13.039219 38.25 12.199219 C 38.25 11.499219 37.959219 10.869687 37.449219 10.429688 L 32.359375 7.1308594 z M 40.25 12.25 C 40.23 13.74 39.480938 15.110156 38.210938 15.910156 L 21 26.820312 L 21 30.210938 L 24.669922 32.519531 L 44.880859 19.839844 C 45.580859 19.399844 46 18.650078 46 17.830078 L 46 17.769531 C 46 16.649531 45.44 15.609766 44.5 15.009766 L 40.25 12.25 z M 4.5 21 C 2.567 21 1 22.567 1 24.5 L 1 35.5 C 1 37.433 2.567 39 4.5 39 L 15.5 39 C 17.433 39 19 37.433 19 35.5 L 19 24.5 C 19 22.567 17.433 21 15.5 21 L 4.5 21 z M 46 21.5 C 45.98 21.51 45.969219 21.519297 45.949219 21.529297 L 26.550781 33.710938 L 30.980469 36.5 C 32.640469 37.55 33.630859 39.350547 33.630859 41.310547 C 33.630859 42.720547 33.119531 44.01 32.269531 45 L 40 45 C 43.31 45 46 42.31 46 39 L 46 21.5 z M 10.115234 24.798828 C 11.561234 24.798828 12.738484 25.270937 13.646484 26.210938 C 14.558484 27.151937 15.013672 28.390687 15.013672 29.929688 C 15.013672 31.510687 14.542656 32.785906 13.597656 33.753906 C 12.657656 34.717906 11.443078 35.199219 9.9550781 35.199219 C 8.5040781 35.199219 7.3128125 34.732875 6.3828125 33.796875 C 5.4518125 32.860875 4.9863281 31.638813 4.9863281 30.132812 C 4.9863281 28.541813 5.4592969 27.255437 6.4042969 26.273438 C 7.3492969 25.290437 8.5852344 24.798828 10.115234 24.798828 z M 10.052734 26.779297 C 9.2477344 26.779297 8.600375 27.075922 8.109375 27.669922 C 7.618375 28.258922 7.3710937 29.040672 7.3710938 30.013672 C 7.3710937 31.000672 7.618375 31.782422 8.109375 32.357422 C 8.600375 32.928422 9.2290937 33.214844 9.9960938 33.214844 C 10.787094 33.214844 11.42425 32.934906 11.90625 32.378906 C 12.38825 31.821906 12.628906 31.048641 12.628906 30.056641 C 12.628906 29.022641 12.395734 28.218578 11.927734 27.642578 C 11.459734 27.067578 10.834734 26.779297 10.052734 26.779297 z M 21 32.570312 L 21 35.5 C 21 38.53 18.53 41 15.5 41 L 5.3808594 41 C 6.2408594 43.34 8.4891406 45 11.119141 45 L 27.949219 45 C 28.919219 45 29.800937 44.62 30.460938 44 C 31.180938 43.33 31.630859 42.370547 31.630859 41.310547 C 31.630859 40.040547 30.990156 38.869453 29.910156 38.189453 L 24.669922 34.890625 L 22.140625 33.289062 L 21 32.570312 z"></path>
+      </svg>
+    </a>
+  </nav>
+
+  <div class="dock__tooltip" id="dockTooltip"></div>
+</div>
+
+<!-- ===== GOOGLE SEARCH BAR ===== -->
+
+<div class="search">
+  <form action="https://www.google.com/search" method="GET" id="search-form" class="search__form">
+    <div class="search__input-row">
+      <input type="text" name="q" placeholder="Search Google" class="search__input" autocomplete="off" required>
+      <!-- &udm=14 FEATURE -->
+      <input type="hidden" name="udm" id="udm-param" value="14">
+      <button type="submit">Search</button>
+    </div>
+
+    <div class="search__toggle-row">
+      <span class="toggle-label">Web Results Only</span>
+        <label class="search__toggle">
+          <input type="checkbox" id="udm-toggle" checked>
+          <span class="search__toggle-track"></span>
+        </label>
+    </div>
+  </form>
+</div>
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <main class="container">
+
+
+    <!-- ================= MEDIA AUTOMATION ================= -->
+    <section class="section">
+      <h2>Media Automation</h2>
+      <div class="card-grid">
+
+        <!-- qBittorrent -->
+        <a class="card" href="http://192.168.1.41:8888">
+        <svg class="card__icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M11.911 23.994c-1.31 0-2.605-.232-3.831-.705-3.4-1.024-6.2-3.865-7.433-7.58-1.23-3.708-.685-7.654 1.459-10.554C4.062 2.038 7.677.094 11.742.008c4.064-.079 7.758 1.703 9.882 4.785a12.066 12.066 0 0 1 2.369 7.145c.138 3.733-1.75 7.368-5.052 9.728-2.147 1.535-4.61 2.328-7.03 2.328zm.11-22.314c-.081 0-.162 0-.244.002-3.5.074-6.599 1.725-8.29 4.415-1.856 2.516-2.31 5.893-1.25 9.086 1.06 3.197 3.448 5.636 6.386 6.523 3.025 1.165 6.496.633 9.345-1.402 2.847-2.035 4.473-5.144 4.351-8.318v-.032c0-2.214-.73-4.41-2.055-6.185-1.78-2.58-4.84-4.09-8.243-4.09zM9.406 20.246v-4.578a2.663 2.663 0 0 1-.952.863 2.573 2.573 0 0 1-1.29.344c-1.016 0-1.893-.444-2.63-1.33-.731-.887-1.097-2.102-1.097-3.646 0-.939.148-1.781.444-2.527.301-.746.734-1.309 1.299-1.69A3.26 3.26 0 0 1 7.052 7.1c1.058 0 1.891.487 2.5 1.46v-1.25h1.306v12.935H9.406zm-4.477-8.285c0 1.203.232 2.108.694 2.711.463.6 1.016.9 1.662.9.619 0 1.15-.286 1.597-.855.446-.576.67-1.447.67-2.615 0-1.245-.237-2.18-.71-2.81-.468-.627-1.02-.941-1.654-.941-.63 0-1.164.293-1.605.88-.435.581-.654 1.491-.654 2.73m9.55 4.702h-1.346V3.755h1.452v4.604c.613-.84 1.395-1.258 2.347-1.258.526 0 1.024.117 1.492.351.464.222.864.558 1.161.978.307.416.546.922.718 1.514.172.593.258 1.227.258 1.902 0 1.603-.363 2.841-1.088 3.716-.727.874-1.598 1.312-2.614 1.312-1.011 0-1.804-.46-2.379-1.382v1.17m-.016-4.746c0 1.122.14 1.932.42 2.432.456.815 1.074 1.223 1.854 1.223.635 0 1.183-.3 1.646-.898.462-.604.693-1.503.693-2.695 0-1.22-.224-2.122-.67-2.703-.44-.58-.975-.872-1.605-.872-.634 0-1.182.303-1.645.907-.463.6-.694 1.468-.694 2.607"/>
+        </svg>
+
+          <span class="card__title">qBittorrent</span>
+          <span class="card__description">Torrent client</span>
+        </a>
+
+        <!-- Radarr -->
+        <a class="card" href="http://192.168.1.41:7878">
+        <svg class="card__icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M5.274 0C3.189.039 1.19 1.547 1.19 4.705l.184 14.518c0 1.47 1.103 2.205 2.573 2.021L3.764 3.786c0-1.654.919-1.838 2.022-1.103l14.7 8.27c1.103.734 1.655 1.47 1.838 2.756.92-1.654.552-4.043-1.286-5.33L7.991.846A4.559 4.559 0 0 0 5.274.001zm1.982 6.91-.184 10.107 9.004-5.146Zm13.598 6.064-15.068 8.82c-.92.552-2.022.736-3.124.368.918 1.47 3.307 2.389 5.145 1.47l12.68-7.35c1.102-.736 1.286-2.022.367-3.308z"/>
+        </svg>
+
+          <span class="card__title">Radarr</span>
+          <span class="card__description">Movie automation</span>
+        </a>
+
+        <!-- Sonarr -->
+        <a class="card" href="http://192.168.1.41:8989">
+        <svg class="card__icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M21.212 4.282c1.851 2.204 2.777 4.776 2.777 7.718 0 2.848-.867 5.344-2.602 7.489a934.355 934.355 0 0 1-2.101-2.095c-1.477-1.477-1.792-3.293-1.792-5.278 0-2.224.127-3.486 1.577-4.935l2.478-2.478a13.209 13.209 0 0 0-.337-.421Zm-17.7 16.193C1.708 18.678.6 16.59.188 14.213A11.84 11.84 0 0 1 .011 12c0-.28.006-.548.017-.802 0-.026.007-.052.022-.078.153-2.601 1.076-4.889 2.767-6.865-.108.127-.214.256-.316.387 0 0 1.351 1.346 2.329 2.323 1.408 1.409 1.726 3.215 1.726 5.151 0 1.985-.249 3.762-1.781 5.295-1.035 1.035-2.119 2.124-2.119 2.124.112.136.229.271.349.404.029-.027 1.297-1.348 2.123-2.175 1.638-1.637 1.928-3.528 1.928-5.648 0-2.072-.365-3.997-1.873-5.504a620.045 620.045 0 0 0-2.366-2.357c.168-.196.342-.388.523-.576l3.117 3.106-.194.195 1.903 1.898.547-.549L6.81 6.432l-.196.196L3.495 3.52c.01-.009.436-.416.643-.597.009.011 2.28 2.283 2.28 2.283 1.538 1.537 3.5 1.955 5.621 1.955 2.18 0 4.134-.442 5.731-2.038.907-.908 2.153-2.149 2.162-2.16.17.151.491.461.56.528l.013.013-3.111 3.028-.001.002-.197-.194-1.876 1.903.552.543 1.875-1.903-.197-.194 3.109-3.026c.193.203.377.41.553.619-.03.025-2.495 2.546-2.495 2.546-1.556 1.556-1.723 2.9-1.723 5.288 0 2.121.361 4.054 1.939 5.632a576.91 576.91 0 0 0 2.133 2.124c-.183.208-.599.645-.613.66l-3.066-3.174.195-.196-1.995-1.986-.546.549 1.995 1.986.195-.196 3.065 3.172c-.021.019-.385.362-.552.506-.01-.013-1.974-1.978-1.974-1.978-1.842-1.842-3.299-2.039-5.731-2.039-2.338 0-3.92.239-5.632 1.95-.944.944-2.078 2.085-2.089 2.099-.275-.23-.649-.594-.649-.594l3.019-3.024.199.192 1.854-1.925-.558-.538-1.854 1.926.199.191-3.016 3.022ZM12 8.672A3.33 3.33 0 0 0 8.672 12 3.33 3.33 0 0 0 12 15.328 3.33 3.33 0 0 0 15.328 12 3.33 3.33 0 0 0 12 8.672ZM4.52 2.6C6.665.867 9.162 0 12.011 0c2.88 0 5.394.88 7.541 2.639 0 0-1.215 1.209-2.136 2.13-1.496 1.496-3.334 1.892-5.377 1.892-1.985 0-3.829-.37-5.267-1.809L4.52 2.6Zm14.837 18.909a9.507 9.507 0 0 1-.342.256C16.994 23.255 14.659 24 12.011 24c-2.652 0-4.983-.745-6.993-2.235-.104-.074-.208-.15-.31-.227 0 0 1.096-1.101 2.053-2.058 1.602-1.602 3.09-1.804 5.278-1.804 2.28 0 3.651.166 5.377 1.892l1.941 1.941Z"/>
+        </svg>
+
+          <span class="card__title">Sonarr</span>
+          <span class="card__description">TV automation</span>
+        </a>
+
+        <!-- Prowlarr -->
+        <a class="card" href="http://192.168.1.41:9696">
+        <svg class="card__icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 2c5.523 0 10 4.477 10 10a10 10 0 0 1 -20 0l.004 -.28c.148 -5.393 4.566 -9.72 9.996 -9.72m1.334 5h-3.334a1 1 0 0 0 -1 1v8a1 1 0 0 0 1 1l.117 -.007a1 1 0 0 0 .883 -.993v-3h2.334c1.516 0 2.666 -1.38 2.666 -3s-1.15 -3 -2.666 -3m0 2c.323 0 .666 .411 .666 1s-.343 1 -.666 1h-2.334v-2z" />
+        </svg>
+
+          <span class="card__title">Prowlarr</span>
+          <span class="card__description">Indexer manager</span>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- ================= MEDIA & PHOTOS ================= -->
+    <section class="section">
+    <h2>Media & Photos</h2>
+    <div class="card-grid">
+
+        <!-- Jellyfin -->
+        <a class="card" href="http://192.168.1.41:8096">
+        <svg class="card__icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 .002C8.826.002-1.398 18.537.16 21.666c1.56 3.129 22.14 3.094 23.682 0C25.384 18.573 15.177 0 12 0zm7.76 18.949c-1.008 2.028-14.493 2.05-15.514 0C3.224 16.9 9.92 4.755 12.003 4.755c2.081 0 8.77 12.166 7.759 14.196zM12 9.198c-1.054 0-4.446 6.15-3.93 7.189.518 1.04 7.348 1.027 7.86 0 .511-1.027-2.874-7.19-3.93-7.19z"/>
+        </svg>
+
+        <span class="card__title">Jellyfin</span>
+        <span class="card__description">Media streaming</span>
+        </a>
+
+
+        <!-- Immich -->
+        <a class="card" href="http://192.168.1.41:2283">
+        <svg class="card__icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M11.9863.2695c-2.409 0-5.207 1.091-5.207 3.8946v.1523c1.3428.597 2.9347 1.6629 4.4121 2.9707 1.5713 1.3912 2.8374 2.8821 3.6524 4.2871 1.3997-2.5034 2.3358-5.4784 2.3476-7.373V4.164c0-2.8035-2.796-3.8946-5.205-3.8946m7.5117 4.4903c-.3778-.0081-.7747.0502-1.1914.1855-.0366.0118-.086.0278-.1445.0469-.1525 1.4611-.6756 3.304-1.4629 5.1133-.8373 1.9243-1.8627 3.5898-2.9472 4.7988 2.8132.558 5.9307.5273 7.7363-.0469.0126-.004.0246-.0065.0351-.0097 2.6665-.8666 2.84-3.8636 2.0957-6.1543-.6279-1.9332-2.081-3.89-4.121-3.9336m-14.996.039C2.4618 4.8424 1.0088 6.7973.3809 8.7305c-.7442 2.291-.5708 5.288 2.0957 6.1543l.1445.0468c.982-1.0926 2.4873-2.2761 4.1875-3.2773 1.8088-1.0646 3.619-1.808 5.207-2.1484-1.9483-2.1049-4.4884-3.9132-6.287-4.5098l-.0352-.0117c-.4167-.1354-.8136-.1936-1.1914-.1856m4.6718 6.7578c-2.6038 1.2025-5.1088 3.0598-6.2324 4.586l-.0215.0293c-1.6478 2.2683-.0272 4.7953 1.9219 6.211 1.9487 1.4159 4.8518 2.1765 6.5-.0919.0228-.0309.0536-.071.0898-.121-.7356-1.2717-1.396-3.0718-1.8222-4.9981-.4534-2.0492-.6023-4-.4356-5.6153m1.0723 3.338c.3387 2.8478 1.3315 5.8037 2.4355 7.3437l.0215.0293c1.6478 2.2683 4.551 1.5078 6.5.0918 1.9487-1.416 3.5697-3.943 1.9219-6.211-.0228-.0309-.0517-.073-.0879-.123-1.4367.3066-3.3522.3794-5.3164.1894-2.089-.2017-3.9895-.6623-5.4746-1.3203"/>
+        </svg>
+
+        <span class="card__title">Immich</span>
+        <span class="card__description">Photo backup & gallery</span>
+        </a>
+
+    </div>
+    </section>
+
+    <!-- ================= NETWORK ================= -->
+    <section class="section">
+      <h2>Local Network</h2>
+      <div class="card-grid">
+
+        <!-- AdGuard Home -->
+        <a class="card" href="http://192.168.1.41:9080">
+        <svg class="card__icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 0C8.249 0 3.725.861 0 2.755 0 6.845-.051 17.037 12 24 24.051 17.037 24 6.845 24 2.755 20.275.861 15.751 0 12 0zm-.106 15.429L6.857 9.612c.331-.239 1.75-1.143 2.794.042l2.187 2.588c.009-.001 5.801-5.948 5.815-5.938.246-.22.694-.503 1.204-.101l-6.963 9.226z"/>
+        </svg>
+
+          <span class="card__title">AdGuard Home</span>
+          <span class="card__description">DNS & network filtering</span>
+        </a>
+
+        <!-- Tailscale -->
+        <a class="card" href="https://login.tailscale.com/admin/machines">
+        <svg class="card__icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M24 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0zm-9 9a3 3 0 1 1-6 0 3 3 0 0 1 6 0zm0-9a3 3 0 1 1-6 0 3 3 0 0 1 6 0zm6-6a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm0-.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zM3 24a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm0-.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zm18 .5a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm0-.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zM6 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0zm9-9a3 3 0 1 1-6 0 3 3 0 0 1 6 0zm-3 2.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zM6 3a3 3 0 1 1-6 0 3 3 0 0 1 6 0zM3 5.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"/>
+        </svg>
+
+          <span class="card__title">Tailscale</span>
+          <span class="card__description">Zero-trust mesh VPN</span>
+        </a>
+
+        <!-- Router -->
+        <a class="card" href="http://192.168.1.1">
+        <svg class="card__icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M3.67 6.14S1.82 7.91 1.72 9.78v.35c.08 1.51 1.22 2.4 1.22 2.4 1.83 1.79 6.26 4.04 7.3 4.55 0 0 .06.03.1-.01l.02-.04v-.04C7.52 10.8 3.67 6.14 3.67 6.14zM9.65 18.6c-.02-.08-.1-.08-.1-.08l-7.38.26c.8 1.43 2.15 2.53 3.56 2.2.96-.25 3.16-1.78 3.88-2.3.06-.05.04-.09.04-.09zm.08-.78C6.49 15.63.21 12.28.21 12.28c-.15.46-.2.9-.21 1.3v.07c0 1.07.4 1.82.4 1.82.8 1.69 2.34 2.2 2.34 2.2.7.3 1.4.31 1.4.31.12.02 4.4 0 5.54 0 .05 0 .08-.05.08-.05v-.06c0-.03-.03-.05-.03-.05zM9.06 3.19a3.42 3.42 0 00-2.57 3.15v.41c.03.6.16 1.05.16 1.05.66 2.9 3.86 7.65 4.55 8.65.05.05.1.03.1.03a.1.1 0 00.06-.1c1.06-10.6-1.11-13.42-1.11-13.42-.32.02-1.19.23-1.19.23zm8.299 2.27s-.49-1.8-2.44-2.28c0 0-.57-.14-1.17-.22 0 0-2.18 2.81-1.12 13.43.01.07.06.08.06.08.07.03.1-.03.1-.03.72-1.03 3.9-5.76 4.55-8.64 0 0 .36-1.4.02-2.34zm-2.92 13.07s-.07 0-.09.05c0 0-.01.07.03.1.7.51 2.85 2 3.88 2.3 0 0 .16.05.43.06h.14c.69-.02 1.9-.37 3-2.26l-7.4-.25zm7.83-8.41c.14-2.06-1.94-3.97-1.94-3.98 0 0-3.85 4.66-6.67 10.8 0 0-.03.08.02.13l.04.01h.06c1.06-.53 5.46-2.77 7.28-4.54 0 0 1.15-.93 1.21-2.42zm1.52 2.14s-6.28 3.37-9.52 5.55c0 0-.05.04-.03.11 0 0 .03.06.07.06 1.16 0 5.56 0 5.67-.02 0 0 .57-.02 1.27-.29 0 0 1.56-.5 2.37-2.27 0 0 .73-1.45.17-3.14z"/>
+        </svg>
+
+          <span class="card__title">Router Settings</span>
+          <span class="card__description">Network configuration</span>
+        </a>
+
+      </div>
+    </section>
+
+
+    <section class="section">
+      <h2>Website & CMS</h2>
+      <div class="card-grid">
+
+        <!-- Voiport -->
+        <a class="card" href="https://voidport.com">            
+        <svg class="card__icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M19 4a3 3 0 0 1 3 3v10a3 3 0 0 1 -3 3h-14a3 3 0 0 1 -3 -3v-10a3 3 0 0 1 3 -3zm-12.99 3l-.127 .007a1 1 0 0 0 .117 1.993l.127 -.007a1 1 0 0 0 -.117 -1.993zm3 0l-.127 .007a1 1 0 0 0 .117 1.993l.127 -.007a1 1 0 0 0 -.117 -1.993z" />
+        </svg>
+
+          <span class="card__title">Voidport</span>
+          <span class="card__description">Step into the void</span>
+        </a>
+
+        <!-- Voidport Ghost CMS -->
+        <a class="card" href="https://voidport.com/ghost">            
+        <svg class="card__icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm.256 2.313c2.47.005 5.116 2.008 5.898 2.962l.244.3c1.64 1.994 3.569 4.34 3.569 6.966 0 3.719-2.98 5.808-6.158 7.508-1.433.766-2.98 1.508-4.748 1.508-4.543 0-8.366-3.569-8.366-8.112 0-.706.17-1.425.342-2.15.122-.515.244-1.033.307-1.549.548-4.539 2.967-6.795 8.422-7.408a4.29 4.29 0 01.49-.026Z"/>
+        </svg>
+
+          <span class="card__title">Voidport Admin</span>
+          <span class="card__description">Ghost CMS Backend</span>
+        </a>
+
+        <!-- Porkbun -->
+        <a class="card" href="https://porkbun.com/">            
+        <svg class="card__icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 0C5.3708 0 .0176 5.3532.0176 11.9824.0176 18.6117 5.3708 24 12 24s11.9824-5.3532 11.9824-11.9824C23.9824 5.3883 18.6292 0 12 0ZM5.832 5.8848c1.0635.2481 2.092.6384 3.0137 1.1347-1.099.5318-1.9866 1.3824-2.6602 2.375-.4254-.5672-.6738-1.2767-.6738-2.0566 0-.5318.1076-.9923.3203-1.4531zm12.336 0c.2127.4254.3203.9213.3203 1.453 0 .78-.2484 1.4895-.6738 2.0567-.6736-.9926-1.5967-1.8432-2.6602-2.375a9.9821 9.9821 0 0 1 3.0137-1.1347zm-6.0723.8105c3.5286.0471 6.3547 2.9198 6.3203 6.457v3.8282c0 .638-.5318 1.1699-1.17 1.1699-.638 0-1.1698-.5318-1.1698-1.17v-.957H7.8516v.957c0 .6382-.5319 1.17-1.17 1.17-.638 0-1.1699-.5318-1.1699-1.17v-3.6503c0-3.5096 2.7307-6.489 6.2403-6.6309.1152-.0044.2299-.0054.3437-.0039zm1.5 3.7988c-.4963 0-.9219.4256-.9219.922 0 .248.0711.4242.213.6015.1417.2127.3536.3546.5663.461-.1418.0708-.3188.1425-.496.1425-.2128 0-.3907.176-.3907.3887s.178.3906.3906.3906h.1778c.6026 0 1.1346-.3553 1.3828-.8516.39-.1418.7092-.3896.9219-.7441.0709-.1064.0337-.2484-.0372-.2129-.1063-.0355-.2123-.034-.2832.0723-.1063.1418-.2485.2826-.4257.3535v-.1426c0-.39-.1409-.7086-.3536-.9922-.1772-.2481-.425-.3887-.7441-.3887zm0 .5313c.2127 0 .3532.1408.3887.3535v.1777c0 .1773-.0346.3543-.1055.4961-.2481-.0709-.4617-.213-.6035-.4257-.0355-.071-.0703-.14-.0703-.211 0-.2392.2063-.3906.3906-.3906z"/>
+        </svg>
+
+          <span class="card__title">Porkbun</span>
+          <span class="card__description">Domain name registrar</span>
+        </a>
+
+        <!-- Cloudflare Dashboard -->
+        <a class="card" href="https://dash.cloudflare.com/7ff2bf5321140f060ccd5b00b8ac4073/home/domains">            
+        <svg class="card__icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M16.5088 16.8447c.1475-.5068.0908-.9707-.1553-1.3154-.2246-.3164-.6045-.499-1.0615-.5205l-8.6592-.1123a.1559.1559 0 0 1-.1333-.0713c-.0283-.042-.0351-.0986-.021-.1553.0278-.084.1123-.1484.2036-.1562l8.7359-.1123c1.0351-.0489 2.1601-.8868 2.5537-1.9136l.499-1.3013c.0215-.0561.0293-.1128.0147-.168-.5625-2.5463-2.835-4.4453-5.5499-4.4453-2.5039 0-4.6284 1.6177-5.3876 3.8614-.4927-.3658-1.1187-.5625-1.794-.499-1.2026.119-2.1665 1.083-2.2861 2.2856-.0283.31-.0069.6128.0635.894C1.5683 13.171 0 14.7754 0 16.752c0 .1748.0142.3515.0352.5273.0141.083.0844.1475.1689.1475h15.9814c.0909 0 .1758-.0645.2032-.1553l.12-.4268zm2.7568-5.5634c-.0771 0-.1611 0-.2383.0112-.0566 0-.1054.0415-.127.0976l-.3378 1.1744c-.1475.5068-.0918.9707.1543 1.3164.2256.3164.6055.498 1.0625.5195l1.8437.1133c.0557 0 .1055.0263.1329.0703.0283.043.0351.1074.0214.1562-.0283.084-.1132.1485-.204.1553l-1.921.1123c-1.041.0488-2.1582.8867-2.5527 1.914l-.1406.3585c-.0283.0713.0215.1416.0986.1416h6.5977c.0771 0 .1474-.0489.169-.126.1122-.4082.1757-.837.1757-1.2803 0-2.6025-2.125-4.727-4.7344-4.727"/>
+        </svg>
+
+          <span class="card__title">Cloudflare</span>
+          <span class="card__description">It's Cloudflare, dude</span>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- ================= UTILITY BAR ================= -->
+    <section class="section utilities-section">
+
+      <div class="utilities__header">
+        <h2>Utilities</h2>
+        <button class="utilities__toggle">+</button>
+      </div>
+
+      <div class="utilities__grid utilities__content">
+            <a href="http://192.168.1.41:1111" class="utilities__card">1111</a>
+            <a href="https://test1.com" class="utilities__card">EHT</a>
+            <a href="https://test2.cc" class="utilities__card">fpxcc</a>
+            <a href="https://test3.org" class="utilities__card">PHP</a>
+            <a href="#" class="utilities__card">Grafana</a>
+        </div>
+
+    </section>
+    
+    <!-- ════ FLOATING GEAR ════ -->
+    <button class="settings-trigger" id="settingsTrigger" aria-label="Open settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+      </svg>
+    </button>
+
+
+    <!-- ════ SETTINGS PANEL ════ -->
+    <div class="settings-panel" id="settingsPanel">
+
+      <div class="settings-panel__header">Control Panel</div>
+
+      <!-- Theme colour -->
+      <div class="settings-section">
+        <div class="settings-section__label">Theme</div>
+        <div class="swatch-row">
+          <button class="theme__swatch" data-theme="violet" aria-label="Violet"></button>
+          <button class="theme__swatch" data-theme="blue"   aria-label="Blue"></button>
+          <button class="theme__swatch" data-theme="pink"   aria-label="Pink"></button>
+          <button class="theme__swatch" data-theme="green"  aria-label="Green"></button>
+          <span class="swatch-name" id="swatchName"></span>
+        </div>
+      </div>
+
+      <!-- Placeholder slots for future features -->
+      <div class="settings-section">
+        <div class="settings-section__label">Display</div>
+        <div class="placeholder-row">Compact mode <span class="placeholder-pill">soon</span></div>
+        <div class="placeholder-row">Show clock <span class="placeholder-pill">soon</span></div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-section__label">Widgets</div>
+        <div class="placeholder-row">AQI display <span class="placeholder-pill">soon</span></div>
+        <div class="placeholder-row">Search engine <span class="placeholder-pill">soon</span></div>
+      </div>
+
+    </div>
+
+
+  </main>
+
+
+
+  <script>
+  // ---------------- CLOCK ----------------
+  const clockEl = document.getElementById("clockDate");
+
+  function updateHeaderClock() {
+    const now = new Date();
+    const d = now.toLocaleDateString(undefined, {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric'
+    });
+    const t = now.toLocaleTimeString(undefined, { hour12: false });
+
+    if (clockEl) {
+      clockEl.textContent = `${t} · ${d}`;
+    }
+  }
+
+  setInterval(updateHeaderClock, 1000);
+  updateHeaderClock();
+
+  // ---------------- AIR QUALITY ----------------
+  const aqInfoEl = document.getElementById("aqInfo");
+  const aqDotEl = document.querySelector(".header__aqi-dot");
+
+  const AQ_API_KEY = "fabb6590a3806d81a10b1d769535578b363c77ba";
+  const CITY_NAME = "Bangkok";
+  const AQ_URL = `https://api.waqi.info/feed/${CITY_NAME}/?token=${AQ_API_KEY}`;
+
+  function getAQColor(aqi) {
+    if (aqi <= 50) return "#22c55e";
+    if (aqi <= 100) return "#eab308";
+    if (aqi <= 150) return "#f97316";
+    if (aqi <= 200) return "#ef4444";
+    return "#a855f7";
+  }
+
+  fetch(AQ_URL)
+    .then(res => res.json())
+    .then(data => {
+      if (data.status === "ok") {
+        const aqi = data.data.aqi;
+        const pm25 = data.data.iaqi?.pm25?.v ?? "N/A";
+
+        if (aqInfoEl) {
+          aqInfoEl.textContent = `AQI ${aqi} · PM2.5 ${pm25}`;
+        }
+
+        if (aqDotEl) {
+          aqDotEl.style.background = getAQColor(aqi);
+        }
+      }
+    });
+
+  // ---------------- &udm=14 TOGGLE ----------------
+  const udmToggle = document.getElementById('udm-toggle');
+  const udmParam = document.getElementById('udm-param');
+
+  udmToggle.addEventListener('change', function() {
+    // If checked (on), set value to 14. If unchecked (off), clear it.
+    udmParam.value = this.checked ? "14" : "";
+  });
+  
+  // ---------------- DOCK TOOLTIP ----------------
+  const tooltip = document.getElementById("dockTooltip");
+  const dockItems = document.querySelectorAll(".dock__item");
+
+  if (tooltip && dockItems.length) {
+    dockItems.forEach(item => {
+      item.addEventListener("mouseenter", () => {
+        tooltip.textContent = item.getAttribute("aria-label");
+        tooltip.classList.add("dock__tooltip--visible");
+      });
+
+      item.addEventListener("mouseleave", () => {
+        tooltip.classList.remove("dock__tooltip--visible");
+      });
+    });
+  }
+
+  // ---------------- UTILITIES TOGGLE ----------------
+  const utilitiesToggle = document.querySelector(".utilities__toggle");
+  const content = document.querySelector(".utilities__content");
+
+  if (utilitiesToggle && content) {
+    utilitiesToggle.addEventListener("click", () => {
+      content.classList.toggle("expanded");
+      utilitiesToggle.textContent = content.classList.contains("expanded") ? "−" : "+";
+    });
+  }
+
+  // ---------------- SETTINGS PANEL ----------------
+  const settingsTrigger = document.getElementById("settingsTrigger");
+  const settingsPanel   = document.getElementById("settingsPanel");
+
+  if (settingsTrigger && settingsPanel) {
+    settingsTrigger.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const isOpen = settingsPanel.classList.toggle("open");
+      settingsTrigger.classList.toggle("open", isOpen);
+      settingsTrigger.setAttribute("aria-expanded", isOpen);
+    });
+
+    // Close on outside click
+    document.addEventListener("click", (e) => {
+      if (!settingsPanel.contains(e.target) && e.target !== settingsTrigger) {
+        settingsPanel.classList.remove("open");
+        settingsTrigger.classList.remove("open");
+        settingsTrigger.setAttribute("aria-expanded", false);
+      }
+    });
+
+    // Close on Escape
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        settingsPanel.classList.remove("open");
+        settingsTrigger.classList.remove("open");
+        settingsTrigger.setAttribute("aria-expanded", false);
+      }
+    });
+  }
+
+  // ---------------- THEME SELECTOR/LOCALSTORAGE ----------------
+  const swatches = document.querySelectorAll(".theme__swatch[data-theme]");
+
+  function applyTheme(theme) {
+    document.body.dataset.theme = theme;
+    swatches.forEach(s => s.classList.toggle("active", s.dataset.theme === theme));
+    localStorage.setItem("theme", theme);
+    const nameEl = document.getElementById("swatchName");
+    if (nameEl) nameEl.textContent = theme.charAt(0).toUpperCase() + theme.slice(1);
+
+    //Change color names here
+    const themeNames = {
+      violet: "Voidbase Violet",
+      blue:   "Arctic Blue",
+      pink:   "Montepulciano",
+      green:  "Jade Dragon"
+    };
+
+    if (nameEl) nameEl.textContent = themeNames[theme] ?? theme;
+  }
+
+  swatches.forEach(btn => btn.addEventListener("click", () => applyTheme(btn.dataset.theme)));
+
+  // Load saved theme (default: violet)
+  applyTheme(localStorage.getItem("theme") || "violet");
+  
+  </script>
+
+</body>
+</html>
