@@ -13,6 +13,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/uplot/dist/uPlot.min.css">
+  <script src="https://unpkg.com/uplot/dist/uPlot.iife.min.js"></script>
 </head>
 
 <body>
@@ -114,6 +116,25 @@
   <!-- ===== MAIN CONTENT ===== -->
   <main class="container">
 
+    <!-- ================= STOCKS ================= -->
+    <section class="section stocks">
+      <div class="stocks">
+        <div class="stocks__header">
+          <h2>Markets</h2>
+            <div class="stocks__controls">
+              <div class="stocks__ranges">
+                <button class="stocks__range" data-range="1d">1D</button>
+                <button class="stocks__range active" data-range="1mo">1M</button>
+                <button class="stocks__range" data-range="6mo">6M</button>
+                <button class="stocks__range" data-range="1y">1Y</button>
+              </div>
+            </div>
+        </div>
+
+        <div class="stocks__grid" id="stocksGrid"></div>
+        
+      </div>
+    </section>
 
     <!-- ================= MEDIA AUTOMATION ================= -->
     <section class="section">
@@ -433,6 +454,246 @@
     });
   }
 
+  // ---------------- STOCKS ----------------
+  const rangeButtons   = document.querySelectorAll(".stocks__range");
+  const stocksGrid     = document.getElementById("stocksGrid");
+  const DEFAULT_SYMBOLS = ["AAPL", "NVDA", "QQQ"];
+
+  let currentRange  = localStorage.getItem("stocksRange")   || "1mo";
+  let symbols       = JSON.parse(localStorage.getItem("stocksSymbols") || "null") || DEFAULT_SYMBOLS;
+  let refreshTimer  = null;
+  const chartInstances = new Map();
+
+  // ── Card factory ──────────────────────────────────────────────────────
+  function createCard(symbol) {
+    const card = document.createElement("div");
+    card.className      = "stocks__card";
+    card.dataset.symbol = symbol;
+    card.innerHTML = `
+      <div class="stocks__chart"></div>
+      <div class="stocks__overlay">
+        <div class="stocks__overlay-top">
+          <span class="stocks__symbol">${symbol}</span>
+          <button class="stocks__edit" aria-label="Edit symbol">
+            <svg width="26" height="26" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" data-iconid="376875" data-svgname="Edit pen 2"><path fill="currentColor" fill-rule="evenodd" d="M15.586 3a2 2 0 0 1 2.828 0L21 5.586a2 2 0 0 1 0 2.828L19.414 10 14 4.586 15.586 3zm-3 3-9 9A2 2 0 0 0 3 16.414V19a2 2 0 0 0 2 2h2.586A2 2 0 0 0 9 20.414l9-9L12.586 6z" clip-rule="evenodd"></path></svg>
+          </button>
+        </div>
+        <div class="stocks__overlay-bottom">
+          <span class="stocks__price">—</span>
+          <span class="stocks__delta"></span>
+        </div>
+      </div>`;
+
+    const editBtn = card.querySelector(".stocks__edit");
+
+    editBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      // Always query live — symbolEl is replaced on each edit
+      const symbolEl = card.querySelector(".stocks__symbol");
+      if (!symbolEl) return;
+      const input    = document.createElement("input");
+      input.type      = "text";
+      input.value     = card.dataset.symbol;
+      input.className = "stocks__symbol-input";
+      input.maxLength = 10;
+      symbolEl.replaceWith(input);
+      editBtn.style.display = "none";
+      input.focus();
+      input.select();
+
+      let committed = false;
+      function commit() {
+        if (committed) return;
+        committed = true;
+        const newSymbol = input.value.trim().toUpperCase();
+        if (newSymbol && newSymbol !== card.dataset.symbol) {
+          const idx = symbols.indexOf(card.dataset.symbol);
+          if (idx !== -1) symbols[idx] = newSymbol;
+          localStorage.setItem("stocksSymbols", JSON.stringify(symbols));
+          card.dataset.symbol = newSymbol;
+          card.querySelector(".stocks__price").textContent = "—";
+          card.querySelector(".stocks__delta").textContent = "";
+          fetchCard(card);
+        }
+        const span       = document.createElement("span");
+        span.className   = "stocks__symbol";
+        span.textContent = card.dataset.symbol;
+        input.replaceWith(span);
+        editBtn.style.display = "";
+      }
+
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter")  commit();
+        if (e.key === "Escape") {
+          committed = true; // skip commit on blur
+          const span       = document.createElement("span");
+          span.className   = "stocks__symbol";
+          span.textContent = card.dataset.symbol;
+          input.replaceWith(span);
+          editBtn.style.display = "";
+        }
+      });
+      // Delay blur so edit button click can fire first before commit tears down the input
+      input.addEventListener("blur", () => setTimeout(commit, 150));
+    });
+
+    return card;
+  }
+
+  // ── Render grid from symbols array ───────────────────────────────────
+  function renderGrid() {
+    chartInstances.forEach(u => u.destroy());
+    chartInstances.clear();
+    stocksGrid.innerHTML = "";
+    symbols.forEach(sym => stocksGrid.appendChild(createCard(sym)));
+  }
+
+  // ── Fetch and render a single card ───────────────────────────────────
+  async function fetchCard(card) {
+    const symbol         = card.dataset.symbol;
+    const chartContainer = card.querySelector(".stocks__chart");
+    const priceEl        = card.querySelector(".stocks__price");
+    const deltaEl        = card.querySelector(".stocks__delta");
+
+    try {
+      const data   = await fetchSymbol(symbol);
+      const closes = data[1];
+      if (!closes || !closes.length) return;
+
+      const latest = closes[closes.length - 1];
+      const first  = closes[0];
+      const delta  = ((latest - first) / first) * 100;
+      const sign   = delta >= 0 ? "+" : "";
+
+      priceEl.textContent  = `$${latest.toFixed(2)}`;
+      deltaEl.textContent  = `${sign}${delta.toFixed(2)}%`;
+      deltaEl.dataset.sign = delta >= 0 ? "up" : "down";
+
+      if (chartInstances.has(card)) {
+        chartInstances.get(card).destroy();
+        chartInstances.delete(card);
+      }
+      if (card._resizeObserver) card._resizeObserver.disconnect();
+
+      chartContainer.innerHTML = "";
+      const uplot = createChart(chartContainer, data);
+      chartInstances.set(card, uplot);
+
+      // Reflow chart width when card resizes (e.g. window resize)
+      card._resizeObserver = new ResizeObserver(entries => {
+        const w = entries[0].contentRect.width;
+        if (w > 0) uplot.setSize({ width: w, height: 80 });
+      });
+      card._resizeObserver.observe(card);
+
+    } catch (err) {
+      console.error("Error fetching", symbol, err);
+    }
+  }
+
+  async function fetchSymbol(symbol) {
+    const response = await fetch(`/api/${symbol}?range=${currentRange}`);
+    const json = await response.json();
+
+    const result = json.chart.result[0];
+
+    const rawTimestamps = result.timestamp;
+    const rawCloses = result.indicators.quote[0].close;
+
+    const timestamps = [];
+    const closes = [];
+
+    for (let i = 0; i < rawTimestamps.length; i++) {
+      const close = rawCloses[i];
+      if (close != null && !isNaN(close)) {
+        timestamps.push(rawTimestamps[i]);
+        closes.push(close);
+      }
+    }
+
+    return [timestamps, closes];
+  }
+
+function createChart(container, data) {
+  const style       = getComputedStyle(document.body);
+  const accentColor = style.getPropertyValue('--accent').trim();
+  const borderColor = style.getPropertyValue('--border-color').trim();
+  const textColor   = style.getPropertyValue('--text-secondary').trim();
+
+  // Axis border line slightly brighter than the grid
+  const axisLineColor = 'oklch(1 0 0 / 0.15)';
+
+  const axisDefaults = {
+    stroke: textColor,
+    ticks:  { stroke: borderColor, width: 1, size: 4 },
+    grid:   { stroke: borderColor, width: 1 },
+    border: { stroke: axisLineColor, width: 1 },
+    font:   '11px Inter, sans-serif',
+  };
+
+  // Gradient fill: accent → transparent, top to bottom
+  function makeGradient(u) {
+    const ctx  = u.ctx;
+    const b    = u.bbox;
+    const grad = ctx.createLinearGradient(0, b.top, 0, b.top + b.height);
+    // Insert alpha into the oklch string: oklch(L C H) → oklch(L C H / A)
+    const withAlpha = (a) => accentColor.replace(/\)$/, ` / ${a})`);
+    grad.addColorStop(0,   withAlpha(0.28));
+    grad.addColorStop(1,   withAlpha(0));
+    return grad;
+  }
+
+  const options = {
+    width:   container.clientWidth,
+    height:  80,
+    padding: [0, 0, 0, 0],
+    scales:  { x: { time: true } },
+    axes:    [{ show: false }, { show: false }],
+    series: [
+      {},
+      {
+        stroke: accentColor,
+        width:  1.5,
+        points: { show: false },
+        fill:   makeGradient,
+      },
+    ],
+    legend: { show: false },
+  };
+
+  return new uPlot(options, data, container);
+}
+
+  async function fetchStocks() {
+    const cards = stocksGrid.querySelectorAll(".stocks__card");
+    for (const card of cards) await fetchCard(card);
+  }
+
+  rangeButtons.forEach(btn => {
+    btn.addEventListener("click", () => {
+      rangeButtons.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      currentRange = btn.dataset.range;
+      localStorage.setItem("stocksRange", currentRange);
+      fetchStocks();
+    });
+  });
+
+  // Auto-refresh every 60s, no toggle needed
+  function startAutoRefresh() {
+    clearInterval(refreshTimer);
+    refreshTimer = setInterval(fetchStocks, 60000);
+  }
+
+  (function init() {
+    rangeButtons.forEach(btn => {
+      btn.classList.toggle("active", btn.dataset.range === currentRange);
+    });
+    renderGrid();
+    fetchStocks();
+    startAutoRefresh();
+  })();
+
   // ---------------- SETTINGS PANEL ----------------
   const settingsTrigger = document.getElementById("settingsTrigger");
   const settingsPanel   = document.getElementById("settingsPanel");
@@ -467,27 +728,27 @@
   // ---------------- THEME SELECTOR/LOCALSTORAGE ----------------
   const swatches = document.querySelectorAll(".theme__swatch[data-theme]");
 
-  function applyTheme(theme) {
+  // Change display names here
+  const themeNames = {
+    violet: "Voidbase Violet",
+    blue:   "Arctic Blue",
+    pink:   "Montepulciano",
+    green:  "Jade Dragon"
+  };
+
+  function applyTheme(theme, redrawCharts = false) {
     document.body.dataset.theme = theme;
     swatches.forEach(s => s.classList.toggle("active", s.dataset.theme === theme));
     localStorage.setItem("theme", theme);
     const nameEl = document.getElementById("swatchName");
-    if (nameEl) nameEl.textContent = theme.charAt(0).toUpperCase() + theme.slice(1);
-
-    //Change color names here
-    const themeNames = {
-      violet: "Voidbase Violet",
-      blue:   "Arctic Blue",
-      pink:   "Montepulciano",
-      green:  "Jade Dragon"
-    };
-
     if (nameEl) nameEl.textContent = themeNames[theme] ?? theme;
+    // Redraw charts so the line color updates to the new accent
+    if (redrawCharts) fetchStocks();
   }
 
-  swatches.forEach(btn => btn.addEventListener("click", () => applyTheme(btn.dataset.theme)));
+  swatches.forEach(btn => btn.addEventListener("click", () => applyTheme(btn.dataset.theme, true)));
 
-  // Load saved theme (default: violet)
+  // Load saved theme on page load — charts will be drawn by fetchStocks() init
   applyTheme(localStorage.getItem("theme") || "violet");
   
   </script>

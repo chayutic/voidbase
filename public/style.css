@@ -535,11 +535,9 @@ input:checked + .search__toggle-track::before {
   all: unset;
   cursor: pointer;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 1.1em;
-  padding: 0 0.4em;
-  border-radius: 5px;
+  height: 1.2em;
+  padding: 0.1rem 0.45rem;
+  border-radius: 6px;
   border: 1px solid var(--border-color);
   background: var(--surface-glass);
   font-family: var(--font-title);
@@ -618,6 +616,179 @@ input:checked + .search__toggle-track::before {
   transform: scale(0.97);
 }
 
+
+/* ======================================================
+   7. STOCKS
+====================================================== */
+.stocks {
+  align-items: center;
+}
+
+.stocks__header {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  height: 1.85rem;
+}
+
+.stocks__controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  transform: translateY(-1px);
+}
+
+/* Range buttons */
+
+.stocks__ranges {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.stocks__range {
+  all: unset;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  /* border: 1px solid var(--border-color); */
+  /* background: var(--surface-glass); */
+  font-size: 0.65rem;
+  font-family: var(--font-title);
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition:
+    border-color var(--transition-normal),
+    background   var(--transition-normal),
+    color        var(--transition-normal);
+}
+
+.stocks__range:hover {
+  border-color: var(--border-hover);
+  color: var(--text-primary);
+}
+
+.stocks__range.active {
+  border-color: var(--accent);
+  color: var(--text-primary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--accent);
+}
+
+/* Grid — 180px min fits ~6 cards wide */
+
+.stocks__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: var(--gap);
+}
+
+/* Card — no padding, overflow hidden so chart bleeds to edges */
+.stocks__card {
+  position: relative;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+}
+
+/* Chart fills the card completely */
+.stocks__chart {
+  display: block;
+  height: 100px;
+}
+
+/* uPlot overrides */
+.stocks__chart .uplot,
+.stocks__chart .u-wrap,
+.stocks__chart canvas {
+  background: transparent !important;
+}
+
+/* Overlay sits on top of the chart */
+.stocks__overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 0.7rem 0.8rem;
+  pointer-events: none;
+}
+
+.stocks__overlay-top {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  pointer-events: auto;
+}
+
+.stocks__overlay-bottom {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.35rem;
+  pointer-events: none;
+}
+
+.stocks__symbol {
+  font-family: var(--font-title);
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  letter-spacing: 0.04em;
+  text-shadow: 0 1px 6px oklch(0 0 0 / 0.8);
+}
+
+.stocks__price {
+  font-family: var(--font-title);
+  font-size: 0.8rem;
+  color: var(--text-primary);
+  letter-spacing: 0.04em;
+  text-shadow: 0 1px 4px oklch(0 0 0 / 0.8);
+}
+
+.stocks__delta {
+  font-family: var(--font-title);
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+
+.stocks__delta[data-sign="up"]   { color: oklch(0.72 0.18 142); }
+.stocks__delta[data-sign="down"] { color: oklch(0.63 0.22 25);  }
+
+/* Edit button */
+.stocks__edit {
+  all: unset;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 12px;
+  height: 12px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  opacity: 0;
+  transition: opacity var(--transition-normal), color var(--transition-normal);
+  flex-shrink: 0;
+  pointer-events: auto;
+}
+
+.stocks__edit svg { width: 10px; height: 10px; }
+.stocks__card:hover .stocks__edit { opacity: 1; }
+.stocks__edit:hover { color: var(--text-primary); }
+
+.stocks__symbol-input {
+  all: unset;
+  font-family: var(--font-title);
+  font-weight: 700;
+  font-size: 0.85rem;
+  width: 6ch;
+  border-bottom: 1px solid var(--accent);
+  color: var(--text-primary);
+  text-transform: uppercase;
+  caret-color: var(--accent);
+}
 
 /* ════════════════════════════════════════════
    FLOATING GEAR BUTTON
