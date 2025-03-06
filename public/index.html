@@ -352,17 +352,48 @@
         </div>
       </div>
 
-      <!-- Placeholder slots for future features -->
+      <!-- Display section -->
       <div class="settings-section">
         <div class="settings-section__label">Display</div>
-        <div class="placeholder-row">Compact mode <span class="placeholder-pill">soon</span></div>
-        <div class="placeholder-row">Show clock <span class="placeholder-pill">soon</span></div>
+
+        <!-- Status info toggle -->     
+        <div class="settings-toggle-row">
+          <span>Status Info</span>
+          <label class="settings__toggle">
+            <input type="checkbox" id="statusInfoToggle" checked>
+            <span class="settings__toggle-track"></span>
+          </label>
+        </div>
+
+      <!-- Placeholder slot -->
+        <div class="placeholder-row">Light mode<span class="placeholder-pill">soon</span></div>
       </div>
 
+      <!-- Widgets section -->
       <div class="settings-section">
         <div class="settings-section__label">Widgets</div>
-        <div class="placeholder-row">AQI display <span class="placeholder-pill">soon</span></div>
-        <div class="placeholder-row">Search engine <span class="placeholder-pill">soon</span></div>
+
+        <!-- Status info toggle --> 
+        <div class="settings-toggle-row">
+          <span>Expanded Charts</span>
+          <label class="settings__toggle">
+            <input type="checkbox" id="expandedChartsToggle">
+            <span class="settings__toggle-track"></span>
+          </label>
+        </div>
+
+        <!-- Ticker count --> 
+        <div class="settings-toggle-row">
+          <span>Ticker Count</span>
+          <div class="settings__stepper">
+            <button id="tickerMinus">−</button>
+            <span id="tickerCount">6</span>
+            <button id="tickerPlus">+</button>
+          </div>
+        </div>
+
+        <!-- Placeholder slot -->
+        <div class="placeholder-row">Nuclear launch<span class="placeholder-pill">soon</span></div>
       </div>
 
     </div>
@@ -469,9 +500,11 @@
   const stocksGrid     = document.getElementById("stocksGrid");
   const DEFAULT_SYMBOLS = ["AAPL", "NVDA", "QQQ", "BTC-USD", "GLD", "^DJI"];
 
-  let currentRange  = localStorage.getItem("stocksRange")   || "1mo";
-  let symbols       = JSON.parse(localStorage.getItem("stocksSymbols") || "null") || DEFAULT_SYMBOLS;
-  let refreshTimer  = null;
+  let currentRange   = localStorage.getItem("stocksRange")   || "1mo";
+  let symbols        = JSON.parse(localStorage.getItem("stocksSymbols") || "null") || DEFAULT_SYMBOLS;
+  let expandedCharts = localStorage.getItem("expandedCharts") === "true";
+  let tickerCount    = parseInt(localStorage.getItem("tickerCount") || "6");
+  let refreshTimer   = null;
   const chartInstances = new Map();
 
   // ── Stocks widget card factory ──────────────────────────────────────────────────────
@@ -557,7 +590,8 @@
     chartInstances.forEach(u => u.destroy());
     chartInstances.clear();
     stocksGrid.innerHTML = "";
-    symbols.forEach(sym => stocksGrid.appendChild(createCard(sym)));
+    stocksGrid.classList.toggle("expanded-charts", expandedCharts);
+    symbols.slice(0, tickerCount).forEach(sym => stocksGrid.appendChild(createCard(sym)));
   }
 
   // ── Fetch and render a single card ───────────────────────────────────
@@ -594,7 +628,7 @@
       // Reflow chart width when card resizes (e.g. window resize)
       card._resizeObserver = new ResizeObserver(entries => {
         const w = entries[0].contentRect.width;
-        if (w > 0) uplot.setSize({ width: w, height: 80 });
+        if (w > 0) uplot.setSize({ width: w, height: expandedCharts ? 180 : 100 });
       });
       card._resizeObserver.observe(card);
 
@@ -626,55 +660,7 @@
     return [timestamps, closes];
   }
 
-function createChart(container, data) {
-  const style       = getComputedStyle(document.body);
-  const accentColor = style.getPropertyValue('--accent').trim();
-  const borderColor = style.getPropertyValue('--border-color').trim();
-  const textColor   = style.getPropertyValue('--text-secondary').trim();
-
-  // Axis border line slightly brighter than the grid
-  const axisLineColor = 'oklch(1 0 0 / 0.15)';
-
-  const axisDefaults = {
-    stroke: textColor,
-    ticks:  { stroke: borderColor, width: 1, size: 4 },
-    grid:   { stroke: borderColor, width: 1 },
-    border: { stroke: axisLineColor, width: 1 },
-    font:   '11px Geist, sans-serif',
-  };
-
-  // Gradient fill: accent → transparent, top to bottom
-  function makeGradient(u) {
-    const ctx  = u.ctx;
-    const b    = u.bbox;
-    const grad = ctx.createLinearGradient(0, b.top, 0, b.top + b.height);
-    // Insert alpha into the oklch string: oklch(L C H) → oklch(L C H / A)
-    const withAlpha = (a) => accentColor.replace(/\)$/, ` / ${a})`);
-    grad.addColorStop(0,   withAlpha(0.70));
-    grad.addColorStop(1,   withAlpha(0));
-    return grad;
-  }
-
-  const options = {
-    width:   container.clientWidth,
-    height:  80,
-    padding: [0, 0, 0, 0],
-    scales:  { x: { time: true } },
-    axes:    [{ show: false }, { show: false }],
-    series: [
-      {},
-      {
-        stroke: accentColor,
-        width:  1.5,
-        points: { show: false },
-        fill:   makeGradient,
-      },
-    ],
-    legend: { show: false },
-  };
-
-  return new uPlot(options, data, container);
-}
+  // createChart defined inside init() scope below so it can read expandedCharts + currentRange
 
   async function fetchStocks() {
     const cards = stocksGrid.querySelectorAll(".stocks__card");
@@ -701,10 +687,181 @@ function createChart(container, data) {
     rangeButtons.forEach(btn => {
       btn.classList.toggle("active", btn.dataset.range === currentRange);
     });
+
+    // ── Status Info toggle ──────────────────────────────────────────────
+    const statusToggleEl = document.getElementById("statusInfoToggle");
+    const headerMeta     = document.querySelector(".header__meta");
+    const headerSep      = document.querySelector(".header__separator");
+    const showStatus     = localStorage.getItem("statusInfo") !== "false";
+    function applyStatus(show) {
+      if (headerMeta) headerMeta.style.display = show ? "" : "none";
+      if (headerSep)  headerSep.style.display  = show ? "" : "none";
+    }
+    if (statusToggleEl) {
+      statusToggleEl.checked = showStatus;
+      applyStatus(showStatus);
+      statusToggleEl.addEventListener("change", () => {
+        const show = statusToggleEl.checked;
+        localStorage.setItem("statusInfo", show);
+        applyStatus(show);
+      });
+    }
+
+    // ── Expanded charts toggle ──────────────────────────────────────────
+    const expandedToggleEl = document.getElementById("expandedChartsToggle");
+    if (expandedToggleEl) {
+      expandedToggleEl.checked = expandedCharts;
+      expandedToggleEl.addEventListener("change", () => {
+        expandedCharts = expandedToggleEl.checked;
+        localStorage.setItem("expandedCharts", expandedCharts);
+        renderGrid();
+        fetchStocks();
+      });
+    }
+
+    // ── Ticker count stepper ────────────────────────────────────────────
+    const tickerCountEl = document.getElementById("tickerCount");
+    const tickerMinus   = document.getElementById("tickerMinus");
+    const tickerPlus    = document.getElementById("tickerPlus");
+    function applyTickerCount() {
+      if (tickerCountEl) tickerCountEl.textContent = tickerCount;
+      if (tickerMinus)   tickerMinus.disabled = tickerCount <= 1;
+      if (tickerPlus)    tickerPlus.disabled  = tickerCount >= DEFAULT_SYMBOLS.length;
+      renderGrid();
+      fetchStocks();
+    }
+    if (tickerMinus && tickerPlus) {
+      tickerCountEl.textContent = tickerCount;
+      tickerMinus.disabled = tickerCount <= 1;
+      tickerPlus.disabled  = tickerCount >= DEFAULT_SYMBOLS.length;
+      tickerMinus.addEventListener("click", () => {
+        if (tickerCount > 1) { tickerCount--; localStorage.setItem("tickerCount", tickerCount); applyTickerCount(); }
+      });
+      tickerPlus.addEventListener("click", () => {
+        if (tickerCount < DEFAULT_SYMBOLS.length) { tickerCount++; localStorage.setItem("tickerCount", tickerCount); applyTickerCount(); }
+      });
+    }
+
     renderGrid();
     fetchStocks();
     startAutoRefresh();
   })();
+
+  // ── Chart factory — inside IIFE scope to access expandedCharts + currentRange ──
+  function createChart(container, data) {
+    const style         = getComputedStyle(document.body);
+    const accentColor   = style.getPropertyValue('--accent').trim();
+    const borderColor   = style.getPropertyValue('--border-color').trim();
+    const textColor     = style.getPropertyValue('--text-secondary').trim();
+    const axisLineColor = 'oklch(1 0 0 / 0.15)';
+    const MONTHS        = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+    const axisDefaults = {
+      stroke: textColor,
+      ticks:  { stroke: borderColor, width: 1, size: 4 },
+      grid:   { stroke: borderColor, width: 1 },
+      border: { stroke: axisLineColor, width: 1 },
+      font:   '11px Geist, sans-serif',
+    };
+
+    function makeGradient(u) {
+      const ctx  = u.ctx;
+      const b    = u.bbox;
+      const grad = ctx.createLinearGradient(0, b.top, 0, b.top + b.height);
+      const withAlpha = (a) => accentColor.replace(/\)$/, ` / ${a})`);
+      grad.addColorStop(0, withAlpha(expandedCharts ? 0.35 : 0.70));
+      grad.addColorStop(1, withAlpha(0));
+      return grad;
+    }
+
+    // Build x-axis splits: month boundaries for 6M/1Y, day boundaries for 1M, raw for 1D
+    function xSplits(u) {
+      const min = u.scales.x.min, max = u.scales.x.max;
+
+      if (currentRange === '6mo' || currentRange === '1y') {
+        // Snap to 1st of each month
+        const ticks = [];
+        const start = new Date(min * 1000);
+        let d = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth() + 1, 1));
+        while (d.getTime() / 1000 < max) {
+          const t = d.getTime() / 1000;
+          if (t > min) ticks.push(t);
+          d = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 1));
+        }
+        // For 1Y, keep only every other month
+        return currentRange === '1y' ? ticks.filter((_, i) => i % 2 === 0) : ticks;
+      }
+
+      // 1M / 1D: evenly spaced
+      const step = (max - min) / 5;
+      const snapSec = currentRange === '1mo' ? 86400 : 1;
+      const seen = new Set(), ticks = [];
+      for (let i = 1; i <= 4; i++) {
+        const raw     = min + step * i;
+        const snapped = snapSec > 1 ? Math.floor(raw / snapSec) * snapSec : Math.round(raw);
+        const clamped = Math.min(Math.max(snapped, min + snapSec), max - snapSec);
+        if (!seen.has(clamped)) { seen.add(clamped); ticks.push(clamped); }
+      }
+      return ticks;
+    }
+
+    function xValues(u, vals) {
+      return vals.map(v => {
+        if (v == null) return '';
+        const d = new Date(v * 1000);
+        if (currentRange === '1d') {
+          return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+        }
+        if (currentRange === '6mo' || currentRange === '1y') {
+          return MONTHS[d.getUTCMonth()];
+        }
+        // 1M: "12 Feb"
+        return `${d.getDate()} ${MONTHS[d.getMonth()]}`;
+      });
+    }
+
+    const axes = expandedCharts ? [
+      { ...axisDefaults, splits: xSplits, values: xValues, size: 28 },
+      {
+        ...axisDefaults,
+        side:   1,
+        size: 35,
+        values: (u, vals) => vals.map(v => v == null ? '' : `${v.toFixed(0)}`),
+        splits: (u) => {
+          const lo = u.scales.y.min, hi = u.scales.y.max;
+          const range = hi - lo;
+          const padTop    = range * 0.12;
+          const padBottom = range * 0;
+          const insetLo = lo + padBottom;
+          const insetHi = hi - padTop;
+          const step = (insetHi - insetLo) / 3;
+          return [insetLo, insetLo + step, insetLo + step * 2, insetHi];
+        },
+      },
+    ] : [{ show: false }, { show: false }];
+
+    const CHART_H = expandedCharts ? 180 : 100;
+
+    const options = {
+      width:   container.clientWidth,
+      height:  CHART_H,
+      padding: expandedCharts ? [0, 0, 0, 0] : [0, 0, 0, 0],
+      scales:  { x: { time: true } },
+      axes,
+      series: [
+        {},
+        {
+          stroke: accentColor,
+          width:  1.5,
+          points: { show: false },
+          fill:   makeGradient,
+        },
+      ],
+      legend: { show: false },
+    };
+
+    return new uPlot(options, data, container);
+  }
 
   // ---------------- SETTINGS PANEL ----------------
   const settingsTrigger = document.getElementById("settingsTrigger");
