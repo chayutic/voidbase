@@ -1,0 +1,12 @@
+services:
+  dashboard:
+    container_name: dashboard
+    build: .
+    restart: unless-stopped
+    ports:
+      - "3005:3000"   # internal LAN access
+    volumes:
+      - ./public:/app/public
+      - ./server.js:/app/server.js
+    environment:
+      - NODE_ENV=production
