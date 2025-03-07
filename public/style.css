@@ -13,6 +13,16 @@
 :root {
   /* ── Non-theme tokens ─────────────────────────────── */
 
+  /* Unified highlight colors */
+  --green-highlights:  oklch(0.72 0.18 142);
+  --red-highlights:    oklch(0.63 0.22 25);
+  --orange-highlights: oklch(0.75 0.18 45);
+
+  /* Steam review sentiment colors */
+  --steam-positive: oklch(0.7597 0.1117 235.46);
+  --steam-mixed:    oklch(0.6868 0.0624 81.71);
+  --steam-negative: oklch(0.6041 0.1488 43.28);
+
   /* Glass & borders */
   --surface-glass:      oklch(1 0 0 / 0.04);
   --surface-glass-hover:oklch(1 0 0 / 0.06);
@@ -703,14 +713,19 @@ input:checked + .search__toggle-track::before {
 
 .deals__search-input {
   all: unset;
-  flex: 1;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  height: 2rem;
+  flex: 1.25;
   font-family: var(--font-body);
   font-size: 0.85rem;
+  line-height: 1;
   color: var(--text-primary);
   background: var(--surface-glass);
   border: 1px solid var(--border-color);
   border-radius: 20px;
-  padding: 0.4rem 0.6rem 0.4rem 1rem;
+  padding: 0 0.8rem 0 1rem;
   transition: border-color var(--transition-normal);
 }
 
@@ -722,12 +737,18 @@ input:checked + .search__toggle-track::before {
 .deals__search-btn,
 .deals__cancel-btn {
   all: unset;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  height: 2rem;
   cursor: pointer;
   font-family: var(--font-title);
   font-size: 0.75rem;
   font-weight: 600;
+  text-transform: uppercase;
+  line-height: 1;
   letter-spacing: 0.04em;
-  padding: 0.4rem 0.7rem;
+  padding: 0 0.8rem;
   border-radius: 20px;
   border: 1px solid var(--border-color);
   color: var(--text-secondary);
@@ -772,13 +793,13 @@ input:checked + .search__toggle-track::before {
 .deals__result-loading { cursor: default; }
 
 /* Table layout — shared grid for header + rows */
-/* columns: title | price (with fire) | discount | 90d low | remove */
+/* columns: title | reviews | price (with fire) | discount | 90d low | remove */
 .deals__table-header,
 .deals__row {
   display: grid;
-  grid-template-columns: 1fr 4rem 4rem 4rem 1.2rem;
+  grid-template-columns: 1fr max-content minmax(4rem, max-content) minmax(3rem, max-content) minmax(3.5rem, max-content) 1.2rem;
   align-items: center;
-  gap: 0.1rem;
+  gap: 0.25rem;
 }
 
 .deals__table-header {
@@ -797,10 +818,18 @@ input:checked + .search__toggle-track::before {
   opacity: 0.6;
 }
 
-/* Right-align numeric columns in both header and rows */
+/* Right-align numeric columns */
 .deals__col-price,
 .deals__col-discount,
-.deals__col-low { text-align: right; }
+.deals__col-low,
+.deals__col-review,
+.deals__table-header .deals__col-price,
+.deals__table-header .deals__col-discount,
+.deals__table-header .deals__col-low,
+.deals__table-header .deals__col-review {
+  text-align: right;
+  justify-self: end;
+}
 
 .deals__list {
   display: flex;
@@ -853,7 +882,7 @@ input:checked + .search__toggle-track::before {
   white-space: nowrap;
 }
 
-.deals__discount--off { color: oklch(0.72 0.18 142); }
+.deals__discount--off { color: var(--green-highlights); }
 
 .deals__low {
   font-size: 0.85rem;
@@ -863,12 +892,12 @@ input:checked + .search__toggle-track::before {
 }
 
 /* Highlight 90D low when current = historical low */
-.deals__low--highlight { color: oklch(0.72 0.18 142); }
+.deals__low--highlight { color: var(--green-highlights); }
 
 .deals__fire {
   display: inline-flex;
   align-items: center;
-  color: oklch(0.75 0.18 45);
+  color: var(--orange-highlights);
   flex-shrink: 0;
 }
 
@@ -882,6 +911,66 @@ input:checked + .search__toggle-track::before {
 
 .deals__col-remove { display: flex; justify-content: flex-end; }
 
+/* ── Review cell ── */
+.deals__col-review {
+  font-size: 0.85rem;
+  font-family: var(--font-title);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Full text label — visible ≥800px */
+.deals__review-text { display: inline; }
+
+/* Icon view — hidden ≥800px, visible 600–799px */
+.deals__review-icon {
+  display: none;
+  align-items: center;
+  gap: 0.15rem;
+  position: relative;
+  cursor: default;
+}
+
+.deals__review-icon svg {
+  width: 0.85rem;
+  height: 0.85rem;
+  flex-shrink: 0;
+}
+
+.deals__review-modifier {
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.05rem;
+}
+
+.deals__review-modifier svg {
+  width: 0.55rem;
+  height: 0.55rem;
+}
+
+/* Tooltip on icon view — matches fire icon pattern */
+.deals__review-icon[title]:hover::after {
+  content: attr(title);
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 4px);
+  transform: translateX(-50%);
+  background: oklch(0.22 0.01 var(--theme-hue));
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 0.2rem 0.45rem;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 10;
+  color: var(--text-primary);
+}
+
 .deals__remove {
   all: unset;
   cursor: pointer;
@@ -894,7 +983,7 @@ input:checked + .search__toggle-track::before {
 
 .deals__remove svg { width: 0.75rem; height: 0.75rem; }
 .deals__row:hover .deals__remove { opacity: 1; }
-.deals__remove:hover { color: oklch(0.63 0.22 25); }
+.deals__remove:hover { color: var(--red-highlights); }
 .stocks {
   align-items: center;
 }
@@ -1040,8 +1129,8 @@ input:checked + .search__toggle-track::before {
   letter-spacing: 0.04em;
 }
 
-.stocks__delta[data-sign="up"]   { color: oklch(0.72 0.18 142); }
-.stocks__delta[data-sign="down"] { color: oklch(0.63 0.22 25);  }
+.stocks__delta[data-sign="up"]   { color: var(--green-highlights); }
+.stocks__delta[data-sign="down"] { color: var(--red-highlights);  }
 
 /* ── Expanded mode overlay: symbol / price / delta top-left ── */
 .stocks__grid.expanded-charts .stocks__overlay {
@@ -1392,7 +1481,7 @@ body[data-theme="green"]  { --theme-hue: 170;  }
 /* ════════════════════════════════════════════
    MOBILE
 ════════════════════════════════════════════ */
-@media (max-width: 480px) {
+@media (max-width: 425px) {
   /* Tighter padding on mobile, slightly more space above Markets section */
   .container {
   padding: 1.5rem 1rem;
@@ -1555,11 +1644,32 @@ body[data-theme="green"]  { --theme-hue: 170;  }
   opacity: 0.4;
 }
 
+/* ── 500–650px: switch reviews column to icon view ── */
+@media (max-width: 650px) {
+  .deals__table-header,
+  .deals__row {
+    grid-template-columns: 1fr max-content minmax(4rem, max-content) minmax(3rem, max-content) minmax(3.5rem, max-content) 1.2rem;
+  }
+
+  .deals__review-text { display: none; }
+  .deals__review-icon { display: inline-flex; }
+}
+
+/* ── <500px: remove reviews column entirely ── */
+@media (max-width: 500px) {
+  .deals__table-header,
+  .deals__row {
+    grid-template-columns: 1fr minmax(4rem, max-content) minmax(3rem, max-content) minmax(3.5rem, max-content) 1.2rem;
+  }
+
+  .deals__col-review { display: none; }
+}
+
 /* ── 90D Low column: hide on small screens unless forced ── */
 @media (max-width: 425px) {
   .deals__table-header,
   .deals__row {
-    grid-template-columns: 1fr 4rem 4rem 1.2rem;
+    grid-template-columns: 1fr minmax(3rem, max-content) minmax(3.5rem, max-content) 1.2rem;
   }
 
   .deals__col-low {
@@ -1572,7 +1682,17 @@ body.force-90d .deals__col-low {
   display: revert;
 }
 
-body.force-90d .deals__table-header,
-body.force-90d .deals__row {
-  grid-template-columns: 1fr 4rem 4rem 4rem 1.2rem;
+/* At ≤425px with force-90d: restore the low column (no reviews col at this width) */
+@media (max-width: 425px) {
+  body.force-90d .deals__table-header,
+  body.force-90d .deals__row {
+    grid-template-columns: 1fr minmax(4rem, max-content) minmax(3rem, max-content) minmax(3.5rem, max-content) 1.2rem;
+  }
+}
+/* ════════════════════════════════════════════
+   GUEST MODE — hide homelab sections
+════════════════════════════════════════════ */
+
+body.guest-mode .section--homelab {
+  display: none;
 }

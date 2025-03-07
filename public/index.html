@@ -143,6 +143,7 @@
 
       <div class="deals__table-header">
         <span class="deals__col-title">Title</span>
+        <span class="deals__col-review">Reviews</span>
         <span class="deals__col-price">Price</span>
         <span class="deals__col-discount">Sale</span>
         <span class="deals__col-low">90D Lo</span>
@@ -174,7 +175,7 @@
     </section>
 
     <!-- ================= MEDIA AUTOMATION ================= -->
-    <section class="section">
+    <section class="section section--homelab">
       <h2>Media Automation</h2>
       <div class="card-grid">
 
@@ -222,7 +223,7 @@
     </section>
 
     <!-- ================= MEDIA & PHOTOS ================= -->
-    <section class="section">
+    <section class="section section--homelab">
     <h2>Media & Photos</h2>
     <div class="card-grid">
 
@@ -251,7 +252,7 @@
     </section>
 
     <!-- ================= NETWORK ================= -->
-    <section class="section">
+    <section class="section section--homelab">
       <h2>Local Network</h2>
       <div class="card-grid">
 
@@ -289,7 +290,7 @@
     </section>
 
 
-    <section class="section">
+    <section class="section section--homelab">
       <h2>Website & CMS</h2>
       <div class="card-grid">
 
@@ -337,7 +338,7 @@
     </section>
 
     <!-- ================= UTILITY BAR ================= -->
-    <section class="section utilities-section">
+    <section class="section utilities-section section--homelab">
 
       <div class="utilities__header">
         <h2>Utilities</h2>
@@ -393,6 +394,15 @@
           <span>Status Info</span>
           <label class="settings__toggle">
             <input type="checkbox" id="statusInfoToggle" checked>
+            <span class="settings__toggle-track"></span>
+          </label>
+        </div>
+
+        <!-- Guest mode toggle -->
+        <div class="settings-toggle-row">
+          <span>Guest Mode</span>
+          <label class="settings__toggle">
+            <input type="checkbox" id="guestModeToggle">
             <span class="settings__toggle-track"></span>
           </label>
         </div>
@@ -748,6 +758,19 @@
       });
     }
 
+    // ── Guest Mode toggle ───────────────────────────────────────────────
+    const guestModeToggleEl = document.getElementById("guestModeToggle");
+    const applyGuestMode = (on) => document.body.classList.toggle("guest-mode", on);
+    if (guestModeToggleEl) {
+      const savedGuest = localStorage.getItem("guestMode") === "true";
+      guestModeToggleEl.checked = savedGuest;
+      applyGuestMode(savedGuest);
+      guestModeToggleEl.addEventListener("change", () => {
+        localStorage.setItem("guestMode", guestModeToggleEl.checked);
+        applyGuestMode(guestModeToggleEl.checked);
+      });
+    }
+
     // ── Force 90D Low toggle ────────────────────────────────────────────
     const force90dToggleEl = document.getElementById("force90dToggle");
     const applyForce90d = (on) => document.body.classList.toggle("force-90d", on);
@@ -1009,7 +1032,7 @@
   const FIRE_THRESHOLD = 50;
 
   let pinnedGames   = JSON.parse(localStorage.getItem(DEALS_STORAGE_KEY) || "[]");
-  const dealsCache  = new Map(); // id → { price, discount, isHistoricalLow }
+  const dealsCache  = new Map(); // id → { price, discount, low90, reviewDesc, reviewCount }
 
   const dealsList       = document.getElementById("dealsList");
   const dealsAddBtn     = document.getElementById("dealsAdd");
@@ -1096,7 +1119,12 @@
     try {
       const steamFetches = pinnedGames
         .filter(g => g.appid)
-        .map(g => fetch(`/steam/price/${g.appid}`).then(r => r.json()).then(d => ({ id: g.id, price: d.price })));
+        .map(g => fetch(`/steam/price/${g.appid}`).then(r => r.json()).then(d => ({
+          id:          g.id,
+          price:       d.price,
+          reviewDesc:  d.reviewDesc  ?? null,
+          reviewCount: d.reviewCount ?? null,
+        })));
 
       const [itadRes, ...steamResults] = await Promise.all([
         fetch("/itad/prices", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ids }) }),
@@ -1105,13 +1133,18 @@
       const itadData = await itadRes.json();
 
       const steamPrices = new Map();
-      steamResults.forEach(s => { if (s.price != null) steamPrices.set(s.id, s.price); });
+      steamResults.forEach(s => {
+        if (s.price       != null) steamPrices.set(s.id, { price: s.price, reviewDesc: s.reviewDesc, reviewCount: s.reviewCount });
+      });
 
       itadData.forEach(item => {
+        const steam = steamPrices.get(item.id) ?? {};
         dealsCache.set(item.id, {
-          price:    steamPrices.get(item.id) ?? null,
-          discount: item.discount,
-          low90:    item.low90discount,
+          price:       steam.price       ?? null,
+          discount:    item.discount,
+          low90:       item.low90discount,
+          reviewDesc:  steam.reviewDesc  ?? null,
+          reviewCount: steam.reviewCount ?? null,
         });
       });
     } catch (err) {
@@ -1120,6 +1153,83 @@
   }
 
   // ── Render ────────────────────────────────────────────────────
+
+  // SVG paths reused across thumb icons
+  const THUMB_UP_PATH   = `<path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/>
+    <path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/>`;
+  const THUMB_DOWN_PATH = `<path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z"/>
+    <path d="M17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/>`;
+
+  // Plus SVG (matches existing + in add button)
+  const PLUS_SVG  = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`;
+  // Minus SVG — same stroke weight/length as plus, horizontal bar only
+  const MINUS_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>`;
+
+  function fmtReviewCount(n) {
+    if (n == null) return "";
+    if (n >= 10000)  return `${Math.round(n / 1000)}k`;
+    if (n >= 1000)   return `${(n / 1000).toFixed(1)}k`;
+    return `${n}`;
+  }
+
+  function reviewSentimentVar(desc) {
+    if (!desc) return null;
+    const d = desc.toLowerCase();
+    if (d.includes("positive")) return "--steam-positive";
+    if (d.includes("negative")) return "--steam-negative";
+    if (d.includes("mixed"))    return "--steam-mixed";
+    return null;
+  }
+
+  function buildThumbSVG(path) {
+    return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${path}</svg>`;
+  }
+
+  function buildReviewIcon(desc, count) {
+    if (!desc) return `<span class="deals__review-icon">—</span>`;
+    const colorVar = reviewSentimentVar(desc);
+    const color    = colorVar ? `var(${colorVar})` : "inherit";
+    const countStr = count != null ? `(${fmtReviewCount(count)})` : "";
+    const d        = desc.toLowerCase();
+
+    // "Mixed" — text only, no thumb
+    if (d.includes("mixed")) {
+      return `<span class="deals__review-icon" title="${desc}${count != null ? ` · ${count.toLocaleString()} reviews` : ''}" style="color:${color}">
+        <span style="font-size:0.85rem">Mixed</span>${countStr ? `<span style="font-size:0.85rem">${countStr}</span>` : ""}
+      </span>`;
+    }
+
+    const isPositive = d.includes("positive");
+    const thumbPath  = isPositive ? THUMB_UP_PATH : THUMB_DOWN_PATH;
+    const thumbSVG   = buildThumbSVG(thumbPath);
+
+    // Determine modifier: ++ / + / (none) / - / --
+    let modifier = "";
+    if (d.startsWith("overwhelmingly")) {
+      modifier = isPositive
+        ? `<span class="deals__review-modifier">${PLUS_SVG}${PLUS_SVG}</span>`
+        : `<span class="deals__review-modifier">${MINUS_SVG}${MINUS_SVG}</span>`;
+    } else if (d.startsWith("very")) {
+      modifier = isPositive
+        ? `<span class="deals__review-modifier">${PLUS_SVG}</span>`
+        : `<span class="deals__review-modifier">${MINUS_SVG}</span>`;
+    } else if (d.startsWith("mostly negative") || d.startsWith("negative")) {
+      modifier = `<span class="deals__review-modifier">${MINUS_SVG}</span>`;
+    }
+    // "Positive", "Mostly Positive" — no modifier
+
+    return `<span class="deals__review-icon" title="${desc}${count != null ? ` · ${count.toLocaleString()} reviews` : ''}" style="color:${color}">
+      ${thumbSVG}${modifier}${countStr ? `<span style="font-size:0.85rem">${countStr}</span>` : ""}
+    </span>`;
+  }
+
+  function buildReviewText(desc, count) {
+    if (!desc) return `<span style="color:var(--text-secondary)">—</span>`;
+    const colorVar = reviewSentimentVar(desc);
+    const color    = colorVar ? `var(${colorVar})` : "inherit";
+    const countStr = count != null ? ` (${fmtReviewCount(count)})` : "";
+    return `<span class="deals__review-text" style="color:${color}">${desc}${countStr}</span>`;
+  }
   function renderDeals() {
     if (!pinnedGames.length) {
       dealsList.innerHTML = `<div class="deals__empty">No games tracked yet. Hit + to add a game.</div>`;
@@ -1153,9 +1263,13 @@
       const isDeep = d?.isDeepDiscount && low90 !== 0;
       const priceStr = `${isFire ? fireSVG : '<span class="deals__fire-placeholder"></span>'}${fmtPrice(d?.price)}`;
 
+      const reviewIcon = buildReviewIcon(d?.reviewDesc ?? null, d?.reviewCount ?? null);
+      const reviewText = buildReviewText(d?.reviewDesc ?? null, d?.reviewCount ?? null);
+
       return `
         <div class="deals__row" data-id="${game.id}">
           <span class="deals__col-title deals__name" title="${game.title}">${game.title}</span>
+          <span class="deals__col-review">${reviewText}${reviewIcon}</span>
           <span class="deals__col-price deals__price">${priceStr}</span>
           <span class="deals__col-discount deals__discount${discount < 0 ? " deals__discount--off" : ""}">${fmtPct(discount !== 0 ? discount : 0)}</span>
           <span class="deals__col-low deals__low${isDeep ? " deals__low--highlight" : ""}">${low90 != null ? (low90 === 0 ? '0%' : '-' + Math.abs(low90) + '%') : '—'}</span>
