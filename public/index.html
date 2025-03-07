@@ -121,6 +121,38 @@
   <!-- ===== MAIN CONTENT ===== -->
   <main class="container">
 
+    <!-- ================= GAME DEALS ================= -->
+    <section class="section deals-section">
+
+      <div class="deals__header">
+        <h2>Game Deals</h2>
+        <button class="deals__add" id="dealsAdd" aria-label="Add game">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Add game input row — hidden by default -->
+      <div class="deals__add-row" id="dealsAddRow">
+        <input class="deals__search-input" id="dealsSearchInput" type="text" placeholder="Search game title…" autocomplete="off" maxlength="80">
+        <button class="deals__search-btn" id="dealsSearchBtn">Search</button>
+        <button class="deals__cancel-btn" id="dealsCancelBtn">Cancel</button>
+      </div>
+      <div class="deals__search-results" id="dealsSearchResults"></div>
+
+      <div class="deals__table-header">
+        <span class="deals__col-title">Title</span>
+        <span class="deals__col-price">Price</span>
+        <span class="deals__col-discount">Sale</span>
+        <span class="deals__col-low">90D Lo</span>
+        <span class="deals__col-remove"></span>
+      </div>
+
+      <div class="deals__list" id="dealsList"></div>
+
+    </section>
+
     <!-- ================= STOCKS ================= -->
     <section class="section stocks">
       <div class="stocks">
@@ -325,8 +357,8 @@
         </div>
 
     </section>
-    
-    <!-- ════ FLOATING GEAR ════ -->
+
+    <!-- ════ SETTINGS BUTTON ════ -->
     <button class="settings-trigger" id="settingsTrigger" aria-label="Open settings">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="12" cy="12" r="3"/>
@@ -372,6 +404,15 @@
       <!-- Widgets section -->
       <div class="settings-section">
         <div class="settings-section__label">Widgets</div>
+
+        <!-- Force 90D Low column on small screens -->
+        <div class="settings-toggle-row">
+          <span>Force 90D Low</span>
+          <label class="settings__toggle">
+            <input type="checkbox" id="force90dToggle">
+            <span class="settings__toggle-track"></span>
+          </label>
+        </div>
 
         <!-- Status info toggle --> 
         <div class="settings-toggle-row">
@@ -707,6 +748,19 @@
       });
     }
 
+    // ── Force 90D Low toggle ────────────────────────────────────────────
+    const force90dToggleEl = document.getElementById("force90dToggle");
+    const applyForce90d = (on) => document.body.classList.toggle("force-90d", on);
+    if (force90dToggleEl) {
+      const saved = localStorage.getItem("force90d") === "true";
+      force90dToggleEl.checked = saved;
+      applyForce90d(saved);
+      force90dToggleEl.addEventListener("change", () => {
+        localStorage.setItem("force90d", force90dToggleEl.checked);
+        applyForce90d(force90dToggleEl.checked);
+      });
+    }
+
     // ── Expanded charts toggle ──────────────────────────────────────────
     const expandedToggleEl = document.getElementById("expandedChartsToggle");
     if (expandedToggleEl) {
@@ -919,8 +973,220 @@
 
   // Load saved theme on page load — charts will be drawn by fetchStocks() init
   applyTheme(localStorage.getItem("theme") || "violet");
-  
+
+  // Footer year
+  const footerYear = document.getElementById("footerYear");
+  if (footerYear) footerYear.textContent = new Date().getFullYear();
+
+
+  // ═══════════════════════════════════════════════════════════════
+  //  GAME DEALS
+  // ═══════════════════════════════════════════════════════════════
+  //
+  //  Server proxy endpoints needed in server.js:
+  //
+  //  1. Game search (to find ITAD game ID by title):
+  //     GET /itad/search?q=<title>
+  //     → proxy to: https://api.isthereanydeal.com/games/search/v1?title=<title>&key=YOUR_KEY
+  //
+  //  2. Current prices + discount for pinned games:
+  //     GET /itad/prices?ids=<id1,id2,...>
+  //     → proxy to: https://api.isthereanydeal.com/games/prices/v3?country=TH&key=YOUR_KEY
+  //     → POST body: JSON array of game IDs
+  //
+  //  3. Historical low (90-day) for pinned games:
+  //     GET /itad/history?ids=<id1,id2,...>
+  //     → proxy to: https://api.isthereanydeal.com/games/storelow/v2?country=TH&key=YOUR_KEY
+  //     → POST body: JSON array of game IDs
+  //
+  //  ITAD API key goes in server.js as a constant, never in the browser.
+  //  Register at: https://isthereanydeal.com/dev/app/
+  //
+  // ───────────────────────────────────────────────────────────────
+
+  const DEALS_STORAGE_KEY = "pinnedGames"; // [{ id, title }, ...]
+  // Discount threshold above which the fire icon is shown
+  const FIRE_THRESHOLD = 50;
+
+  let pinnedGames   = JSON.parse(localStorage.getItem(DEALS_STORAGE_KEY) || "[]");
+  const dealsCache  = new Map(); // id → { price, discount, isHistoricalLow }
+
+  const dealsList       = document.getElementById("dealsList");
+  const dealsAddBtn     = document.getElementById("dealsAdd");
+  const dealsAddRow     = document.getElementById("dealsAddRow");
+  const dealsSearchInput  = document.getElementById("dealsSearchInput");
+  const dealsSearchBtn  = document.getElementById("dealsSearchBtn");
+  const dealsCancelBtn  = document.getElementById("dealsCancelBtn");
+  const dealsSearchResults = document.getElementById("dealsSearchResults");
+
+  // ── Search UI ────────────────────────────────────────────────────
+  dealsAddBtn.addEventListener("click", () => {
+    dealsAddRow.classList.toggle("visible");
+    if (dealsAddRow.classList.contains("visible")) {
+      dealsSearchInput.focus();
+    } else {
+      clearSearch();
+    }
+  });
+
+  dealsCancelBtn.addEventListener("click", () => {
+    dealsAddRow.classList.remove("visible");
+    clearSearch();
+  });
+
+  dealsSearchBtn.addEventListener("click", searchGames);
+  dealsSearchInput.addEventListener("keydown", e => { if (e.key === "Enter") searchGames(); });
+
+  function clearSearch() {
+    dealsSearchInput.value = "";
+    dealsSearchResults.innerHTML = "";
+    dealsSearchResults.classList.remove("visible");
+  }
+
+  async function searchGames() {
+    const q = dealsSearchInput.value.trim();
+    if (!q) return;
+    dealsSearchResults.innerHTML = `<div class="deals__result-item deals__result-loading">Searching…</div>`;
+    dealsSearchResults.classList.add("visible");
+
+    try {
+      const res     = await fetch(`/itad/search?q=${encodeURIComponent(q)}`);
+      const data    = await res.json();
+      const results = Array.isArray(data) ? data : [];
+
+      if (!results.length) {
+        dealsSearchResults.innerHTML = `<div class="deals__result-item">No results found.</div>`;
+        return;
+      }
+      dealsSearchResults.innerHTML = results.map(g => `
+        <div class="deals__result-item" data-id="${g.id}" data-title="${g.title}" data-appid="${g.appid || ''}">
+          ${g.title}${!g.appid ? ' <span style="opacity:0.4;font-size:0.75em">(no Steam ID)</span>' : ''}
+        </div>`).join("");
+
+      dealsSearchResults.querySelectorAll(".deals__result-item[data-id]").forEach(el => {
+        el.addEventListener("click", () => pinGame(el.dataset.id, el.dataset.title, el.dataset.appid));
+      });
+
+    } catch (err) {
+      dealsSearchResults.innerHTML = `<div class="deals__result-item">Search failed.</div>`;
+      console.error("ITAD search error:", err);
+    }
+  }
+
+  function pinGame(id, title, appid) {
+    if (pinnedGames.find(g => g.id === id)) { clearSearch(); return; }
+    pinnedGames.push({ id, title, appid: appid || null });
+    localStorage.setItem(DEALS_STORAGE_KEY, JSON.stringify(pinnedGames));
+    clearSearch();
+    dealsAddRow.classList.remove("visible");
+    fetchDeals().then(renderDeals);
+  }
+
+  function unpinGame(id) {
+    pinnedGames = pinnedGames.filter(g => g.id !== id);
+    localStorage.setItem(DEALS_STORAGE_KEY, JSON.stringify(pinnedGames));
+    renderDeals();
+  }
+
+  // ── Data fetching ─────────────────────────────────────────────
+  async function fetchDeals() {
+    if (!pinnedGames.length) return;
+    const ids = pinnedGames.map(g => g.id);
+
+    try {
+      const steamFetches = pinnedGames
+        .filter(g => g.appid)
+        .map(g => fetch(`/steam/price/${g.appid}`).then(r => r.json()).then(d => ({ id: g.id, price: d.price })));
+
+      const [itadRes, ...steamResults] = await Promise.all([
+        fetch("/itad/prices", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ids }) }),
+        ...steamFetches,
+      ]);
+      const itadData = await itadRes.json();
+
+      const steamPrices = new Map();
+      steamResults.forEach(s => { if (s.price != null) steamPrices.set(s.id, s.price); });
+
+      itadData.forEach(item => {
+        dealsCache.set(item.id, {
+          price:    steamPrices.get(item.id) ?? null,
+          discount: item.discount,
+          low90:    item.low90discount,
+        });
+      });
+    } catch (err) {
+      console.error("Deals fetch error:", err);
+    }
+  }
+
+  // ── Render ────────────────────────────────────────────────────
+  function renderDeals() {
+    if (!pinnedGames.length) {
+      dealsList.innerHTML = `<div class="deals__empty">No games tracked yet. Hit + to add a game.</div>`;
+      return;
+    }
+
+    const sorted = [...pinnedGames].sort((a, b) => {
+      const da = dealsCache.get(a.id)?.discount ?? 0;
+      const db = dealsCache.get(b.id)?.discount ?? 0;
+      return da - db;
+    });
+
+    const fmtPrice = v => v != null
+      ? `฿${Math.round(parseFloat(v)).toLocaleString("th-TH")}`
+      : "—";
+
+    const fmtPct = v => v != null ? `${v}%` : "—";
+
+    const fireSVG = `<span class="deals__fire" title="Within 10-15% of 90D low">
+      <svg viewBox="0 0 24 24" fill="currentColor">
+        <path xmlns="http://www.w3.org/2000/svg" d="M5.926 20.574a7.26 7.26 0 0 0 3.039 1.511c.107.035.179-.105.107-.175-2.395-2.285-1.079-4.758-.107-5.873.693-.796 1.68-2.107 1.608-3.865 0-.176.18-.317.322-.211 1.359.703 2.288 2.25 2.538 3.515.394-.386.537-.984.537-1.511 0-.176.214-.317.393-.176 1.287 1.16 3.503 5.097-.072 8.19-.071.071 0 .212.072.177a8.761 8.761 0 0 0 3.003-1.442c5.827-4.5 2.037-12.48-.43-15.116-.321-.317-.893-.106-.893.351-.036.95-.322 2.004-1.072 2.707-.572-2.39-2.478-5.105-5.195-6.441-.357-.176-.786.105-.75.492.07 3.27-2.063 5.352-3.922 8.059-1.645 2.425-2.717 6.89.822 9.808z" fill="currentColor"/>
+      </svg>
+    </span>`;
+
+    dealsList.innerHTML = sorted.map(game => {
+      const d        = dealsCache.get(game.id);
+      const discount = d?.discount ?? 0;
+      const low90    = d?.low90    ?? null;
+      const firePP = low90 !== null && low90 <= -55 ? 15 : 10;
+      const isFire = d && low90 !== null && discount < 0 && discount <= low90 + firePP;
+      const isDeep = d?.isDeepDiscount && low90 !== 0;
+      const priceStr = `${isFire ? fireSVG : '<span class="deals__fire-placeholder"></span>'}${fmtPrice(d?.price)}`;
+
+      return `
+        <div class="deals__row" data-id="${game.id}">
+          <span class="deals__col-title deals__name" title="${game.title}">${game.title}</span>
+          <span class="deals__col-price deals__price">${priceStr}</span>
+          <span class="deals__col-discount deals__discount${discount < 0 ? " deals__discount--off" : ""}">${fmtPct(discount !== 0 ? discount : 0)}</span>
+          <span class="deals__col-low deals__low${isDeep ? " deals__low--highlight" : ""}">${low90 != null ? (low90 === 0 ? '0%' : '-' + Math.abs(low90) + '%') : '—'}</span>
+          <span class="deals__col-remove">
+            <button class="deals__remove" data-id="${game.id}" aria-label="Remove ${game.title}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          </span>
+        </div>`;
+    }).join("");
+
+    dealsList.querySelectorAll(".deals__remove").forEach(btn => {
+      btn.addEventListener("click", () => unpinGame(btn.dataset.id));
+    });
+  }
+
+  // ── Init ──────────────────────────────────────────────────────
+  fetchDeals().then(renderDeals);
+
   </script>
+
+    <!-- ================= FOOTER ================= -->
+    <footer class="footer">
+      <div class="footer__inner">
+        <div class="footer__meta">
+          <span>VOIDBASE 2026</span>
+        </div>
+      </div>
+    </footer>
 
 </body>
 </html>
