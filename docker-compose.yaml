@@ -4,9 +4,11 @@ services:
     build: .
     restart: unless-stopped
     ports:
-      - "3005:3000"   # internal LAN access
+      - "3005:3000"
     volumes:
       - ./public:/app/public
       - ./server.js:/app/server.js
+    env_file:
+      - .env
     environment:
       - NODE_ENV=production
