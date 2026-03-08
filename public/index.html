@@ -730,7 +730,7 @@
 
   turboPresetCancel.addEventListener('click', () => {
     turboAddRow.classList.remove('visible');
-    turboPresetsAdd.classList.remove('active'); // add this
+    turboPresetsAdd.classList.remove('active');
     turboPresetInput.value = '';
   });
 
@@ -741,6 +741,7 @@
     localStorage.setItem(PRESETS_KEY, JSON.stringify(turboPresets));
     turboPresetInput.value = '';
     turboAddRow.classList.remove('visible');
+  turboPresetsAdd.classList.remove('active');
     renderPresets();
   }
 
@@ -1320,7 +1321,7 @@
 
   dealsCancelBtn.addEventListener("click", () => {
     dealsAddRow.classList.remove("visible");
-    dealsAddBtn.classList.remove("active"); // add this
+    dealsAddBtn.classList.remove("active");
     clearSearch();
   });
 
@@ -1376,6 +1377,7 @@
     localStorage.setItem(DEALS_STORAGE_KEY, JSON.stringify(pinnedGames));
     clearSearch();
     dealsAddRow.classList.remove("visible");
+    dealsAddBtn.classList.remove("active");
     fetchDeals().then(renderDeals);
   }
 

@@ -638,13 +638,17 @@ input:checked + .search__toggle-track::before {
 .search__preset-label {
   flex: 1;
   font-size: 0.85rem;
-  color: var(--text-primary);
+  color: var(--text-secondary);
   font-family: var(--font-title);
   min-width: 0;
   overflow: hidden;
   white-space: nowrap;
   -webkit-mask-image: linear-gradient(to right, black calc(100% - 1.5rem), transparent 100%);
   mask-image: linear-gradient(to right, black calc(100% - 1.5rem), transparent 100%);
+}
+
+.search__preset-item:has(.search__preset-radio.active) .search__preset-label {
+  color: var(--text-primary);
 }
 
 /* Edit button */
