@@ -1,8 +1,55 @@
 # Changelog — Voidbase
 
+## v0.4.2 — 2026-03-08
+*Turbo Mode, search presets, footer*
+
+### Added
+- **Turbo Mode** — collapsible panel below search bar; toggle reveals Web Results Only, Open in New Tab, and Search Presets
+- **Search Presets** — save up to 6 query prefixes, persisted in localStorage; active preset prepended to search query on submit; click active preset again to deselect
+- Preset add row with Save and Cancel buttons; Escape key closes and resets
+- Preset edit button (pencil icon, appears on hover) — inline rename, Enter to commit, Escape to cancel; active preset follows rename
+- Preset remove button (× icon, appears on hover)
+- Preset label truncation with fade-out mask on overflow
+- **Footer** — more vibes and Back to Top link
+- Smooth scroll via `scroll-behavior: smooth` on `html`
+- Escape key closes Game Deals add row and Search Presets add row, removing active state
+- Escape key blurs Google search input
+
+### Changed
+- Web Results Only toggle moved inside Turbo Mode panel
+- Cancel buttons hidden at ≤425px — + button rotates 45° to × as close affordance on both Game Deals and Search Presets
+- × Button SVGs replaced with rotated + button for consistency.
+- `renderPresets` rewritten with DOM methods — no user data interpolated into `innerHTML`
+- Responsive breakpoints, spacing, and size adjustments for visual consistency.
+
+### Fixed
+- Search game input `min-width: 0` prevents it pushing Search button out of frame at narrow viewports
+
+## v0.4.1 — 2025-03-07
+*Steam reviews, guest mode, color variables*
+
+### Added
+- **Steam reviews column** in Game Deals — shows review description and count fetched from Steam's appreviews API, folded into existing `/steam/price/:appid` endpoint
+- Review sentiment color coded using `--steam-positive`, `--steam-mixed`, `--steam-negative` variables
+- Responsive review column: full text label ≥650px, SVG thumb icon + count at 500–649px, hidden below 500px
+- Icon scheme: thumb up/down SVG with `+` / `++` / `−` / `−−` modifiers for sentiment intensity; Mixed renders as text only
+- Hover tooltip on icon view shows full label and review count
+- Review count formatted by magnitude: exact below 1k, one decimal `2.4k` up to 9.9k, rounded `24k` / `102k` above
+- **Guest Mode** toggle in Control Panel — hides all homelab sections (Media Automation, Media & Photos, Local Network, Website & CMS, Utilities), persisted in localStorage
+- Unified highlight color variables: `--green-highlights`, `--red-highlights`, `--orange-highlights` replacing scattered inline oklch values throughout
+
+### Changed
+- Game Deals table column order updated: Title / Reviews / Price / Sale / 90D Low
+- `/steam/price/:appid` endpoint now returns `reviewDesc` and `reviewCount` alongside price via parallel fetch
+- All inline highlight oklch values in CSS replaced with named variables
+
+### Fixed
+- Search input and button height mismatch resolved — explicit `height`, `display: flex`, `align-items: center` on both, vertical padding removed
+
 ---
 
 ## v0.4.0 — 2025-03-07
+*Game Deals section*
 
 ### Added
 - **Game Deals section** — track Steam games with live pricing and discount data
@@ -30,6 +77,7 @@
 ---
 
 ## v0.3.1 — 2025-03-06
+*Expanded charts mode & axis improvements*
 
 ### Added
 - **Expanded charts mode** — toggleable in settings, switches cards from compact (100px) to expanded (180px) height
@@ -48,6 +96,7 @@
 ---
 
 ## v0.3.0 — 2025-03-06
+*Markets section & Express backend*
 
 ### Added
 - **Markets section** — stock and ETF price tracker using uPlot charts
@@ -71,6 +120,7 @@
 ---
 
 ## v0.2.0 — 2025-03-05
+*Settings panel & theme switcher*
 
 ### Added
 - **Settings panel** — floating gear icon, slide-in panel
@@ -82,6 +132,7 @@
 ---
 
 ## v0.1.0 — 2025-03-04
+*Initial dashboard*
 
 ### Added
 - Initial dashboard

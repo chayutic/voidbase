@@ -17,7 +17,7 @@
   <script src="https://unpkg.com/uplot/dist/uPlot.iife.min.js"></script>
 </head>
 
-<body>
+<body id="top">
 
 
 <header class="header">
@@ -100,6 +100,7 @@
       <input type="text" name="q" placeholder="Search Google" class="search__input" autocomplete="off" required>
       <!-- &udm=14 FEATURE -->
       <input type="hidden" name="udm" id="udm-param" value="14">
+      <!-- new tab hidden input — added/removed by JS -->
       <button type="submit" class="search__submit" aria-label="Search">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="11" cy="11" r="7"/>
@@ -108,13 +109,60 @@
       </button>
     </div>
 
+    <!-- Turbo Mode toggle row -->
     <div class="search__toggle-row">
-      <span class="toggle-label">Web Results Only</span>
+      <span class="toggle-label">Turbo Mode</span>
+      <label class="search__toggle">
+        <input type="checkbox" id="turbo-toggle">
+        <span class="search__toggle-track"></span>
+      </label>
+    </div>
+
+    <!-- Turbo Mode panel — hidden until toggled on -->
+    <div class="search__turbo" id="searchTurbo">
+
+      <!-- Web Results Only -->
+      <div class="search__turbo-row">
+        <span>Web Results Only</span>
         <label class="search__toggle">
           <input type="checkbox" id="udm-toggle" checked>
           <span class="search__toggle-track"></span>
         </label>
+      </div>
+
+      <!-- New Tab -->
+      <div class="search__turbo-row">
+        <span>Open in New Tab</span>
+        <label class="search__toggle">
+          <input type="checkbox" id="newtab-toggle">
+          <span class="search__toggle-track"></span>
+        </label>
+      </div>
+
+      <!-- Presets -->
+      <div class="search__turbo-presets">
+        <div class="search__turbo-presets-header">
+          <span class="search__turbo-label">Search Presets</span>
+          <button class="search__turbo-add" id="turboPresetsAdd" type="button" aria-label="Add preset">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Add preset input row — hidden by default -->
+        <div class="search__turbo-add-row" id="turboAddRow">
+          <input class="deals__search-input" id="turboPresetInput" type="text" placeholder="Enter prepended terms..." autocomplete="off" maxlength="40">
+          <button class="deals__search-btn" id="turboPresetSave" type="button">Save</button>
+          <button class="deals__cancel-btn" id="turboPresetCancel" type="button">Cancel</button>
+        </div>
+
+        <!-- Preset list -->
+        <div class="search__turbo-preset-list" id="turboPresetList"></div>
+      </div>
+
     </div>
+
   </form>
 </div>
 
@@ -508,14 +556,230 @@
       }
     });
 
-  // ---------------- &udm=14 TOGGLE ----------------
-  const udmToggle = document.getElementById('udm-toggle');
-  const udmParam = document.getElementById('udm-param');
-
-  udmToggle.addEventListener('change', function() {
-    // If checked (on), set value to 14. If unchecked (off), clear it.
-    udmParam.value = this.checked ? "14" : "";
+  // ---------------- GOOGLE SEARCH BLUR ----------------
+  document.querySelector('.search__input').addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      e.target.blur();
+    }
   });
+
+  // ---------------- TURBO MODE ----------------
+  const turboToggle      = document.getElementById('turbo-toggle');
+  const searchTurbo      = document.getElementById('searchTurbo');
+  const udmToggle        = document.getElementById('udm-toggle');
+  const udmParam         = document.getElementById('udm-param');
+  const newtabToggle     = document.getElementById('newtab-toggle');
+  const searchForm       = document.getElementById('search-form');
+  const turboPresetsAdd  = document.getElementById('turboPresetsAdd');
+  const turboAddRow      = document.getElementById('turboAddRow');
+  const turboPresetInput = document.getElementById('turboPresetInput');
+  const turboPresetSave  = document.getElementById('turboPresetSave');
+  const turboPresetCancel= document.getElementById('turboPresetCancel');
+  const turboPresetList  = document.getElementById('turboPresetList');
+
+  const PRESETS_KEY      = 'turboPresets';
+  const PRESET_SEL_KEY   = 'turboActivePreset'; // stores preset term or null
+  let turboPresets       = JSON.parse(localStorage.getItem(PRESETS_KEY) || '[]');
+  let turboActive        = localStorage.getItem(PRESET_SEL_KEY) || null;
+  let turboEnabled       = localStorage.getItem('turboEnabled') === 'true';
+  let turboNewTab        = localStorage.getItem('turboNewTab') === 'true';
+  let turboUdm           = localStorage.getItem('turboUdm') !== 'false'; // default true
+
+  // ── Apply turbo panel visibility ──
+  function applyTurboPanel(on) {
+    searchTurbo.classList.toggle('visible', on);
+    turboToggle.checked = on;
+  }
+
+  // ── Apply new tab ──
+  function applyNewTab(on) {
+    searchForm.target = on ? '_blank' : '';
+    newtabToggle.checked = on;
+  }
+
+  // ── Apply udm ──
+  function applyUdm(on) {
+    udmParam.value = on ? '14' : '';
+    udmToggle.checked = on;
+  }
+
+  // ── Build preset query prefix on submit ──
+  function getActivePresetTerm() {
+    if (!turboEnabled) return null;
+    return turboActive || null;
+  }
+
+  // Intercept form submit to prepend preset
+  searchForm.addEventListener('submit', function(e) {
+    const term = getActivePresetTerm();
+    const qInput = this.querySelector('input[name="q"]');
+    if (term && qInput) {
+      // Temporarily prepend — restore after submit fires
+      const original = qInput.value;
+      qInput.value = `${term} ${original}`;
+      setTimeout(() => { qInput.value = original; }, 0);
+    }
+  });
+
+  // ── Render preset list ──
+  function renderPresets() {
+    turboPresetList.innerHTML = '';
+    if (!turboPresets.length) {
+      turboPresetList.innerHTML = '<span class="search__turbo-empty">No presets yet.</span>';
+      return;
+    }
+    turboPresets.forEach(term => {
+      const isActive = turboActive === term;
+      const item = document.createElement('div');
+      item.className = 'search__preset-item';
+
+      // Radio button
+      const radio = document.createElement('button');
+      radio.type = 'button';
+      radio.className = 'search__preset-radio' + (isActive ? ' active' : '');
+      radio.setAttribute('aria-label', 'Select ' + term);
+      const dot = document.createElement('span');
+      dot.className = 'search__preset-dot';
+      radio.appendChild(dot);
+      radio.addEventListener('click', () => {
+        turboActive = turboActive === term ? null : term;
+        localStorage.setItem(PRESET_SEL_KEY, turboActive || '');
+        renderPresets();
+      });
+
+      // Label
+      const label = document.createElement('span');
+      label.className = 'search__preset-label';
+      label.textContent = term;
+
+      // Edit button
+      const editBtn = document.createElement('button');
+      editBtn.type = 'button';
+      editBtn.className = 'search__preset-edit';
+      editBtn.setAttribute('aria-label', 'Edit ' + term);
+      editBtn.innerHTML = `<svg width="800px" height="800px" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M15.4998 5.50067L18.3282 8.3291M13 21H21M3 21.0004L3.04745 20.6683C3.21536 19.4929 3.29932 18.9052 3.49029 18.3565C3.65975 17.8697 3.89124 17.4067 4.17906 16.979C4.50341 16.497 4.92319 16.0772 5.76274 15.2377L17.4107 3.58969C18.1918 2.80865 19.4581 2.80864 20.2392 3.58969C21.0202 4.37074 21.0202 5.63707 20.2392 6.41812L8.37744 18.2798C7.61579 19.0415 7.23497 19.4223 6.8012 19.7252C6.41618 19.994 6.00093 20.2167 5.56398 20.3887C5.07171 20.5824 4.54375 20.6889 3.48793 20.902L3 21.0004Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+      editBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'search__preset-input';
+        input.value = term;
+        input.maxLength = 40;
+        label.replaceWith(input);
+        editBtn.style.display = 'none';
+        input.focus();
+        input.select();
+
+        let committed = false;
+        function commitEdit() {
+          if (committed) return;
+          committed = true;
+          const newVal = input.value.trim();
+          if (newVal && newVal !== term) {
+            const idx = turboPresets.indexOf(term);
+            if (idx !== -1) turboPresets[idx] = newVal;
+            if (turboActive === term) {
+              turboActive = newVal;
+              localStorage.setItem(PRESET_SEL_KEY, turboActive);
+            }
+            localStorage.setItem(PRESETS_KEY, JSON.stringify(turboPresets));
+          }
+          renderPresets();
+        }
+
+        input.addEventListener('keydown', e => {
+          if (e.key === 'Enter') { e.preventDefault(); commitEdit(); }
+          if (e.key === 'Escape') { committed = true; renderPresets(); }
+        });
+        input.addEventListener('blur', () => setTimeout(commitEdit, 150));
+      });
+
+      // Remove button
+      const remove = document.createElement('button');
+      remove.type = 'button';
+      remove.className = 'search__preset-remove';
+      remove.setAttribute('aria-label', 'Remove ' + term);
+      remove.innerHTML = `<svg style="transform:rotate(45deg)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`;
+      remove.addEventListener('click', () => {
+        turboPresets = turboPresets.filter(p => p !== term);
+        if (turboActive === term) { turboActive = null; localStorage.removeItem(PRESET_SEL_KEY); }
+        localStorage.setItem(PRESETS_KEY, JSON.stringify(turboPresets));
+        renderPresets();
+      });
+
+      item.appendChild(radio);
+      item.appendChild(label);
+      item.appendChild(editBtn);
+      item.appendChild(remove);
+      turboPresetList.appendChild(item);
+    });
+  }
+
+  // ── Add preset ──
+  turboPresetsAdd.addEventListener('click', () => {
+    turboAddRow.classList.toggle('visible');
+    if (turboAddRow.classList.contains('visible')) {
+      turboPresetInput.focus();
+      turboPresetsAdd.classList.add('active');
+    } else {
+      turboPresetInput.value = '';
+      turboPresetsAdd.classList.remove('active');
+    }
+  });
+
+  turboPresetCancel.addEventListener('click', () => {
+    turboAddRow.classList.remove('visible');
+    turboPresetsAdd.classList.remove('active'); // add this
+    turboPresetInput.value = '';
+  });
+
+  function savePreset() {
+    const val = turboPresetInput.value.trim();
+    if (!val || turboPresets.includes(val) || turboPresets.length >= 6) return;
+    turboPresets.push(val);
+    localStorage.setItem(PRESETS_KEY, JSON.stringify(turboPresets));
+    turboPresetInput.value = '';
+    turboAddRow.classList.remove('visible');
+    renderPresets();
+  }
+
+  turboPresetSave.addEventListener('click', savePreset);
+  turboPresetInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); savePreset(); }
+    if (e.key === 'Escape') {
+      turboAddRow.classList.remove('visible');
+      turboPresetsAdd.classList.remove('active');
+      turboPresetInput.value = '';
+    }
+  });
+
+  // ── Turbo toggle ──
+  turboToggle.addEventListener('change', () => {
+    turboEnabled = turboToggle.checked;
+    localStorage.setItem('turboEnabled', turboEnabled);
+    applyTurboPanel(turboEnabled);
+  });
+
+  // ── New tab toggle ──
+  newtabToggle.addEventListener('change', () => {
+    turboNewTab = newtabToggle.checked;
+    localStorage.setItem('turboNewTab', turboNewTab);
+    applyNewTab(turboNewTab);
+  });
+
+  // ── Udm toggle ──
+  udmToggle.addEventListener('change', () => {
+    turboUdm = udmToggle.checked;
+    localStorage.setItem('turboUdm', turboUdm);
+    applyUdm(turboUdm);
+  });
+
+  // ── Init ──
+  applyTurboPanel(turboEnabled);
+  applyNewTab(turboNewTab);
+  applyUdm(turboUdm);
+  renderPresets();
   
   // ---------------- DOCK TOOLTIP ----------------
   const tooltip = document.getElementById("dockTooltip");
@@ -1047,18 +1311,28 @@
     dealsAddRow.classList.toggle("visible");
     if (dealsAddRow.classList.contains("visible")) {
       dealsSearchInput.focus();
+      dealsAddBtn.classList.add("active");
     } else {
       clearSearch();
+      dealsAddBtn.classList.remove("active");
     }
   });
 
   dealsCancelBtn.addEventListener("click", () => {
     dealsAddRow.classList.remove("visible");
+    dealsAddBtn.classList.remove("active"); // add this
     clearSearch();
   });
 
   dealsSearchBtn.addEventListener("click", searchGames);
-  dealsSearchInput.addEventListener("keydown", e => { if (e.key === "Enter") searchGames(); });
+  dealsSearchInput.addEventListener("keydown", e => {
+    if (e.key === "Enter") searchGames();
+    if (e.key === "Escape") {
+      dealsAddRow.classList.remove("visible");
+      dealsAddBtn.classList.remove("active");
+      clearSearch();
+    }
+  });
 
   function clearSearch() {
     dealsSearchInput.value = "";
@@ -1275,8 +1549,8 @@
           <span class="deals__col-low deals__low${isDeep ? " deals__low--highlight" : ""}">${low90 != null ? (low90 === 0 ? '0%' : '-' + Math.abs(low90) + '%') : '—'}</span>
           <span class="deals__col-remove">
             <button class="deals__remove" data-id="${game.id}" aria-label="Remove ${game.title}">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              <svg style="transform:rotate(45deg)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
               </svg>
             </button>
           </span>
@@ -1296,8 +1570,14 @@
     <!-- ================= FOOTER ================= -->
     <footer class="footer">
       <div class="footer__inner">
+        <div class="footer__tagline">Serves one.</div>
+        <div class="footer__rule"></div>
         <div class="footer__meta">
           <span>VOIDBASE 2026</span>
+          <span class="footer__dot">·</span>
+          <span>v0.4.2</span>
+          <span class="footer__dot">·</span>
+          <a href="#top" class="footer__top">↑ Back to top</a>
         </div>
       </div>
     </footer>
