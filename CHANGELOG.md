@@ -1,5 +1,22 @@
 # Changelog — Voidbase
 
+## v0.5.0 — 2026-03-09
+*New Arrivals section, visual updates & code cleanup*
+
+### Added
+- **New Arrivals section** — horizontally scrollable row of recently added media pulled from Jellyfin
+- Separate slots for movies (3) and episodes (3) — forced representation for both types regardless of download timing
+- Server-side episode deduplication — one card per series, most recent episode shown
+- Poster art fetched via Jellyfin Images API with series poster fallback for episodes lacking their own image
+- "Go to Library" card at end of row links to Jellyfin
+- Two new Express proxy routes: `GET /jellyfin/recent` and `GET /jellyfin/poster/:seriesId`
+- `JELLYFIN_URL` and `JELLYFIN_KEY` environment variables added to `.env`
+
+### Changed
+- Various spacing and font changes for a more consitent look.
+- Variable name changes for more consistent naming convention.
+- Reordered CSS blocks to match visual order of the site.
+
 ## v0.4.2 — 2026-03-08
 *Turbo Mode, search presets, footer*
 

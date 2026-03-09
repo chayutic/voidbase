@@ -9,6 +9,11 @@ const PORT = 3000;
 const ITAD_KEY = process.env.ITAD_KEY;
 // ─────────────────────────────────────────────────────────────────
 
+// ── Jellyfin ──────────────────────────────────────────────────────
+const JELLYFIN_URL = process.env.JELLYFIN_URL; // e.g. http://192.168.1.41:8096
+const JELLYFIN_KEY = process.env.JELLYFIN_KEY; // API key: Jellyfin Dashboard → API Keys
+// ─────────────────────────────────────────────────────────────────
+
 app.use(express.static("public"));
 app.use(express.json());
 
@@ -170,6 +175,126 @@ app.get("/steam/price/:appid", async (req, res) => {
   } catch (err) {
     console.error("Steam price error:", err.message);
     res.status(500).json({ error: "Steam price fetch failed" });
+  }
+});
+
+
+// ── Jellyfin: latest movies and episodes ─────────────────────────
+// GET /jellyfin/recent
+// Returns up to 12 recently-added movies and episodes, sorted by
+// DateCreated descending. The client slices to 6.
+//
+// Each item shape:
+//   { id, type, title, year, seriesName, seasonNum, episodeNum, imageTag }
+//
+// imageTag is the Primary image tag for poster art.
+// Construct the image URL on the client:
+//   {JELLYFIN_URL}/Items/{id}/Images/Primary?tag={imageTag}&maxHeight=400
+app.get("/jellyfin/recent", async (req, res) => {
+  if (!JELLYFIN_URL || !JELLYFIN_KEY) {
+    return res.status(503).json({ error: "Jellyfin not configured" });
+  }
+
+  const MOVIE_SLOTS   = 3;
+  const EPISODE_SLOTS = 3;
+
+  try {
+    // Fetch latest Movies
+    const moviesUrl = `${JELLYFIN_URL}/Items?` + new URLSearchParams({
+      IncludeItemTypes: "Movie",
+      SortBy:           "DateCreated,SortName",
+      SortOrder:        "Descending",
+      Limit:            String(MOVIE_SLOTS),
+      Recursive:        "true",
+      Fields:           "PrimaryImageAspectRatio,ProductionYear,ImageTags",
+      ImageTypeLimit:   "1",
+      EnableImageTypes: "Primary",
+      apikey:           JELLYFIN_KEY,
+    });
+
+    // Fetch latest Episodes — deduplicated to one per series server-side
+    // Fetch more than needed so we have headroom after deduplication
+    const episodesUrl = `${JELLYFIN_URL}/Items?` + new URLSearchParams({
+      IncludeItemTypes: "Episode",
+      SortBy:           "DateCreated,SortName",
+      SortOrder:        "Descending",
+      Limit:            "30",
+      Recursive:        "true",
+      Fields:           "PrimaryImageAspectRatio,ProductionYear,ImageTags,ParentId,SeriesName,SeasonName,SeriesId",
+      ImageTypeLimit:   "1",
+      EnableImageTypes: "Primary",
+      apikey:           JELLYFIN_KEY,
+    });
+
+    const [moviesResp, episodesResp] = await Promise.all([
+      fetch(moviesUrl,   { headers: { "Accept": "application/json" } }),
+      fetch(episodesUrl, { headers: { "Accept": "application/json" } }),
+    ]);
+
+    const moviesData   = await moviesResp.json();
+    const episodesData = await episodesResp.json();
+
+    const movies = (moviesData.Items || []).slice(0, MOVIE_SLOTS).map(item => ({
+      id:         item.Id,
+      type:       "Movie",
+      title:      item.Name,
+      year:       item.ProductionYear ?? null,
+      seriesName: null,
+      seasonNum:  null,
+      episodeNum: null,
+      seriesId:   null,
+      imageTag:   item.ImageTags?.Primary ?? null,
+    }));
+
+    // Deduplicate episodes: one per series, most recent first
+    const seenSeries = new Set();
+    const episodes   = [];
+    for (const item of (episodesData.Items || [])) {
+      const sid = item.SeriesId ?? item.Id;
+      if (seenSeries.has(sid)) continue;
+      seenSeries.add(sid);
+      episodes.push({
+        id:         item.Id,
+        type:       "Episode",
+        title:      item.Name,
+        year:       item.ProductionYear ?? null,
+        seriesName: item.SeriesName ?? null,
+        seasonNum:  item.ParentIndexNumber ?? null,
+        episodeNum: item.IndexNumber ?? null,
+        seriesId:   item.SeriesId ?? null,
+        imageTag:   item.ImageTags?.Primary ?? null,
+      });
+      if (episodes.length >= EPISODE_SLOTS) break;
+    }
+
+    // Movies first, then episodes — fixed slots, no timestamp merge
+    res.json([...movies, ...episodes]);
+  } catch (err) {
+    console.error("Jellyfin recent error:", err.message);
+    res.status(500).json({ error: "Jellyfin fetch failed" });
+  }
+});
+
+// ── Jellyfin: series poster by series ID ──────────────────────────
+// GET /jellyfin/poster/:seriesId
+// Episodes often lack their own Primary image — fall back to the
+// series poster. Returns { imageTag } or { imageTag: null }.
+app.get("/jellyfin/poster/:seriesId", async (req, res) => {
+  if (!JELLYFIN_URL || !JELLYFIN_KEY) {
+    return res.status(503).json({ error: "Jellyfin not configured" });
+  }
+
+  try {
+    const url  = `${JELLYFIN_URL}/Items/${req.params.seriesId}?` + new URLSearchParams({
+      Fields: "ImageTags",
+      apikey: JELLYFIN_KEY,
+    });
+    const resp = await fetch(url, { headers: { "Accept": "application/json" } });
+    const data = await resp.json();
+    res.json({ imageTag: data.ImageTags?.Primary ?? null });
+  } catch (err) {
+    console.error("Jellyfin poster error:", err.message);
+    res.status(500).json({ imageTag: null });
   }
 });
 

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Homelab Hub</title>
+  <title>Voidbase</title>
 
   <!-- Main stylesheet -->
   <link rel="stylesheet" href="style.css" />
@@ -95,11 +95,11 @@
 <!-- ===== GOOGLE SEARCH BAR ===== -->
 
 <div class="search">
-  <form action="https://www.google.com/search" method="GET" id="search-form" class="search__form">
+  <form action="https://www.google.com/search" method="GET" id="searchForm" class="search__form">
     <div class="search__input-row">
       <input type="text" name="q" placeholder="Search Google" class="search__input" autocomplete="off" required>
       <!-- &udm=14 FEATURE -->
-      <input type="hidden" name="udm" id="udm-param" value="14">
+      <input type="hidden" name="udm" id="udmParam" value="14">
       <!-- new tab hidden input — added/removed by JS -->
       <button type="submit" class="search__submit" aria-label="Search">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -113,7 +113,7 @@
     <div class="search__toggle-row">
       <span class="toggle-label">Turbo Mode</span>
       <label class="search__toggle">
-        <input type="checkbox" id="turbo-toggle">
+        <input type="checkbox" id="turboToggle">
         <span class="search__toggle-track"></span>
       </label>
     </div>
@@ -125,7 +125,7 @@
       <div class="search__turbo-row">
         <span>Web Results Only</span>
         <label class="search__toggle">
-          <input type="checkbox" id="udm-toggle" checked>
+          <input type="checkbox" id="udmToggle" checked>
           <span class="search__toggle-track"></span>
         </label>
       </div>
@@ -134,7 +134,7 @@
       <div class="search__turbo-row">
         <span>Open in New Tab</span>
         <label class="search__toggle">
-          <input type="checkbox" id="newtab-toggle">
+          <input type="checkbox" id="newtabToggle">
           <span class="search__toggle-track"></span>
         </label>
       </div>
@@ -202,24 +202,33 @@
 
     </section>
 
-    <!-- ================= STOCKS ================= -->
-    <section class="section stocks">
-      <div class="stocks">
-        <div class="stocks__header">
-          <h2>Markets</h2>
-            <div class="stocks__controls">
-              <div class="stocks__ranges">
-                <button class="stocks__range" data-range="1d">1D</button>
-                <button class="stocks__range active" data-range="1mo">1M</button>
-                <button class="stocks__range" data-range="6mo">6M</button>
-                <button class="stocks__range" data-range="1y">1Y</button>
-              </div>
-            </div>
-        </div>
 
-        <div class="stocks__grid" id="stocksGrid"></div>
-        
+    <!-- ================= NEW ARRIVALS ================= -->
+    <section class="section arrivals-section">
+
+      <div class="arrivals__header">
+        <h2>New Arrivals</h2>
       </div>
+
+      <div class="arrivals__grid" id="arrivalsGrid"></div>
+
+    </section>
+
+    <!-- ================= MARKETS ================= -->
+    <section class="section markets">
+      <div class="stocks__header">
+        <h2>Markets</h2>
+        <div class="stocks__controls">
+          <div class="stocks__ranges">
+            <button class="stocks__range" data-range="1d">1D</button>
+            <button class="stocks__range active" data-range="1mo">1M</button>
+            <button class="stocks__range" data-range="6mo">6M</button>
+            <button class="stocks__range" data-range="1y">1Y</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="stocks__grid" id="stocksGrid"></div>
     </section>
 
     <!-- ================= MEDIA AUTOMATION ================= -->
@@ -386,7 +395,7 @@
     </section>
 
     <!-- ================= UTILITY BAR ================= -->
-    <section class="section utilities-section section--homelab">
+    <section class="section section--homelab">
 
       <div class="utilities__header">
         <h2>Utilities</h2>
@@ -422,8 +431,8 @@
       <div class="settings-panel__header">Control Panel</div>
 
       <!-- Theme colour -->
-      <div class="settings-section">
-        <div class="settings-section__label">Theme</div>
+      <div class="settings__section">
+        <div class="settings__section-label">Theme</div>
         <div class="swatch-row">
           <button class="theme__swatch" data-theme="violet" aria-label="Violet"></button>
           <button class="theme__swatch" data-theme="blue"   aria-label="Blue"></button>
@@ -434,11 +443,11 @@
       </div>
 
       <!-- Display section -->
-      <div class="settings-section">
-        <div class="settings-section__label">Display</div>
+      <div class="settings__section">
+        <div class="settings__section-label">Display</div>
 
         <!-- Status info toggle -->     
-        <div class="settings-toggle-row">
+        <div class="settings__row">
           <span>Status Info</span>
           <label class="settings__toggle">
             <input type="checkbox" id="statusInfoToggle" checked>
@@ -447,7 +456,7 @@
         </div>
 
         <!-- Guest mode toggle -->
-        <div class="settings-toggle-row">
+        <div class="settings__row">
           <span>Guest Mode</span>
           <label class="settings__toggle">
             <input type="checkbox" id="guestModeToggle">
@@ -460,11 +469,11 @@
       </div>
 
       <!-- Widgets section -->
-      <div class="settings-section">
-        <div class="settings-section__label">Widgets</div>
+      <div class="settings__section">
+        <div class="settings__section-label">Widgets</div>
 
         <!-- Force 90D Low column on small screens -->
-        <div class="settings-toggle-row">
+        <div class="settings__row">
           <span>Force 90D Low</span>
           <label class="settings__toggle">
             <input type="checkbox" id="force90dToggle">
@@ -472,8 +481,8 @@
           </label>
         </div>
 
-        <!-- Status info toggle --> 
-        <div class="settings-toggle-row">
+        <!-- Expanded charts toggle -->
+        <div class="settings__row">
           <span>Expanded Charts</span>
           <label class="settings__toggle">
             <input type="checkbox" id="expandedChartsToggle">
@@ -482,7 +491,7 @@
         </div>
 
         <!-- Ticker count --> 
-        <div class="settings-toggle-row">
+        <div class="settings__row">
           <span>Ticker Count</span>
           <div class="settings__stepper">
             <button id="tickerMinus">−</button>
@@ -496,7 +505,6 @@
       </div>
 
     </div>
-
 
   </main>
 
@@ -565,12 +573,12 @@
   });
 
   // ---------------- TURBO MODE ----------------
-  const turboToggle      = document.getElementById('turbo-toggle');
+  const turboToggle      = document.getElementById('turboToggle');
   const searchTurbo      = document.getElementById('searchTurbo');
-  const udmToggle        = document.getElementById('udm-toggle');
-  const udmParam         = document.getElementById('udm-param');
-  const newtabToggle     = document.getElementById('newtab-toggle');
-  const searchForm       = document.getElementById('search-form');
+  const udmToggle        = document.getElementById('udmToggle');
+  const udmParam         = document.getElementById('udmParam');
+  const newtabToggle     = document.getElementById('newtabToggle');
+  const searchForm       = document.getElementById('searchForm');
   const turboPresetsAdd  = document.getElementById('turboPresetsAdd');
   const turboAddRow      = document.getElementById('turboAddRow');
   const turboPresetInput = document.getElementById('turboPresetInput');
@@ -1564,8 +1572,158 @@
     });
   }
 
+
   // ── Init ──────────────────────────────────────────────────────
   fetchDeals().then(renderDeals);
+
+
+  // ---------------- NEW ARRIVALS ----------------
+
+  const JELLYFIN_BASE  = "http://192.168.1.41:8096";
+  const ARRIVALS_LIMIT = 6;
+
+  const arrivalsGrid = document.getElementById("arrivalsGrid");
+
+  function buildImageUrl(itemId, imageTag) {
+    if (!imageTag) return null;
+    return `${JELLYFIN_BASE}/Items/${itemId}/Images/Primary?tag=${imageTag}&maxHeight=400&quality=90`;
+  }
+
+  function buildItemUrl(itemId) {
+    return `${JELLYFIN_BASE}/web/index.html#!/details?id=${itemId}`;
+  }
+
+  function padNum(n) {
+    return String(n).padStart(2, "0");
+  }
+
+  async function resolveEpisodePoster(item) {
+    // If episode has its own poster, use it
+    if (item.imageTag) {
+      return { id: item.id, tag: item.imageTag };
+    }
+    // Otherwise fall back to series poster via proxy
+    if (!item.seriesId) return { id: item.id, tag: null };
+    try {
+      const res  = await fetch(`/jellyfin/poster/${item.seriesId}`);
+      const data = await res.json();
+      return { id: item.seriesId, tag: data.imageTag ?? null };
+    } catch {
+      return { id: item.id, tag: null };
+    }
+  }
+
+  function createArrivalCard(item, posterInfo) {
+    const a = document.createElement("a");
+    a.className = "arrivals__card";
+    a.href      = buildItemUrl(item.id);
+    a.target    = "_blank";
+    a.rel       = "noopener noreferrer";
+
+    // Poster
+    const imgWrap = document.createElement("div");
+    imgWrap.className = "arrivals__poster";
+
+    const imgUrl = buildImageUrl(posterInfo.id, posterInfo.tag);
+    if (imgUrl) {
+      const img   = document.createElement("img");
+      img.src     = imgUrl;
+      img.alt     = item.type === "Movie" ? item.title : (item.seriesName ?? item.title);
+      img.loading = "lazy";
+      img.draggable = false;
+      imgWrap.appendChild(img);
+    } else {
+      imgWrap.classList.add("arrivals__poster--placeholder");
+    }
+
+    // Info block
+    const info = document.createElement("div");
+    info.className = "arrivals__info";
+
+    if (item.type === "Movie") {
+      const title = document.createElement("span");
+      title.className   = "arrivals__title";
+      title.textContent = item.title;
+
+      const year = document.createElement("span");
+      year.className   = "arrivals__meta";
+      year.textContent = item.year ?? "—";
+
+      info.appendChild(title);
+      info.appendChild(year);
+    } else {
+      // Episode
+      const seriesTitle = document.createElement("span");
+      seriesTitle.className   = "arrivals__title";
+      seriesTitle.textContent = item.seriesName ?? item.title;
+
+      const meta = document.createElement("span");
+      meta.className = "arrivals__meta";
+      const ep = (item.seasonNum != null && item.episodeNum != null)
+        ? `S${padNum(item.seasonNum)}·E${padNum(item.episodeNum)}`
+        : "";
+      meta.textContent = [item.year, ep].filter(Boolean).join("  ");
+
+      info.appendChild(seriesTitle);
+      info.appendChild(meta);
+    }
+
+    a.appendChild(imgWrap);
+    a.appendChild(info);
+    return a;
+  }
+
+  function createLibraryCard() {
+    const a = document.createElement("a");
+    a.className = "arrivals__card arrivals__card--library";
+    a.href      = JELLYFIN_BASE;
+    a.target    = "_blank";
+    a.rel       = "noopener noreferrer";
+
+    a.innerHTML = `
+      <svg class="arrivals__library-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="9"/>
+        <polyline points="12 8 16 12 12 16"/>
+        <line x1="8" y1="12" x2="16" y2="12"/>
+      </svg>
+      <span class="arrivals__library-label">Go to Library</span>`;
+
+    return a;
+  }
+
+  async function fetchArrivals() {
+    if (!arrivalsGrid) return;
+
+    try {
+      const res   = await fetch("/jellyfin/recent");
+      const items = await res.json();
+
+      if (!Array.isArray(items)) throw new Error("Bad response");
+
+      const top = items.slice(0, ARRIVALS_LIMIT);
+
+      // Resolve episode posters in parallel
+      const posterInfos = await Promise.all(
+        top.map(item =>
+          item.type === "Episode"
+            ? resolveEpisodePoster(item)
+            : Promise.resolve({ id: item.id, tag: item.imageTag })
+        )
+      );
+
+      arrivalsGrid.innerHTML = "";
+      top.forEach((item, i) => {
+        arrivalsGrid.appendChild(createArrivalCard(item, posterInfos[i]));
+      });
+      arrivalsGrid.appendChild(createLibraryCard());
+
+    } catch (err) {
+      console.error("Arrivals fetch error:", err);
+      arrivalsGrid.innerHTML = `<div class="arrivals__error">Could not load recent media.</div>`;
+    }
+  }
+
+  fetchArrivals();
 
   </script>
 

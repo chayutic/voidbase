@@ -5,7 +5,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Geist:wght@200;400;600;700&display=swap');
 
-
 /* ======================================================
    THEME VARIABLES
 ====================================================== */
@@ -78,7 +77,6 @@ body {
   --search-placeholder: var(--text-secondary);
   --search-shadow:      var(--accent-bright);
 }
-
 
 /* ======================================================
    GLOBAL RESET
@@ -189,9 +187,8 @@ a:visited {
   color: inherit;
 }
 
-
 /* ======================================================
-   1. HEADER — title, clock, AQI
+   HEADER
 ====================================================== */
 
 .header {
@@ -259,9 +256,8 @@ a:visited {
   color: var(--text-secondary);
 }
 
-
 /* ======================================================
-   2. DOCK — icon shortcut bar
+   DOCK
 ====================================================== */
 
 .dock {
@@ -350,9 +346,8 @@ a:visited {
   transform: translateX(-50%) translateY(0);
 }
 
-
 /* ======================================================
-   3. SEARCH BAR — Google search + udm=14 toggle
+   SEARCH
 ====================================================== */
 
 /* Outer wrapper — centers everything */
@@ -369,6 +364,7 @@ a:visited {
   align-items: center;
   width: 100%;
   max-width: 584px;
+  gap: 0.25rem;
 }
 
 /* Input + button row — Google capsule style */
@@ -445,7 +441,7 @@ a:visited {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  margin-top: 0.75rem;
+  padding: .25rem 0;
   font-family: var(--font-body);
   color: var(--text-secondary);
 }
@@ -503,7 +499,6 @@ input:checked + .search__toggle-track::before {
   display: none;
   flex-direction: column;
   width: 100%;
-  margin-top: 0.5rem;
   border: 1px solid var(--border-color);
   border-radius: var(--radius);
   background: var(--surface-glass);
@@ -519,30 +514,29 @@ input:checked + .search__toggle-track::before {
   align-items: center;
   justify-content: space-between;
   padding: 0.5rem 1rem;
-  font-size: 0.85rem;
   color: var(--text-primary);
   border-bottom: 1px solid var(--border-color);
 }
 
 .search__turbo-presets {
-  padding: 0.5rem 1rem 0.75rem;
+  padding: 0.5rem 1rem;
 }
 
 .search__turbo-presets-header {
   display: flex;
   align-items: center;
   gap: var(--gap);
-  margin-bottom: 0.4rem;
+  margin-bottom: 0.25rem;
 }
 
 .search__turbo-label {
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   font-family: var(--font-title);
-  font-weight: 600;
-  letter-spacing: 0.06em;
+  font-weight: 400;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--text-secondary);
-  opacity: 0.6;
+  opacity: 0.85;
 }
 
 .search__turbo-add {
@@ -551,6 +545,7 @@ input:checked + .search__toggle-track::before {
   display: inline-flex;
   align-items: center;
   color: var(--text-secondary);
+  transform: translateY(-1px);
   transition: color var(--transition-normal);
 }
 
@@ -585,7 +580,7 @@ input:checked + .search__toggle-track::before {
 .search__turbo-preset-list {
   display: flex;
   flex-direction: column;
-  gap: 0.1rem;
+  gap: 0rem;
 }
 
 .search__turbo-empty {
@@ -598,7 +593,7 @@ input:checked + .search__toggle-track::before {
   display: flex;
   align-items: center;
   gap: 0.6rem;
-  padding: 0.2rem 0;
+  padding: 0.25rem 0;
   border-bottom: 1px solid oklch(1 0 0 / 0.04);
 }
 
@@ -637,7 +632,6 @@ input:checked + .search__toggle-track::before {
 
 .search__preset-label {
   flex: 1;
-  font-size: 0.85rem;
   color: var(--text-secondary);
   font-family: var(--font-title);
   min-width: 0;
@@ -695,9 +689,8 @@ input:checked + .search__toggle-track::before {
 .search__preset-item:hover .search__preset-remove { opacity: 1; }
 .search__preset-remove:hover { color: var(--red-highlights); }
 
-
 /* ======================================================
-   4. MAIN LAYOUT — content container + section labels
+   LAYOUT
 ====================================================== */
 
 .container {
@@ -714,9 +707,8 @@ input:checked + .search__toggle-track::before {
   margin-top: calc(var(--gap) * 3);
 }
 
-
 /* ======================================================
-   5. CARDS — glass shortcut tiles
+   CARDS
 ====================================================== */
 
 .card-grid {
@@ -766,113 +758,6 @@ input:checked + .search__toggle-track::before {
   grid-column: 2;
   color: var(--text-secondary);
 }
-
-
-/* ======================================================
-   6. UTILITIES — collapsible link bar
-====================================================== */
-
-.utilities__header {
-  line-height: 1;
-  margin-bottom: calc(var(--gap) * 0.75);
-}
-
-.utilities__header h2 {
-  display: inline;
-  margin: 0;
-}
-
-/* Chevron expand button */
-.utilities__toggle {
-  all: unset;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  vertical-align: baseline;
-  margin-left: var(--gap);
-  color: var(--text-secondary);
-  transition: color var(--transition-normal);
-  transform: translateY(1px);
-}
-
-.utilities__toggle svg {
-  width: 1rem;
-  height: 1rem;
-  transition: transform var(--transition-normal);
-}
-
-.utilities__toggle:hover {
-  color: var(--text-primary);
-}
-
-/* Flip chevron when expanded */
-.utilities__toggle.expanded svg {
-  transform:
-    rotate(-180deg)
-    translateY(0px);
-    color: var(--text-primary);
-}
-
-/* Collapsed by default */
-.utilities__content {
-  display: grid;
-  overflow: hidden;
-  max-height: 0;
-  opacity: 0;
-  transform: translateY(-4px);
-  pointer-events: none;
-  transition:
-    max-height var(--transition-normal),
-    opacity    var(--transition-normal),
-    transform  var(--transition-normal);
-}
-
-.utilities__content.expanded {
-  max-height: 500px;
-  opacity: 1;
-  transform: translateY(0);
-  pointer-events: auto;
-}
-
-.utilities__grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  gap: var(--gap);
-}
-
-.utilities__card {
-  display: block;
-  text-decoration: none;
-  padding: 0.75rem 1rem;
-  border-radius: var(--radius);
-  background: var(--surface-glass);
-  border: 1px solid var(--border-color);
-  font-family: var(--font-title);
-  font-size: 0.82rem;
-  font-weight: 500;
-  transition:
-    border-color var(--transition-normal),
-    background   var(--transition-normal),
-    color        var(--transition-normal),
-    transform    var(--transition-normal);
-  cursor: pointer;
-}
-
-.utilities__card:link,
-.utilities__card:visited {
-  color: var(--text-secondary);
-}
-
-.utilities__card:hover {
-  border-color: var(--border-hover);
-  background: var(--surface-glass-hover);
-  color: var(--text-primary);
-}
-
-.utilities__card:active {
-  transform: scale(0.97);
-}
-
 
 /* ======================================================
    GAME DEALS
@@ -1009,7 +894,7 @@ input:checked + .search__toggle-track::before {
 .deals__table-header {
   margin-bottom: 0rem;
   padding-bottom: 0.3rem;
-  border-bottom: 1px solid oklch(1 0 0 / 0.08);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .deals__table-header span {
@@ -1019,7 +904,7 @@ input:checked + .search__toggle-track::before {
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--text-secondary);
-  opacity: 0.6;
+  opacity: 0.85;
 }
 
 /* Right-align numeric columns */
@@ -1055,7 +940,6 @@ input:checked + .search__toggle-track::before {
 .deals__row:last-child { border-bottom: none; }
 
 .deals__name {
-  font-size: 0.85rem;
   color: var(--text-primary);
   white-space: nowrap;
   min-width: 0;
@@ -1188,6 +1072,157 @@ input:checked + .search__toggle-track::before {
 .deals__remove svg { width: 0.85rem; height: 0.85rem; }
 .deals__row:hover .deals__remove { opacity: 1; }
 .deals__remove:hover { color: var(--red-highlights); }
+
+/* ======================================================
+   NEW ARRIVALS
+====================================================== */
+
+.arrivals__header {
+  margin-bottom: calc(var(--gap) * 0.75);
+}
+
+/* Horizontal scroll grid — 6 poster cards + 1 library card */
+.arrivals__grid {
+  display: flex;
+  gap: var(--gap);
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 0.25rem; /* prevent border clipping on scroll */
+}
+
+.arrivals__grid::-webkit-scrollbar { display: none; }
+
+/* Base card */
+.arrivals__card {
+  flex: 0 0 120px;
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  background: var(--surface-glass);
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  transition:
+    border-color var(--transition-normal),
+    box-shadow   var(--transition-normal),
+    transform    var(--transition-normal);
+}
+
+.arrivals__card:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 12px color-mix(in oklch, var(--accent) 20%, transparent);
+}
+
+.arrivals__card:active {
+  transform: scale(0.97);
+  transition: transform var(--transition-normal);
+}
+
+/* Poster image area — tall aspect ratio for movie posters */
+.arrivals__poster {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  background: var(--bg-secondary);
+  flex-shrink: 0;
+}
+
+.arrivals__poster img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: var(--transition-normal);
+}
+
+.arrivals__card:hover .arrivals__poster img {
+  transform: scale(1.03);
+}
+
+/* Placeholder when no image is available */
+.arrivals__poster--placeholder {
+  background: oklch(1 0 0 / 0.03);
+}
+
+/* Info block below the poster */
+.arrivals__info {
+  padding: 0.5rem 0.6rem 0.55rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.arrivals__title {
+  font-family: var(--font-title);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  letter-spacing: 0.01em;
+  mask-image: linear-gradient(to right, black 60%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, black 60%, transparent 100%);
+}
+
+.arrivals__meta {
+  font-family: var(--font-title);
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  letter-spacing: 0.02em;
+  mask-image: linear-gradient(to right, black 60%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, black 60%, transparent 100%);
+}
+
+/* Library card — centered icon + label, same height as poster cards */
+.arrivals__card--library {
+  flex: 0 0 120px;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  color: var(--text-secondary);
+  aspect-ratio: unset;
+  /* Match total height of poster card: (120 * 3/2) + info block ≈ 205px */
+  min-height: 205px;
+}
+
+.arrivals__card--library:hover {
+  color: var(--text-primary);
+}
+
+.arrivals__library-icon {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  color: var(--text-secondary);
+}
+
+.arrivals__library-label {
+  font-family: var(--font-title);
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  text-align: center;
+}
+
+.arrivals__error {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  opacity: 0.5;
+  padding: 0.2rem 0;
+}
+
+/* ======================================================
+   MARKETS
+====================================================== */
+
 .stocks {
   align-items: center;
 }
@@ -1322,7 +1357,7 @@ input:checked + .search__toggle-track::before {
 .stocks__price {
   font-family: var(--font-title);
   font-size: 0.8rem;
-  color: var(--text-secondary);
+  color: var(--text-primary);
   letter-spacing: 0.04em;
 }
 
@@ -1386,9 +1421,119 @@ input:checked + .search__toggle-track::before {
   caret-color: var(--accent);
 }
 
-/* ════════════════════════════════════════════
-   FLOATING GEAR BUTTON
-════════════════════════════════════════════ */
+/* ── Expanded chart cards ── */
+.stocks__grid.expanded-charts .stocks__chart {
+  height: 180px;
+}
+
+/* ======================================================
+   UTILITIES
+====================================================== */
+
+.utilities__header {
+  line-height: 1;
+  margin-bottom: calc(var(--gap) * 0.75);
+}
+
+.utilities__header h2 {
+  display: inline;
+  margin: 0;
+}
+
+/* Chevron expand button */
+.utilities__toggle {
+  all: unset;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  vertical-align: baseline;
+  margin-left: var(--gap);
+  color: var(--text-secondary);
+  transition: color var(--transition-normal);
+  transform: translateY(1px);
+}
+
+.utilities__toggle svg {
+  width: 1rem;
+  height: 1rem;
+  transition: transform var(--transition-normal);
+}
+
+.utilities__toggle:hover {
+  color: var(--text-primary);
+}
+
+/* Flip chevron when expanded */
+.utilities__toggle.expanded svg {
+  transform:
+    scaleY(-1)
+    translateY(0px);
+  color: var(--text-primary);
+}
+
+/* Collapsed by default */
+.utilities__content {
+  display: grid;
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-4px);
+  pointer-events: none;
+  transition:
+    max-height var(--transition-normal),
+    opacity    var(--transition-normal),
+    transform  var(--transition-normal);
+}
+
+.utilities__content.expanded {
+  max-height: 500px;
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.utilities__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: var(--gap);
+}
+
+.utilities__card {
+  display: block;
+  text-decoration: none;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius);
+  background: var(--surface-glass);
+  border: 1px solid var(--border-color);
+  font-family: var(--font-title);
+  font-size: 0.82rem;
+  font-weight: 500;
+  transition:
+    border-color var(--transition-normal),
+    background   var(--transition-normal),
+    color        var(--transition-normal),
+    transform    var(--transition-normal);
+  cursor: pointer;
+}
+
+.utilities__card:link,
+.utilities__card:visited {
+  color: var(--text-secondary);
+}
+
+.utilities__card:hover {
+  border-color: var(--border-hover);
+  background: var(--surface-glass-hover);
+  color: var(--text-primary);
+}
+
+.utilities__card:active {
+  transform: scale(0.97);
+}
+
+/* ======================================================
+   CONTROL PANEL
+====================================================== */
 
 .settings-trigger {
   position: fixed;
@@ -1436,9 +1581,7 @@ input:checked + .search__toggle-track::before {
 }
 
 
-/* ════════════════════════════════════════════
-   SETTINGS PANEL
-════════════════════════════════════════════ */
+/* ── Settings panel ── */
 
 .settings-panel {
   position: fixed;
@@ -1482,21 +1625,21 @@ input:checked + .search__toggle-track::before {
 }
 
 /* Each section */
-.settings-section {
+.settings__section {
   padding: 0.75rem 1rem;
 }
 
-.settings-section + .settings-section {
+.settings__section + .settings__section {
   border-top: 1px solid var(--border-color);
 }
 
-.settings-section__label {
+.settings__section-label {
   font-size: 0.8rem;
   font-family: var(--font-title);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--text-secondary);
-  opacity: 1;
+  opacity: .85;
   margin-bottom: 0.6rem;
 }
 
@@ -1533,14 +1676,14 @@ input:checked + .search__toggle-track::before {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   background: oklch(1 0 0 / 0.05);
-  border: 1px solid oklch(1 0 0 / 0.08);
+  border: 1px solid var(--border-color);
   border-radius: 4px;
   padding: 0.15rem 0.45rem;
   color: oklch(1 0 0 / 0.25);
 }
 
 /* ── Settings toggle rows ── */
-.settings-toggle-row {
+.settings__row {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1631,23 +1774,7 @@ input:checked + .search__toggle-track::before {
   color: var(--text-primary);
 }
 
-/* ── Expanded chart cards ── */
-.stocks__grid.expanded-charts .stocks__chart {
-  height: 180px;
-}
-
-
-/* ======================================================
-   THEME SELECTOR SWATCHES
-====================================================== */
-
-.theme {
-  display: flex;
-  justify-content: center;
-  gap: 0.6rem;
-  margin-top: 1.2rem;
-}
-
+/* ── Theme swatches ── */
 .theme__swatch {
   width: 16px;
   height: 16px;
@@ -1662,7 +1789,7 @@ input:checked + .search__toggle-track::before {
   transform: scale(1.15);
 }
 
-.theme__swatch[data-theme="violet"] { background: oklch(0.433 0.178 295); } /* default:  Void Violet */
+.theme__swatch[data-theme="violet"] { background: oklch(0.433 0.178 295); } /* default: Void Violet */
 .theme__swatch[data-theme="blue"]   { background: oklch(0.5 0.1411 250); }
 .theme__swatch[data-theme="pink"]   { background: oklch(0.3412 0.1411 352); }
 .theme__swatch[data-theme="green"]  { background: oklch(0.5 0.1257 169.32); }
@@ -1673,143 +1800,11 @@ input:checked + .search__toggle-track::before {
   transform: scale(1.2);
 }
 
-/* ── Per-theme hue overrides ───────────────────────────── */
-/* Override --theme-hue on body; all derived vars re-compute  */
-
+/* ── Per-theme hue overrides ── */
 body[data-theme="violet"] { --theme-hue: 295; }
 body[data-theme="blue"]   { --theme-hue: 261; }
 body[data-theme="pink"]   { --theme-hue: 352; }
-body[data-theme="green"]  { --theme-hue: 170;  }
-
-
-/* ════════════════════════════════════════════
-   MOBILE
-════════════════════════════════════════════ */
-@media (max-width: 425px) {
-  /* Tighter padding on mobile, slightly more space above Markets section */
-  .container {
-  padding: 1.5rem 1rem;
-  }
-
-  .search {
-  padding: 0 1rem;
-}
-
-/* Only 1 big chart per row on mobile */
-  .stocks__grid.expanded-charts {
-  grid-template-columns: repeat(1, 1fr);
-}
-
-  /* Match settings-panel side padding */
-  .settings-panel__header {
-    padding: 0.75rem 1.25rem 0.6rem;
-  }
-
-  .settings-panel {
-    /* On small screens, panel anchors to bottom edge and
-       stretches full width — feels like a bottom sheet    */
-    top: unset;
-    right: 0;
-    left: 0;
-    bottom: 0;
-    width: 100%;
-    border-radius: 16px 16px 0 0;
-    border-bottom: none;
-    transform: translateY(100%);
-    transform-origin: bottom center;
-  }
-
-  .settings-panel.open {
-    transform: translateY(0);
-  }
-
-  .settings-trigger {
-    top: unset;
-    bottom: 1rem;
-    right: 1rem;
-  }
-
-  .settings-section {
-    padding: 1rem 1.25rem;
-  }
-
-  .theme__swatch {
-    width: 22px;
-    height: 22px;
-  }
-
-  /* ======================================================
-   1. HEADER — title, clock, AQI
-====================================================== */
-
-/* Less white space above VOIDBASE */
-.header {
-  padding: 3rem 0 1rem;
-}
-
-/* Smaller VOIDBASE */
-.header h1 {
-  font-size: 3rem;
-}
-
-/* 20px shorter and less margin */
-.header__separator {
-  width: 100px;
-  margin: 0.5rem 0 0.8rem;
-}
-
-/* Smaller font and gap */
-.header__meta {
-  font-size: 1.1rem;
-  gap: 0.25rem;
-}
-
-/* Smaller font and dot */
-.header__aqi {
-  font-size: 0.875rem;
-}
-
-.header__aqi-dot {
-  width: 6px;
-  height: 6px;
-}
-
-.header__location {
-  font-size: .875rem;
-  color: var(--text-secondary);
-}
-
-/* ======================================================
-   2. DOCK — icon shortcut bar
-====================================================== */
-
-.dock {
-  position: relative;
-  display: flex;
-  justify-content: center;
-  height: 80px;
-  margin: 0 0 1rem;
-}
-
-/* Tighter icon gap */
-.dock__list {
-  gap: 0.8rem;
-}
-
-/* Smaller scaling */
-.dock__item:hover {
-  flex-basis: 36px;
-  height: 42px;
-  color: var(--accent-bright);
-}
-
-/* Can't hover on mobile, save the space */
-.dock__tooltip {
-  display: none;
-}
-
-}
-
+body[data-theme="green"]  { --theme-hue: 170; }
 
 /* ======================================================
    FOOTER
@@ -1872,6 +1867,130 @@ body[data-theme="green"]  { --theme-hue: 170;  }
   opacity: 1;
 }
 
+
+/* ======================================================
+   RESPONSIVE
+====================================================== */
+@media (max-width: 425px) {
+  /* Tighter padding on mobile, slightly more space above Markets section */
+  .container {
+  padding: 1.5rem 1rem;
+  }
+
+  .search {
+  padding: 0 1rem;
+}
+
+/* Only 1 big chart per row on mobile */
+  .stocks__grid.expanded-charts {
+  grid-template-columns: repeat(1, 1fr);
+}
+
+  /* Match settings-panel side padding */
+  .settings-panel__header {
+    padding: 0.75rem 1.25rem 0.6rem;
+  }
+
+  .settings-panel {
+    /* On small screens, panel anchors to bottom edge and
+       stretches full width — feels like a bottom sheet    */
+    top: unset;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    border-radius: 16px 16px 0 0;
+    border-bottom: none;
+    transform: translateY(100%);
+    transform-origin: bottom center;
+  }
+
+  .settings-panel.open {
+    transform: translateY(0);
+  }
+
+  .settings-trigger {
+    top: unset;
+    bottom: 1rem;
+    right: 1rem;
+  }
+
+  .settings__section {
+    padding: 1rem 1.25rem;
+  }
+
+  .theme__swatch {
+    width: 22px;
+    height: 22px;
+  }
+
+  /* ── Header ── */
+/* Less white space above VOIDBASE */
+.header {
+  padding: 3rem 0 1rem;
+}
+
+/* Smaller VOIDBASE */
+.header h1 {
+  font-size: 3rem;
+}
+
+/* 20px shorter and less margin */
+.header__separator {
+  width: 100px;
+  margin: 0.5rem 0 0.8rem;
+}
+
+/* Smaller font and gap */
+.header__meta {
+  font-size: 1.1rem;
+  gap: 0.25rem;
+}
+
+/* Smaller font and dot */
+.header__aqi {
+  font-size: 0.875rem;
+}
+
+.header__aqi-dot {
+  width: 6px;
+  height: 6px;
+}
+
+.header__location {
+  font-size: .875rem;
+  color: var(--text-secondary);
+}
+
+/* ── Dock ── */
+.dock {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  height: 80px;
+  margin: 0 0 1rem;
+}
+
+/* Tighter icon gap */
+.dock__list {
+  gap: 0.8rem;
+}
+
+/* Smaller scaling */
+.dock__item:hover {
+  flex-basis: 36px;
+  height: 42px;
+  color: var(--accent-bright);
+}
+
+/* Can't hover on mobile, save the space */
+.dock__tooltip {
+  display: none;
+}
+
+}
+
+
 /* ── 500–650px: switch reviews column to icon view ── */
 @media (max-width: 650px) {
   .deals__table-header,
@@ -1921,9 +2040,7 @@ body.force-90d .deals__col-low {
     grid-template-columns: 1fr minmax(4rem, max-content) minmax(3rem, max-content) minmax(3.5rem, max-content) 1.2rem;
   }
 }
-/* ════════════════════════════════════════════
-   GUEST MODE — hide homelab sections
-════════════════════════════════════════════ */
+/* ── Guest mode — hide homelab sections ── */
 
 body.guest-mode .section--homelab {
   display: none;
