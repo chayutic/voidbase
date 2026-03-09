@@ -1586,7 +1586,7 @@
 
   function buildImageUrl(itemId, imageTag) {
     if (!imageTag) return null;
-    return `${JELLYFIN_BASE}/Items/${itemId}/Images/Primary?tag=${imageTag}&maxHeight=400&quality=90`;
+    return `/jellyfin/image/${itemId}?tag=${imageTag}`;
   }
 
   function buildItemUrl(itemId) {
@@ -1674,21 +1674,25 @@
   }
 
   function createLibraryCard() {
-    const a = document.createElement("a");
-    a.className = "arrivals__card arrivals__card--library";
-    a.href      = JELLYFIN_BASE;
-    a.target    = "_blank";
-    a.rel       = "noopener noreferrer";
+    const div = document.createElement("div");
+    div.className = "arrivals__card arrivals__card--library";
 
-    a.innerHTML = `
-      <svg class="arrivals__library-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="9"/>
-        <polyline points="12 8 16 12 12 16"/>
-        <line x1="8" y1="12" x2="16" y2="12"/>
-      </svg>
-      <span class="arrivals__library-label">Go to Library</span>`;
+    div.innerHTML = `
+      <a class="arrivals__library-link" href="${JELLYFIN_BASE}" target="_blank" rel="noopener noreferrer">
+        <svg class="arrivals__library-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="9"/>
+          <polyline points="12 8 16 12 12 16"/>
+          <line x1="8" y1="12" x2="16" y2="12"/>
+        </svg>
+        <span class="arrivals__library-label">Go to<br>Library</span>
+      </a>
+      <div class="arrivals__library-divider"></div>
+      <a class="arrivals__library-link" href="https://watch.voidport.com" target="_blank" rel="noopener noreferrer">
+        <img class="arrivals__library-favicon" src="https://voidport.com/content/images/size/w256h256/2026/02/voidport-icon-bw-whitebg-roundedcorner-512px.png" alt="" aria-hidden="true">
+        <span class="arrivals__library-label">Watch on Voidport</span>
+      </a>`;
 
-    return a;
+    return div;
   }
 
   async function fetchArrivals() {

@@ -1185,22 +1185,52 @@ input:checked + .search__toggle-track::before {
   flex: 0 0 120px;
   align-items: center;
   justify-content: center;
-  gap: 0.6rem;
-  color: var(--text-secondary);
+  gap: 0;
   aspect-ratio: unset;
-  /* Match total height of poster card: (120 * 3/2) + info block ≈ 205px */
   min-height: 205px;
+  padding: 0;
+  overflow: hidden;
+  pointer-events: none;
+  cursor: default;
 }
 
-.arrivals__card--library:hover {
+.arrivals__library-link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  flex: 1;
+  width: 100%;
+  text-decoration: none;
   color: var(--text-primary);
+  opacity: 0.5;
+  padding: 0.75rem 0.5rem;
+  pointer-events: auto;
+  transition: opacity var(--transition-normal);
+}
+
+.arrivals__library-link:hover {
+  opacity: 1;
+}
+
+.arrivals__library-divider {
+  width: 60%;
+  height: 1px;
+  background: var(--border-color);
+  flex-shrink: 0;
 }
 
 .arrivals__library-icon {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   flex-shrink: 0;
-  color: var(--text-secondary);
+}
+
+.arrivals__library-favicon {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
 }
 
 .arrivals__library-label {

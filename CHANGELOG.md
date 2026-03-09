@@ -1,5 +1,12 @@
 # Changelog — Voidbase
 
+## v0.5.1 — 2026-03-09
+*New Arrivals fixes & improvements*
+
+### Added
+- **Jellyfin image proxy** — poster art now loads outside local network via `GET /jellyfin/image/:itemId`; images cached for 24h
+- **Split library card** — "Go to Library" (local) and "Watch on Voidport" (watch.voidport.com) as separate links in the last card
+
 ## v0.5.0 — 2026-03-09
 *New Arrivals section, visual updates & code cleanup*
 

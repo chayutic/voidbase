@@ -298,6 +298,37 @@ app.get("/jellyfin/poster/:seriesId", async (req, res) => {
   }
 });
 
+
+// ── Jellyfin: image proxy ─────────────────────────────────────────
+// GET /jellyfin/image/:itemId?tag=xxx
+// Proxies poster art so images load outside the local network.
+app.get("/jellyfin/image/:itemId", async (req, res) => {
+  if (!JELLYFIN_URL || !JELLYFIN_KEY) {
+    return res.status(503).end();
+  }
+
+  const { itemId } = req.params;
+  const { tag }    = req.query;
+  if (!tag) return res.status(400).end();
+
+  try {
+    const url      = `${JELLYFIN_URL}/Items/${itemId}/Images/Primary?tag=${tag}&maxHeight=400&quality=90&apikey=${JELLYFIN_KEY}`;
+    const response = await fetch(url);
+
+    if (!response.ok) return res.status(response.status).end();
+
+    const contentType = response.headers.get("content-type") || "image/jpeg";
+    const buffer      = await response.arrayBuffer();
+
+    res.set("Content-Type", contentType);
+    res.set("Cache-Control", "public, max-age=86400"); // cache for 24h
+    res.send(Buffer.from(buffer));
+  } catch (err) {
+    console.error("Jellyfin image proxy error:", err.message);
+    res.status(500).end();
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Dashboard running on port ${PORT}`);
 });
