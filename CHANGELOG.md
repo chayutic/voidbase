@@ -1,5 +1,24 @@
 # Changelog — Voidbase
 
+## v0.5.2 — 2026-03-10
+*Theme system overhaul, Layout Customizer, and code cleanup*
+
+### Added
+- Black and White themes (Obsidian Black, Spirit White), Spirit White effectively serves as Light Mode
+- Layout Customizer — drag-and-drop section reordering and visibility toggles, accessible from Control Panel
+- `VERSION` JS constant as single source of truth for version string across footer and Control Panel, hopefully I remember to change them going forward
+- Version stamp in Control Panel footer (quick fix for floating gear icon obfuscating the last item in the menu)
+
+### Changed
+- Theme system refactored — colour themes now use explicit `body[data-theme]` blocks instead of a single derived `--theme-hue`; Black and White themes define their own full token sets
+- New color variables added to replace hardcoded `oklch()` values throughout
+- Active swatch ring changed from `--accent-muted` to `--text-primary`; inactive rings removed
+- Removed `opacity` from text elements — replaced with explicit `--text-primary` / `--text-secondary` colour values throughout
+- Light mode placeholder removed from Control Panel (White theme is now a swatch)
+
+### Fixed
+- Various dead and/or duplicate CSS rules
+
 ## v0.5.1 — 2026-03-09
 *New Arrivals fixes & improvements*
 
