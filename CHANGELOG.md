@@ -1,5 +1,17 @@
 # Changelog — Voidbase
 
+## v0.5.3 — 2026-03-12
+*Layout Customizer fixes and Markets improvements*
+
+### Changed
+- `DEFAULT_LAYOUT` is now snapshotted from the DOM at parse time (before any saved layout is applied), ensuring the reset button always restores the intended section order regardless of environment
+- `loadLayout()` now merges saved layout against the DOM snapshot — stale section IDs are dropped, and any newly added sections not present in the saved layout are appended rather than silently omitted
+- Markets section now caches fetched chart data in memory keyed by symbol and range — switching ticker count or toggling expanded charts repaints from cache instead of re-fetching from the API; background refresh still runs on the 60s interval
+- `renderGrid()` rewritten to diff against existing cards instead of destroying and rebuilding — existing cards are reordered or removed in-place, eliminating chart flash adjusting ticker count and minimizing it when toggling expansion
+
+### Fixed
+- Reset button on live site was restoring a previously saved user arrangement instead of the default order
+
 ## v0.5.2 — 2026-03-10
 *Theme system overhaul, Layout Customizer, and code cleanup*
 

@@ -936,77 +936,111 @@
 
   // ── Render grid from symbols array ───────────────────────────────────
   function renderGrid() {
-    chartInstances.forEach(u => u.destroy());
-    chartInstances.clear();
-    stocksGrid.innerHTML = "";
     stocksGrid.classList.toggle("expanded-charts", expandedCharts);
-    symbols.slice(0, tickerCount).forEach(sym => stocksGrid.appendChild(createCard(sym)));
+
+    const targetSymbols = symbols.slice(0, tickerCount);
+
+    // Remove cards that are no longer in the target list
+    const existingCards = Array.from(stocksGrid.querySelectorAll(".stocks__card"));
+    existingCards.forEach(card => {
+      if (!targetSymbols.includes(card.dataset.symbol)) {
+        if (chartInstances.has(card)) { chartInstances.get(card).destroy(); chartInstances.delete(card); }
+        if (card._resizeObserver) card._resizeObserver.disconnect();
+        card.remove();
+      }
+    });
+
+    // Append any new symbols that don't have a card yet
+    const existingSymbols = Array.from(stocksGrid.querySelectorAll(".stocks__card")).map(c => c.dataset.symbol);
+    targetSymbols.forEach(sym => {
+      if (!existingSymbols.includes(sym)) {
+        stocksGrid.appendChild(createCard(sym));
+      }
+    });
+
+    // Reorder cards to match targetSymbols order without destroying them
+    targetSymbols.forEach(sym => {
+      const card = stocksGrid.querySelector(`.stocks__card[data-symbol="${sym}"]`);
+      if (card) stocksGrid.appendChild(card); // appendChild moves if already in DOM
+    });
   }
 
-  // ── Fetch and render a single card ───────────────────────────────────
+  // ── Fetch and render a single card from cache if available ───────────────────────────────────
   async function fetchCard(card) {
     const symbol         = card.dataset.symbol;
     const chartContainer = card.querySelector(".stocks__chart");
     const priceEl        = card.querySelector(".stocks__price");
     const deltaEl        = card.querySelector(".stocks__delta");
 
+    // ── Paint from cache immediately if available ─────────────────
+    const key = `${symbol}:${currentRange}`;
+    if (dataCache.has(key)) {
+      renderCardData(card, dataCache.get(key), chartContainer, priceEl, deltaEl);
+    }
+
     try {
-      const data   = await fetchSymbol(symbol);
-      const closes = data[1];
-      if (!closes || !closes.length) return;
-
-      const latest = closes[closes.length - 1];
-      const first  = closes[0];
-      const delta  = ((latest - first) / first) * 100;
-      const sign   = delta >= 0 ? "+" : "";
-
-      priceEl.textContent  = `${latest.toFixed(2)}`;
-      deltaEl.textContent  = `${sign}${delta.toFixed(2)}%`;
-      deltaEl.dataset.sign = delta >= 0 ? "up" : "down";
-
-      if (chartInstances.has(card)) {
-        chartInstances.get(card).destroy();
-        chartInstances.delete(card);
-      }
-      if (card._resizeObserver) card._resizeObserver.disconnect();
-
-      chartContainer.innerHTML = "";
-      const uplot = createChart(chartContainer, data);
-      chartInstances.set(card, uplot);
-
-      // Reflow chart width when card resizes (e.g. window resize)
-      card._resizeObserver = new ResizeObserver(entries => {
-        const w = entries[0].contentRect.width;
-        if (w > 0) uplot.setSize({ width: w, height: expandedCharts ? 180 : 100 });
-      });
-      card._resizeObserver.observe(card);
-
+      const data = await fetchSymbol(symbol);   // fetchSymbol now also writes to cache
+      renderCardData(card, data, chartContainer, priceEl, deltaEl);
     } catch (err) {
       console.error("Error fetching", symbol, err);
     }
   }
 
+  function renderCardData(card, data, chartContainer, priceEl, deltaEl) {
+    const closes = data[1];
+    if (!closes || !closes.length) return;
+
+    const latest = closes[closes.length - 1];
+    const first  = closes[0];
+    const delta  = ((latest - first) / first) * 100;
+    const sign   = delta >= 0 ? "+" : "";
+
+    priceEl.textContent  = `${latest.toFixed(2)}`;
+    deltaEl.textContent  = `${sign}${delta.toFixed(2)}%`;
+    deltaEl.dataset.sign = delta >= 0 ? "up" : "down";
+
+    if (chartInstances.has(card)) {
+      chartInstances.get(card).destroy();
+      chartInstances.delete(card);
+    }
+    if (card._resizeObserver) card._resizeObserver.disconnect();
+
+    chartContainer.innerHTML = "";
+    const uplot = createChart(chartContainer, data);
+    chartInstances.set(card, uplot);
+
+    card._resizeObserver = new ResizeObserver(entries => {
+      const w = entries[0].contentRect.width;
+      if (w > 0) uplot.setSize({ width: w, height: expandedCharts ? 180 : 100 });
+    });
+    card._resizeObserver.observe(card);
+  }
+
+  // ── In-memory data cache: key = "SYMBOL:range" ───────────────────
+  const dataCache = new Map();
+
   async function fetchSymbol(symbol) {
+    const key      = `${symbol}:${currentRange}`;
     const response = await fetch(`/api/${symbol}?range=${currentRange}`);
-    const json = await response.json();
+    const json     = await response.json();
 
-    const result = json.chart.result[0];
-
-    const rawTimestamps = result.timestamp;
+    const result    = json.chart.result[0];
+    const rawTs     = result.timestamp;
     const rawCloses = result.indicators.quote[0].close;
 
     const timestamps = [];
-    const closes = [];
-
-    for (let i = 0; i < rawTimestamps.length; i++) {
+    const closes     = [];
+    for (let i = 0; i < rawTs.length; i++) {
       const close = rawCloses[i];
       if (close != null && !isNaN(close)) {
-        timestamps.push(rawTimestamps[i]);
+        timestamps.push(rawTs[i]);
         closes.push(close);
       }
     }
 
-    return [timestamps, closes];
+    const data = [timestamps, closes];
+    dataCache.set(key, data);   // store after every successful fetch
+    return data;
   }
 
   // createChart defined inside init() scope below so it can read expandedCharts + currentRange
@@ -1298,7 +1332,7 @@
   applyTheme(localStorage.getItem("theme") || "violet");
 
   // Version — update this one value to change all appearances
-  const VERSION = "v0.5.2";
+  const VERSION = "v0.5.3";
   const YEAR    = new Date().getFullYear();
 
   document.addEventListener("DOMContentLoaded", () => {
@@ -1782,19 +1816,29 @@
     "utilities":       "Utilities",
   };
 
-  // Returns the default layout from current DOM order
+  // Snapshots default order before layout is applied
+  const DEFAULT_LAYOUT = Array.from(document.querySelectorAll(".section[data-section-id]")).map(el => ({
+    id:      el.dataset.sectionId,
+    visible: true,
+  }));
+
+  // Returns the default layout in variable when called
   function getDefaultLayout() {
-    return Array.from(document.querySelectorAll(".section[data-section-id]")).map(el => ({
-      id:      el.dataset.sectionId,
-      visible: true,
-    }));
+    return DEFAULT_LAYOUT;
   }
 
-  // Load layout from localStorage, falling back to DOM order
   function loadLayout() {
     try {
       const saved = JSON.parse(localStorage.getItem(LAYOUT_KEY));
-      if (Array.isArray(saved) && saved.length) return saved;
+      if (Array.isArray(saved) && saved.length) {
+        const defaultIds = DEFAULT_LAYOUT.map(s => s.id);
+        const savedIds   = saved.map(s => s.id);
+
+        // Keep saved order/visibility, but append any new sections not yet in saved
+        const merged = saved.filter(s => defaultIds.includes(s.id));
+        const newSections = DEFAULT_LAYOUT.filter(s => !savedIds.includes(s.id));
+        return [...merged, ...newSections];
+      }
     } catch {}
     return getDefaultLayout();
   }
