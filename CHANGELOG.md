@@ -1,5 +1,15 @@
 # Changelog — Voidbase
 
+## v0.7.6 — 2026-09-05
+*Convention audit, part four — docs*
+
+### Fixed
+- **The changelog was missing a `## v0.7.0` header.** *Notes app*'s entries read as part of v0.7.1's "Notes chrome" because nothing above them said otherwise. Git confirms the header was never written, not stripped later — the commit that added both entries has v0.7.1's real date in it and no v0.7.0 line at all. The date given is a placeholder inside the one window it can fall in (after v0.6.0's 2026-08-24, before v0.7.1's 2026-09-03); the per-release granularity here was never captured and isn't reconstructable, same as `HANDOFF.md` already noted for this whole stretch
+
+### Changed
+- **`CLAUDE.md` reconciled with lanes A–D.** Stylesheet order now describes the cascade-layer model (layer order beats specificity across layers; load order still only breaks ties within one) instead of load order alone; `test/render/` and `npm run test:render` are in the file tree; the cross-feature-import bullet no longer claims a single exception when `markets.js` imports two more (`THEME_CHANGE`, `SETTINGS_CHANGE`) — reworded to distinguish importing an event-name constant from importing behaviour; unprefixed-only is now recorded as the standing policy on vendor CSS prefixes; and the `:visited`/`getComputedStyle` trap that started this audit has a permanent section so it isn't walked into a third time
+- `.impeccable/design.json` refreshed from `DESIGN.md`
+
 ## v0.7.5 — 2026-09-05
 *Convention audit, part three — fossils*
 
@@ -67,6 +77,8 @@
 
 ### Removed
 - Live-formatting toggle. Formatting in place is the whole point of the editor; a switch for turning it off was a switch for making it worse. `layout.js` and the `notesPreview` key go with it
+
+## v0.7.0 — 2026-09-02
 *Notes app*
 
 ### Added

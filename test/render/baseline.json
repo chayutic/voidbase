@@ -69,9 +69,9 @@
     "rest .footer": {
       "w": 5600,
       "h": 576,
-      "digest": "40b645a9",
+      "digest": "d2473160",
       "peakL": 0.709,
-      "atPeak": 9004
+      "atPeak": 9005
     },
     "hover .dock__item": {
       "w": 224,
@@ -275,9 +275,9 @@
     "rest .footer": {
       "w": 5600,
       "h": 576,
-      "digest": "3f79b3d0",
+      "digest": "a78cb106",
       "peakL": 0.709,
-      "atPeak": 9004
+      "atPeak": 9005
     }
   },
   "index-pink-w1400": {
@@ -350,9 +350,9 @@
     "rest .footer": {
       "w": 5600,
       "h": 576,
-      "digest": "8a594935",
+      "digest": "1677dd11",
       "peakL": 0.709,
-      "atPeak": 9004
+      "atPeak": 9005
     }
   },
   "index-green-w1400": {
@@ -425,9 +425,9 @@
     "rest .footer": {
       "w": 5600,
       "h": 576,
-      "digest": "293d96c0",
+      "digest": "aafa79b8",
       "peakL": 0.709,
-      "atPeak": 9004
+      "atPeak": 9005
     }
   },
   "index-violet-w640": {
@@ -500,7 +500,7 @@
     "rest .footer": {
       "w": 2560,
       "h": 576,
-      "digest": "ab4512f9",
+      "digest": "9a9f7cfa",
       "peakL": 1,
       "atPeak": 2560
     }
@@ -575,9 +575,9 @@
     "rest .footer": {
       "w": 1920,
       "h": 576,
-      "digest": "a07e9990",
+      "digest": "269c3b4f",
       "peakL": 0.709,
-      "atPeak": 9004
+      "atPeak": 9005
     }
   },
   "index-violet-w400": {
@@ -650,9 +650,9 @@
     "rest .footer": {
       "w": 1600,
       "h": 576,
-      "digest": "4413b772",
+      "digest": "8b8c53fb",
       "peakL": 0.709,
-      "atPeak": 9004
+      "atPeak": 9005
     }
   },
   "index-violet-w1400-guest": {
@@ -721,7 +721,7 @@
     "rest .footer": {
       "w": 5600,
       "h": 576,
-      "digest": "6eec4d5c",
+      "digest": "9bb77f0d",
       "peakL": 1,
       "atPeak": 5600
     }
