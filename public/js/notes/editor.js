@@ -165,10 +165,6 @@ async function mountCodeMirror(initialText) {
   paneEl.classList.add("cm6-ready");
 }
 
-export function isReady() {
-  return mode === "cm6";
-}
-
 // ── Loading a note ───────────────────────────────────────────────
 
 export async function load(id) {

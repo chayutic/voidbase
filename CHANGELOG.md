@@ -1,5 +1,23 @@
 # Changelog — Voidbase
 
+## v0.7.5 — 2026-09-05
+*Convention audit, part three — fossils*
+
+### Removed
+- **`.utilities__card:link, :visited` is gone**, and it turns out it never protected anything. Lane A's own rule says why: unlayered CSS beats layered CSS at any specificity, and the bump sits in `@layer components`, so a bare `a:link` walks straight through (0,2,0) exactly as it does through `.nav-trigger`'s (0,1,0). Against a *layered* rule, plain `.utilities__card` already wins. The colour moved onto the base rule, which is where it should have been in the first place — the pair was the only place the card's colour was declared, so deleting it outright would have handed the card `--text-primary`
+- `.deals__row--low .deals__name`. The class is never applied; `renderDeals()` sets `deals__row` flat and the historical-low signal has been the fire icon for a while
+- Three commented-out declarations in `.stocks__range`, dating to v0.3.0, and everything they orphaned: `all: unset` leaves `border-style: none`, so the `border-color` on `:hover` and `.active` painted nothing, and the transition was animating a border and a background that don't exist
+- `body::after { display: none; }`, captioned "body::after unused". A rule suppressing a pseudo-element nothing creates
+- `isReady()` in `editor.js` — exported, never imported
+- Four `-webkit-mask-image` and two `-webkit-overflow-scrolling: touch`, plus the `::-webkit-scrollbar` rule. The unprefixed property sat beside all four masks already, and the four weren't even consistent about which came last, so at two of the sites the prefixed copy was the one Chrome resolved. `-webkit-overflow-scrolling` has been a no-op since iOS 13. Evergreen only, as stated
+- The `prefers-reduced-motion` block shortening the view transition to 80ms. It contradicted `PRODUCT.md`, which declines to honour the query on purpose
+
+### Changed
+- The notes route serves `notes.html` without an error callback. The "Notes UI not built yet." fallback was written when it wasn't; it is now, so an ENOENT should reach the error handler like any other
+
+### Known
+- **The render matrix has been measuring `.utilities__card` against empty space.** `.utilities__content` is `max-height: 0; opacity: 0` at rest and `measure()` only counts a zero-sized box as hidden, so the card keeps its layout box inside the clipped container and the probe captures the background behind it — peak L 0.1354 against the card's actual 0.709. Four baseline entries are affected, and one of them is the `focus .utilities__card {"paints": false}` that `TODO.md` cites as a control that shows nothing when tabbed to. It shows nothing because it isn't there. The canary's `protected` verdict for that element came from the same hole, which is how the fossil above kept its reputation for two lanes
+
 ## v0.7.4 — 2026-09-05
 *Convention audit, part two — cascade layers*
 

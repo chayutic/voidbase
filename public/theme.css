@@ -317,9 +317,6 @@ body::before {
     radial-gradient(ellipse 50% 45% at 25% 80%, oklch(0.72 0.04 100 / 0.20), transparent 60%);
 }
 
-/* body::after unused */
-body::after { display: none; }
-
 } /* @layer tokens */
 
 /* Keyframes stay unlayered. Layers order declarations, and @keyframes
@@ -410,8 +407,4 @@ a {
 @keyframes vt-fade-out {
   from { opacity: 1; }
   to   { opacity: 0; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  ::view-transition-old(root) { animation-duration: 80ms; }
 }

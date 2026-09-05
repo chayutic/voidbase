@@ -494,7 +494,6 @@ input:checked + .search__toggle-track::before {
   min-width: 0;
   overflow: hidden;
   white-space: nowrap;
-  -webkit-mask-image: linear-gradient(to right, black calc(100% - 1.5rem), transparent 100%);
   mask-image: linear-gradient(to right, black calc(100% - 1.5rem), transparent 100%);
 }
 
@@ -795,13 +794,9 @@ input:checked + .search__toggle-track::before {
   color: var(--text-primary);
   white-space: nowrap;
   min-width: 0;
-  -webkit-mask-image: linear-gradient(to right, black calc(100% - 2rem), transparent 100%);
   mask-image: linear-gradient(to right, black calc(100% - 2rem), transparent 100%);
   overflow: hidden;
 }
-
-/* Name in accent when at historical low */
-.deals__row--low .deals__name { color: var(--accent); }
 
 .deals__price {
   font-size: 0.85rem;
@@ -936,11 +931,8 @@ input:checked + .search__toggle-track::before {
   overflow-x: auto;
   scroll-behavior: smooth;
   scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
   padding-bottom: 0.25rem; /* prevent border clipping on scroll */
 }
-
-.arrivals__grid::-webkit-scrollbar { display: none; }
 
 /* Base card */
 .arrivals__card {
@@ -1014,7 +1006,6 @@ input:checked + .search__toggle-track::before {
   overflow: hidden;
   letter-spacing: 0.01em;
   mask-image: linear-gradient(to right, black 60%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to right, black 60%, transparent 100%);
 }
 
 .arrivals__meta {
@@ -1025,7 +1016,6 @@ input:checked + .search__toggle-track::before {
   overflow: hidden;
   letter-spacing: 0.02em;
   mask-image: linear-gradient(to right, black 60%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to right, black 60%, transparent 100%);
 }
 
 /* Library card — centered icon + label, same height as poster cards */
@@ -1135,28 +1125,20 @@ input:checked + .search__toggle-track::before {
 .stocks__range {
   all: unset;
   padding: 0.25rem 0.5rem;
-  /* border-radius: 6px; */
-  /* border: 1px solid var(--border-color); */
-  /* background: var(--surface-glass); */
   font-size: 0.7rem;
   font-family: var(--font-title);
   font-weight: 700;
   letter-spacing: 0.04rem;
   cursor: pointer;
   color: var(--text-secondary);
-  transition:
-    border-color var(--transition-normal),
-    background   var(--transition-normal),
-    color        var(--transition-normal);
+  transition: color var(--transition-normal);
 }
 
 .stocks__range:hover {
-  border-color: var(--border-hover);
   color: var(--text-primary);
 }
 
 .stocks__range.active {
-  border-color: var(--accent);
   color: var(--text-primary);
   text-decoration: underline;
   text-underline-offset: 3px;
@@ -1383,6 +1365,7 @@ input:checked + .search__toggle-track::before {
   border-radius: var(--radius);
   background: var(--surface-glass);
   border: 1px solid var(--border-color);
+  color: var(--text-secondary);
   font-family: var(--font-title);
   font-size: 0.82rem;
   font-weight: 500;
@@ -1392,11 +1375,6 @@ input:checked + .search__toggle-track::before {
     color        var(--transition-normal),
     transform    var(--transition-normal);
   cursor: pointer;
-}
-
-.utilities__card:link,
-.utilities__card:visited {
-  color: var(--text-secondary);
 }
 
 .utilities__card:hover {
