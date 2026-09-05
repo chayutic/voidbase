@@ -1,0 +1,17 @@
+[
+  {
+    "id": "fixture-game-01",
+    "discount": -75,
+    "low90discount": -75
+  },
+  {
+    "id": "fixture-game-02",
+    "discount": -40,
+    "low90discount": -60
+  },
+  {
+    "id": "fixture-game-03",
+    "discount": 0,
+    "low90discount": -50
+  }
+]

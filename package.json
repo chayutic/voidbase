@@ -17,6 +17,7 @@
     "esbuild": "^0.25.0"
   },
   "scripts": {
-    "build:cm6": "esbuild build/cm6-entry.js --bundle --format=esm --minify --target=es2022 --outfile=public/js/vendor/cm6.min.js --legal-comments=none"
+    "build:cm6": "esbuild build/cm6-entry.js --bundle --format=esm --minify --target=es2022 --outfile=public/js/vendor/cm6.min.js --legal-comments=none",
+    "test:render": "node test/render/matrix.js"
   }
 }

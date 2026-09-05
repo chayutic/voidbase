@@ -1,0 +1,17 @@
+[
+  {
+    "id": "fixture-game-01",
+    "title": "Return to the Foundry",
+    "appid": "1000010"
+  },
+  {
+    "id": "fixture-game-02",
+    "title": "Saltmarsh",
+    "appid": "1000020"
+  },
+  {
+    "id": "fixture-game-03",
+    "title": "A Very Long Game Title That Has To Truncate",
+    "appid": null
+  }
+]

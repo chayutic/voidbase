@@ -1,0 +1,68 @@
+[
+  {
+    "id": "fixture0001",
+    "type": "Movie",
+    "title": "The Cartographer",
+    "year": 1989,
+    "seriesName": null,
+    "seasonNum": null,
+    "episodeNum": null,
+    "seriesId": null,
+    "imageTag": "tag0001"
+  },
+  {
+    "id": "fixture0002",
+    "type": "Movie",
+    "title": "Halfway House",
+    "year": 2020,
+    "seriesName": null,
+    "seasonNum": null,
+    "episodeNum": null,
+    "seriesId": null,
+    "imageTag": "tag0002"
+  },
+  {
+    "id": "fixture0003",
+    "type": "Movie",
+    "title": "Ledger",
+    "year": 2025,
+    "seriesName": null,
+    "seasonNum": null,
+    "episodeNum": null,
+    "seriesId": null,
+    "imageTag": "tag0003"
+  },
+  {
+    "id": "fixture0004",
+    "type": "Episode",
+    "title": "One Small Step",
+    "year": 2026,
+    "seriesName": "Longshore",
+    "seasonNum": 4,
+    "episodeNum": 3,
+    "seriesId": "series001",
+    "imageTag": "tag0004"
+  },
+  {
+    "id": "fixture0005",
+    "type": "Episode",
+    "title": "Blood and Bone",
+    "year": 2026,
+    "seriesName": "The Quiet Part",
+    "seasonNum": 5,
+    "episodeNum": 8,
+    "seriesId": "series002",
+    "imageTag": "tag0005"
+  },
+  {
+    "id": "fixture0006",
+    "type": "Episode",
+    "title": "Other People's Homes",
+    "year": 2026,
+    "seriesName": "An Exceptionally Long Series Name For Truncation",
+    "seasonNum": 2,
+    "episodeNum": 4,
+    "seriesId": "series003",
+    "imageTag": null
+  }
+]

@@ -1,0 +1,1007 @@
+{
+  "index-violet-w1400": {
+    "rest .header": {
+      "w": 5600,
+      "h": 1060,
+      "digest": "5d0b7d18",
+      "peakL": 0.9702,
+      "atPeak": 102845
+    },
+    "rest .search__input-row": {
+      "w": 2336,
+      "h": 184,
+      "digest": "9e58efb4",
+      "peakL": 0.709,
+      "atPeak": 566
+    },
+    "rest .dock": {
+      "w": 5600,
+      "h": 380,
+      "digest": "8e5f89d7",
+      "peakL": 0.709,
+      "atPeak": 71807
+    },
+    "rest .deals-section": {
+      "w": 3840,
+      "h": 512,
+      "digest": "b90c46f0",
+      "peakL": 0.9702,
+      "atPeak": 18290
+    },
+    "rest .arrivals-section": {
+      "w": 3840,
+      "h": 1032,
+      "digest": "af0644cd",
+      "peakL": 0.9702,
+      "atPeak": 15772
+    },
+    "rest .markets": {
+      "w": 3840,
+      "h": 524,
+      "digest": "00b2715b",
+      "peakL": 0.9702,
+      "atPeak": 22702
+    },
+    "rest [data-section-id=\"media-automation\"]": {
+      "w": 3840,
+      "h": 384,
+      "digest": "734c4484",
+      "peakL": 0.9702,
+      "atPeak": 13396
+    },
+    "rest .utilities__grid": {
+      "hidden": true
+    },
+    "rest .nav-trigger": {
+      "w": 168,
+      "h": 168,
+      "digest": "fbf7910a",
+      "peakL": 0.709,
+      "atPeak": 1189
+    },
+    "rest .settings-trigger": {
+      "w": 168,
+      "h": 168,
+      "digest": "ecfb317e",
+      "peakL": 0.709,
+      "atPeak": 1255
+    },
+    "rest .footer": {
+      "w": 5600,
+      "h": 576,
+      "digest": "862d5cf8",
+      "peakL": 0.709,
+      "atPeak": 8961
+    },
+    "hover .dock__item": {
+      "w": 224,
+      "h": 224,
+      "digest": "6b491353",
+      "peakL": 0.5307,
+      "atPeak": 30685
+    },
+    "hover .search__input-row": {
+      "w": 2336,
+      "h": 184,
+      "digest": "5bc57863",
+      "peakL": 0.709,
+      "atPeak": 566
+    },
+    "hover .card": {
+      "w": 920,
+      "h": 264,
+      "digest": "2810efcd",
+      "peakL": 0.9702,
+      "atPeak": 4569
+    },
+    "hover .utilities__card": {
+      "w": 504,
+      "h": 164,
+      "digest": "5d7966c9",
+      "peakL": 0.1354,
+      "atPeak": 23402
+    },
+    "hover .arrivals__card": {
+      "w": 480,
+      "h": 900,
+      "digest": "1befc942",
+      "peakL": 0.9702,
+      "atPeak": 2559
+    },
+    "hover .stocks__card": {
+      "w": 596,
+      "h": 408,
+      "digest": "322b665c",
+      "peakL": 0.9702,
+      "atPeak": 3311
+    },
+    "hover .footer__top": {
+      "w": 432,
+      "h": 60,
+      "digest": "fb45546c",
+      "peakL": 0.9702,
+      "atPeak": 2759
+    },
+    "hover .settings-trigger": {
+      "w": 168,
+      "h": 168,
+      "digest": "dc0149d6",
+      "peakL": 0.9702,
+      "atPeak": 1255
+    },
+    "hover .nav-trigger": {
+      "w": 168,
+      "h": 168,
+      "digest": "f8ad7950",
+      "peakL": 0.9702,
+      "atPeak": 1189
+    },
+    "focus .search__input": {
+      "paints": true,
+      "restL": 0.5624,
+      "focusL": 0.2253,
+      "focusDigest": "32c10eb0"
+    },
+    "focus .card": {
+      "paints": true,
+      "restL": 0.9702,
+      "focusL": 1,
+      "focusDigest": "7dffb5b3"
+    },
+    "focus .utilities__card": {
+      "paints": false,
+      "restL": 0.1354,
+      "focusL": 0.1354,
+      "focusDigest": "5d7966c9"
+    },
+    "focus .settings-trigger": {
+      "paints": true,
+      "restL": 0.709,
+      "focusL": 1,
+      "focusDigest": "f650a465"
+    },
+    "focus .nav-trigger": {
+      "paints": true,
+      "restL": 0.709,
+      "focusL": 1,
+      "focusDigest": "4e9a8a59"
+    },
+    "canary a:link": {
+      ".nav-trigger": {
+        "vulnerable": true,
+        "beforeL": 0.709,
+        "afterL": 0.9702
+      },
+      ".utilities__card": {
+        "vulnerable": false,
+        "beforeL": 0.1354,
+        "afterL": 0.1354
+      }
+    },
+    "dpr1 .nav-trigger": {
+      "w": 42,
+      "h": 42,
+      "digest": "90a702ed",
+      "peakL": 0.709,
+      "atPeak": 19
+    },
+    "dpr1 .settings-trigger": {
+      "w": 42,
+      "h": 42,
+      "digest": "a8ed22dd",
+      "peakL": 0.709,
+      "atPeak": 16
+    }
+  },
+  "index-blue-w1400": {
+    "rest .header": {
+      "w": 5600,
+      "h": 1060,
+      "digest": "12786a0b",
+      "peakL": 0.9702,
+      "atPeak": 102845
+    },
+    "rest .search__input-row": {
+      "w": 2336,
+      "h": 184,
+      "digest": "7a00d904",
+      "peakL": 0.709,
+      "atPeak": 566
+    },
+    "rest .dock": {
+      "w": 5600,
+      "h": 380,
+      "digest": "dcddd3a8",
+      "peakL": 0.709,
+      "atPeak": 71807
+    },
+    "rest .deals-section": {
+      "w": 3840,
+      "h": 512,
+      "digest": "4e780f96",
+      "peakL": 0.9702,
+      "atPeak": 18290
+    },
+    "rest .arrivals-section": {
+      "w": 3840,
+      "h": 1032,
+      "digest": "f90b57c1",
+      "peakL": 0.9702,
+      "atPeak": 15772
+    },
+    "rest .markets": {
+      "w": 3840,
+      "h": 524,
+      "digest": "108690bd",
+      "peakL": 0.9702,
+      "atPeak": 22702
+    },
+    "rest [data-section-id=\"media-automation\"]": {
+      "w": 3840,
+      "h": 384,
+      "digest": "9c5e38d1",
+      "peakL": 0.9702,
+      "atPeak": 13396
+    },
+    "rest .utilities__grid": {
+      "hidden": true
+    },
+    "rest .nav-trigger": {
+      "w": 168,
+      "h": 168,
+      "digest": "388cbcb9",
+      "peakL": 0.709,
+      "atPeak": 1189
+    },
+    "rest .settings-trigger": {
+      "w": 168,
+      "h": 168,
+      "digest": "666bfb14",
+      "peakL": 0.709,
+      "atPeak": 1255
+    },
+    "rest .footer": {
+      "w": 5600,
+      "h": 576,
+      "digest": "10330014",
+      "peakL": 0.709,
+      "atPeak": 8961
+    }
+  },
+  "index-pink-w1400": {
+    "rest .header": {
+      "w": 5600,
+      "h": 1060,
+      "digest": "a7f5c88d",
+      "peakL": 0.9702,
+      "atPeak": 102845
+    },
+    "rest .search__input-row": {
+      "w": 2336,
+      "h": 184,
+      "digest": "572f2e40",
+      "peakL": 0.709,
+      "atPeak": 566
+    },
+    "rest .dock": {
+      "w": 5600,
+      "h": 380,
+      "digest": "f20723bd",
+      "peakL": 0.709,
+      "atPeak": 71807
+    },
+    "rest .deals-section": {
+      "w": 3840,
+      "h": 512,
+      "digest": "26c7b2d7",
+      "peakL": 0.9702,
+      "atPeak": 18290
+    },
+    "rest .arrivals-section": {
+      "w": 3840,
+      "h": 1032,
+      "digest": "3debf94d",
+      "peakL": 0.9702,
+      "atPeak": 15772
+    },
+    "rest .markets": {
+      "w": 3840,
+      "h": 524,
+      "digest": "5e5ef4c6",
+      "peakL": 0.9702,
+      "atPeak": 22702
+    },
+    "rest [data-section-id=\"media-automation\"]": {
+      "w": 3840,
+      "h": 384,
+      "digest": "f8982814",
+      "peakL": 0.9702,
+      "atPeak": 13396
+    },
+    "rest .utilities__grid": {
+      "hidden": true
+    },
+    "rest .nav-trigger": {
+      "w": 168,
+      "h": 168,
+      "digest": "3e417ba3",
+      "peakL": 0.709,
+      "atPeak": 1189
+    },
+    "rest .settings-trigger": {
+      "w": 168,
+      "h": 168,
+      "digest": "07ec4a8e",
+      "peakL": 0.709,
+      "atPeak": 1255
+    },
+    "rest .footer": {
+      "w": 5600,
+      "h": 576,
+      "digest": "dd6c7d8f",
+      "peakL": 0.709,
+      "atPeak": 8961
+    }
+  },
+  "index-green-w1400": {
+    "rest .header": {
+      "w": 5600,
+      "h": 1060,
+      "digest": "7392bfff",
+      "peakL": 0.9702,
+      "atPeak": 102845
+    },
+    "rest .search__input-row": {
+      "w": 2336,
+      "h": 184,
+      "digest": "f9f40a9b",
+      "peakL": 0.709,
+      "atPeak": 566
+    },
+    "rest .dock": {
+      "w": 5600,
+      "h": 380,
+      "digest": "3932f475",
+      "peakL": 0.709,
+      "atPeak": 71807
+    },
+    "rest .deals-section": {
+      "w": 3840,
+      "h": 512,
+      "digest": "1be898fa",
+      "peakL": 0.9702,
+      "atPeak": 18290
+    },
+    "rest .arrivals-section": {
+      "w": 3840,
+      "h": 1032,
+      "digest": "2b43d866",
+      "peakL": 0.9702,
+      "atPeak": 15772
+    },
+    "rest .markets": {
+      "w": 3840,
+      "h": 524,
+      "digest": "92bb16d8",
+      "peakL": 0.9702,
+      "atPeak": 22702
+    },
+    "rest [data-section-id=\"media-automation\"]": {
+      "w": 3840,
+      "h": 384,
+      "digest": "aa4d294b",
+      "peakL": 0.9702,
+      "atPeak": 13396
+    },
+    "rest .utilities__grid": {
+      "hidden": true
+    },
+    "rest .nav-trigger": {
+      "w": 168,
+      "h": 168,
+      "digest": "93392198",
+      "peakL": 0.709,
+      "atPeak": 1189
+    },
+    "rest .settings-trigger": {
+      "w": 168,
+      "h": 168,
+      "digest": "bbf65b62",
+      "peakL": 0.709,
+      "atPeak": 1255
+    },
+    "rest .footer": {
+      "w": 5600,
+      "h": 576,
+      "digest": "993bab04",
+      "peakL": 0.709,
+      "atPeak": 8961
+    }
+  },
+  "index-violet-w640": {
+    "rest .header": {
+      "w": 2560,
+      "h": 1060,
+      "digest": "ba786d6c",
+      "peakL": 0.9702,
+      "atPeak": 102845
+    },
+    "rest .search__input-row": {
+      "w": 2304,
+      "h": 184,
+      "digest": "2ef009cb",
+      "peakL": 0.709,
+      "atPeak": 566
+    },
+    "rest .dock": {
+      "w": 2560,
+      "h": 380,
+      "digest": "5fdc800d",
+      "peakL": 0.709,
+      "atPeak": 71810
+    },
+    "rest .deals-section": {
+      "w": 2304,
+      "h": 512,
+      "digest": "e4bdac89",
+      "peakL": 0.9702,
+      "atPeak": 18446
+    },
+    "rest .arrivals-section": {
+      "w": 2304,
+      "h": 1032,
+      "digest": "e79cdaed",
+      "peakL": 0.9702,
+      "atPeak": 11711
+    },
+    "rest .markets": {
+      "w": 2304,
+      "h": 984,
+      "digest": "d8ca88cb",
+      "peakL": 0.9702,
+      "atPeak": 22806
+    },
+    "rest [data-section-id=\"media-automation\"]": {
+      "w": 2304,
+      "h": 700,
+      "digest": "d5649265",
+      "peakL": 0.9702,
+      "atPeak": 13302
+    },
+    "rest .utilities__grid": {
+      "hidden": true
+    },
+    "rest .nav-trigger": {
+      "w": 168,
+      "h": 168,
+      "digest": "8ff06328",
+      "peakL": 0.709,
+      "atPeak": 1189
+    },
+    "rest .settings-trigger": {
+      "w": 168,
+      "h": 168,
+      "digest": "0cf7477a",
+      "peakL": 0.709,
+      "atPeak": 1255
+    },
+    "rest .footer": {
+      "w": 2560,
+      "h": 576,
+      "digest": "8684207c",
+      "peakL": 1,
+      "atPeak": 2560
+    }
+  },
+  "index-violet-w480": {
+    "rest .header": {
+      "w": 1920,
+      "h": 1060,
+      "digest": "eb5ed10e",
+      "peakL": 0.9702,
+      "atPeak": 102845
+    },
+    "rest .search__input-row": {
+      "w": 1664,
+      "h": 184,
+      "digest": "e8eb74e6",
+      "peakL": 0.709,
+      "atPeak": 566
+    },
+    "rest .dock": {
+      "w": 1920,
+      "h": 380,
+      "digest": "67127c14",
+      "peakL": 0.709,
+      "atPeak": 71820
+    },
+    "rest .deals-section": {
+      "w": 1664,
+      "h": 512,
+      "digest": "e6bdb11d",
+      "peakL": 0.9702,
+      "atPeak": 15087
+    },
+    "rest .arrivals-section": {
+      "w": 1664,
+      "h": 1032,
+      "digest": "f8d7f77a",
+      "peakL": 0.9702,
+      "atPeak": 7801
+    },
+    "rest .markets": {
+      "w": 1664,
+      "h": 1444,
+      "digest": "b1f7047e",
+      "peakL": 0.9702,
+      "atPeak": 22707
+    },
+    "rest [data-section-id=\"media-automation\"]": {
+      "w": 1664,
+      "h": 1336,
+      "digest": "3691ebba",
+      "peakL": 0.9702,
+      "atPeak": 13232
+    },
+    "rest .utilities__grid": {
+      "hidden": true
+    },
+    "rest .nav-trigger": {
+      "w": 168,
+      "h": 168,
+      "digest": "0e15e262",
+      "peakL": 0.709,
+      "atPeak": 1189
+    },
+    "rest .settings-trigger": {
+      "w": 168,
+      "h": 168,
+      "digest": "b8cc8172",
+      "peakL": 0.709,
+      "atPeak": 1255
+    },
+    "rest .footer": {
+      "w": 1920,
+      "h": 576,
+      "digest": "3eb60db2",
+      "peakL": 0.709,
+      "atPeak": 8961
+    }
+  },
+  "index-violet-w400": {
+    "rest .header": {
+      "w": 1600,
+      "h": 860,
+      "digest": "ea98713e",
+      "peakL": 0.9702,
+      "atPeak": 71930
+    },
+    "rest .search__input-row": {
+      "w": 1472,
+      "h": 184,
+      "digest": "39a1d840",
+      "peakL": 0.709,
+      "atPeak": 566
+    },
+    "rest .dock": {
+      "w": 1600,
+      "h": 320,
+      "digest": "4cc05819",
+      "peakL": 0.709,
+      "atPeak": 71810
+    },
+    "rest .deals-section": {
+      "w": 1472,
+      "h": 512,
+      "digest": "009c3a74",
+      "peakL": 0.9702,
+      "atPeak": 15775
+    },
+    "rest .arrivals-section": {
+      "w": 1472,
+      "h": 1032,
+      "digest": "a6897e54",
+      "peakL": 0.9702,
+      "atPeak": 7477
+    },
+    "rest .markets": {
+      "w": 1472,
+      "h": 1444,
+      "digest": "b55d5212",
+      "peakL": 0.9702,
+      "atPeak": 22707
+    },
+    "rest [data-section-id=\"media-automation\"]": {
+      "w": 1472,
+      "h": 1336,
+      "digest": "e51900fd",
+      "peakL": 0.9702,
+      "atPeak": 13232
+    },
+    "rest .utilities__grid": {
+      "hidden": true
+    },
+    "rest .nav-trigger": {
+      "w": 168,
+      "h": 168,
+      "digest": "7926519f",
+      "peakL": 0.709,
+      "atPeak": 1695
+    },
+    "rest .settings-trigger": {
+      "w": 168,
+      "h": 168,
+      "digest": "02403560",
+      "peakL": 0.709,
+      "atPeak": 1255
+    },
+    "rest .footer": {
+      "w": 1600,
+      "h": 576,
+      "digest": "52d512ab",
+      "peakL": 0.709,
+      "atPeak": 8961
+    }
+  },
+  "index-violet-w1400-guest": {
+    "rest .header": {
+      "w": 5600,
+      "h": 1060,
+      "digest": "185f9ccc",
+      "peakL": 0.9702,
+      "atPeak": 102845
+    },
+    "rest .search__input-row": {
+      "w": 2336,
+      "h": 184,
+      "digest": "448f9266",
+      "peakL": 0.709,
+      "atPeak": 566
+    },
+    "rest .dock": {
+      "w": 5600,
+      "h": 380,
+      "digest": "cec242d2",
+      "peakL": 0.709,
+      "atPeak": 71807
+    },
+    "rest .deals-section": {
+      "w": 3840,
+      "h": 512,
+      "digest": "52deb1dd",
+      "peakL": 0.9702,
+      "atPeak": 18290
+    },
+    "rest .arrivals-section": {
+      "w": 3840,
+      "h": 1032,
+      "digest": "e2a2e5d7",
+      "peakL": 0.9702,
+      "atPeak": 15772
+    },
+    "rest .markets": {
+      "w": 3840,
+      "h": 524,
+      "digest": "87c07e0c",
+      "peakL": 0.9702,
+      "atPeak": 22702
+    },
+    "rest [data-section-id=\"media-automation\"]": {
+      "hidden": true
+    },
+    "rest .utilities__grid": {
+      "hidden": true
+    },
+    "rest .nav-trigger": {
+      "w": 168,
+      "h": 168,
+      "digest": "bd94edc6",
+      "peakL": 0.709,
+      "atPeak": 1189
+    },
+    "rest .settings-trigger": {
+      "w": 168,
+      "h": 168,
+      "digest": "66b40c16",
+      "peakL": 0.709,
+      "atPeak": 1255
+    },
+    "rest .footer": {
+      "w": 5600,
+      "h": 576,
+      "digest": "cf7d4575",
+      "peakL": 1,
+      "atPeak": 5600
+    }
+  },
+  "notes-violet-w1400": {
+    "rest .notes__header": {
+      "w": 5600,
+      "h": 224,
+      "digest": "947bf1f0",
+      "peakL": 0.709,
+      "atPeak": 4386
+    },
+    "rest .notes__sidebar": {
+      "w": 1088,
+      "h": 3376,
+      "digest": "038ded70",
+      "peakL": 0.9702,
+      "atPeak": 12886
+    },
+    "rest .notes__list": {
+      "w": 1084,
+      "h": 1084,
+      "digest": "9af9de62",
+      "peakL": 0.9702,
+      "atPeak": 12886
+    },
+    "rest .notes__pane": {
+      "w": 4512,
+      "h": 3376,
+      "digest": "05c9eb63",
+      "peakL": 0.9702,
+      "atPeak": 60532
+    },
+    "rest .notes__statusbar": {
+      "w": 4512,
+      "h": 124,
+      "digest": "3fe4aae6",
+      "peakL": 0.7214,
+      "atPeak": 804
+    },
+    "rest .nav-trigger": {
+      "w": 168,
+      "h": 168,
+      "digest": "d9d552b7",
+      "peakL": 0.709,
+      "atPeak": 1224
+    },
+    "hover .notes__row": {
+      "w": 1020,
+      "h": 248,
+      "digest": "2e129189",
+      "peakL": 0.9702,
+      "atPeak": 5015
+    },
+    "hover .notes__new-row": {
+      "w": 1020,
+      "h": 148,
+      "digest": "55759072",
+      "peakL": 0.9702,
+      "atPeak": 1868
+    },
+    "hover .notes__collapse": {
+      "w": 96,
+      "h": 96,
+      "digest": "6e380d2f",
+      "peakL": 0.9702,
+      "atPeak": 152
+    },
+    "hover .nav-trigger": {
+      "w": 168,
+      "h": 168,
+      "digest": "62dfaa26",
+      "peakL": 0.9702,
+      "atPeak": 1224
+    },
+    "focus .notes__search": {
+      "paints": false,
+      "restL": 0.709,
+      "focusL": 0.709,
+      "focusDigest": "f8ba2abf"
+    },
+    "focus .notes__row": {
+      "paints": true,
+      "restL": 0.9702,
+      "focusL": 1,
+      "focusDigest": "c7ddcc91"
+    },
+    "focus .nav-trigger": {
+      "paints": true,
+      "restL": 0.709,
+      "focusL": 1,
+      "focusDigest": "fdcc83b2"
+    },
+    "canary a:link": {
+      ".nav-trigger": {
+        "vulnerable": true,
+        "beforeL": 0.709,
+        "afterL": 0.9702
+      },
+      ".utilities__card": {
+        "absent": true
+      }
+    },
+    "dpr1 .nav-trigger": {
+      "w": 42,
+      "h": 42,
+      "digest": "ee2ea812",
+      "peakL": 0.709,
+      "atPeak": 28
+    },
+    "dpr1 .settings-trigger": {
+      "w": 42,
+      "h": 42,
+      "digest": "1bc559ab",
+      "peakL": 0.709,
+      "atPeak": 16
+    }
+  },
+  "notes-blue-w1400": {
+    "rest .notes__header": {
+      "w": 5600,
+      "h": 224,
+      "digest": "ede421ef",
+      "peakL": 0.709,
+      "atPeak": 4386
+    },
+    "rest .notes__sidebar": {
+      "w": 1088,
+      "h": 3376,
+      "digest": "2c2bf092",
+      "peakL": 0.9702,
+      "atPeak": 12886
+    },
+    "rest .notes__list": {
+      "w": 1084,
+      "h": 1084,
+      "digest": "ade59e68",
+      "peakL": 0.9702,
+      "atPeak": 12886
+    },
+    "rest .notes__pane": {
+      "w": 4512,
+      "h": 3376,
+      "digest": "ac9aae5b",
+      "peakL": 0.9702,
+      "atPeak": 60532
+    },
+    "rest .notes__statusbar": {
+      "w": 4512,
+      "h": 124,
+      "digest": "9ecf0ec9",
+      "peakL": 0.7214,
+      "atPeak": 804
+    },
+    "rest .nav-trigger": {
+      "w": 168,
+      "h": 168,
+      "digest": "5e01e455",
+      "peakL": 0.709,
+      "atPeak": 1224
+    }
+  },
+  "notes-pink-w1400": {
+    "rest .notes__header": {
+      "w": 5600,
+      "h": 224,
+      "digest": "474863b5",
+      "peakL": 0.709,
+      "atPeak": 4386
+    },
+    "rest .notes__sidebar": {
+      "w": 1088,
+      "h": 3376,
+      "digest": "ca20bac8",
+      "peakL": 0.9702,
+      "atPeak": 12886
+    },
+    "rest .notes__list": {
+      "w": 1084,
+      "h": 1084,
+      "digest": "a6743c0c",
+      "peakL": 0.9702,
+      "atPeak": 12886
+    },
+    "rest .notes__pane": {
+      "w": 4512,
+      "h": 3376,
+      "digest": "ddd18362",
+      "peakL": 0.9702,
+      "atPeak": 60532
+    },
+    "rest .notes__statusbar": {
+      "w": 4512,
+      "h": 124,
+      "digest": "d53113ca",
+      "peakL": 0.7214,
+      "atPeak": 804
+    },
+    "rest .nav-trigger": {
+      "w": 168,
+      "h": 168,
+      "digest": "4c2ed6d6",
+      "peakL": 0.709,
+      "atPeak": 1224
+    }
+  },
+  "notes-green-w1400": {
+    "rest .notes__header": {
+      "w": 5600,
+      "h": 224,
+      "digest": "767b3b3b",
+      "peakL": 0.709,
+      "atPeak": 4386
+    },
+    "rest .notes__sidebar": {
+      "w": 1088,
+      "h": 3376,
+      "digest": "85e460ad",
+      "peakL": 0.9702,
+      "atPeak": 12886
+    },
+    "rest .notes__list": {
+      "w": 1084,
+      "h": 1084,
+      "digest": "81a8e981",
+      "peakL": 0.9702,
+      "atPeak": 12886
+    },
+    "rest .notes__pane": {
+      "w": 4512,
+      "h": 3376,
+      "digest": "e574ad44",
+      "peakL": 0.9702,
+      "atPeak": 60532
+    },
+    "rest .notes__statusbar": {
+      "w": 4512,
+      "h": 124,
+      "digest": "cfec0f72",
+      "peakL": 0.7214,
+      "atPeak": 804
+    },
+    "rest .nav-trigger": {
+      "w": 168,
+      "h": 168,
+      "digest": "1c45dc03",
+      "peakL": 0.709,
+      "atPeak": 1224
+    }
+  },
+  "notes-violet-w600": {
+    "rest .notes__header": {
+      "w": 2400,
+      "h": 224,
+      "digest": "2f751e23",
+      "peakL": 0.709,
+      "atPeak": 4386
+    },
+    "rest .notes__sidebar": {
+      "w": 2400,
+      "h": 1368,
+      "digest": "97e8a152",
+      "peakL": 0.9702,
+      "atPeak": 12886
+    },
+    "rest .notes__list": {
+      "w": 2400,
+      "h": 1084,
+      "digest": "aae8fa08",
+      "peakL": 0.9702,
+      "atPeak": 12886
+    },
+    "rest .notes__pane": {
+      "w": 2400,
+      "h": 2008,
+      "digest": "c58ebeb6",
+      "peakL": 0.9702,
+      "atPeak": 39820
+    },
+    "rest .notes__statusbar": {
+      "w": 2400,
+      "h": 124,
+      "digest": "a32a83c0",
+      "peakL": 0.7214,
+      "atPeak": 807
+    },
+    "rest .nav-trigger": {
+      "w": 168,
+      "h": 168,
+      "digest": "b0e6f834",
+      "peakL": 0.709,
+      "atPeak": 1224
+    }
+  }
+}
