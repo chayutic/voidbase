@@ -10,9 +10,10 @@
 //  Pinned games persist in localStorage; prices are fetched fresh and
 //  held in memory only.
 //
-//  KNOWN ISSUE: renderDeals() interpolates ITAD-supplied titles into
-//  innerHTML. Preset rendering in search.js was moved to DOM methods for
-//  exactly this reason in v0.4.2; this path never got the same treatment.
+//  Titles (ITAD-supplied, external) are always inserted via textContent/
+//  dataset, never interpolated into innerHTML — buildReviewIcon/Text are
+//  the one exception, since their input is Steam's own fixed review-
+//  sentiment vocabulary rather than arbitrary text.
 
 import * as store from "./store.js";
 import { KEYS }   from "./store.js";
@@ -85,13 +86,26 @@ async function searchGames() {
       dealsSearchResults.innerHTML = `<div class="deals__result-item">No results found.</div>`;
       return;
     }
-    dealsSearchResults.innerHTML = results.map(g => `
-      <div class="deals__result-item" data-id="${g.id}" data-title="${g.title}" data-appid="${g.appid || ''}">
-        ${g.title}${!g.appid ? ' <span style="opacity:0.4;font-size:0.75em">(no Steam ID)</span>' : ''}
-      </div>`).join("");
 
-    dealsSearchResults.querySelectorAll(".deals__result-item[data-id]").forEach(el => {
-      el.addEventListener("click", () => pinGame(el.dataset.id, el.dataset.title, el.dataset.appid));
+    dealsSearchResults.innerHTML = "";
+    results.forEach(g => {
+      const item = document.createElement("div");
+      item.className     = "deals__result-item";
+      item.dataset.id    = g.id;
+      item.dataset.title = g.title;
+      item.dataset.appid = g.appid || "";
+      item.append(g.title);
+
+      if (!g.appid) {
+        const note = document.createElement("span");
+        note.style.opacity  = "0.4";
+        note.style.fontSize = "0.75em";
+        note.textContent    = " (no Steam ID)";
+        item.appendChild(note);
+      }
+
+      item.addEventListener("click", () => pinGame(item.dataset.id, item.dataset.title, item.dataset.appid));
+      dealsSearchResults.appendChild(item);
     });
 
   } catch (err) {
@@ -259,36 +273,65 @@ function renderDeals() {
     </svg>
   </span>`;
 
-  dealsList.innerHTML = sorted.map(game => {
+  dealsList.innerHTML = "";
+
+  sorted.forEach(game => {
     const d        = dealsCache.get(game.id);
     const discount = d?.discount ?? 0;
     const low90    = d?.low90    ?? null;
     const firePP = low90 !== null && low90 <= DEEP_LOW_PCT ? FIRE_NEAR_PP_DEEP : FIRE_NEAR_PP;
     const isFire = d && low90 !== null && discount < 0 && discount <= low90 + firePP;
-    const priceStr = `${isFire ? fireSVG : '<span class="deals__fire-placeholder"></span>'}${fmtPrice(d?.price)}`;
 
+    // reviewIcon/reviewText are built internally from Steam's own fixed
+    // review-sentiment vocabulary, not arbitrary external text — safe to
+    // insert as markup, unlike game.title below.
     const reviewIcon = buildReviewIcon(d?.reviewDesc ?? null, d?.reviewCount ?? null);
     const reviewText = buildReviewText(d?.reviewDesc ?? null, d?.reviewCount ?? null);
 
-    return `
-      <div class="deals__row" data-id="${game.id}">
-        <span class="deals__col-title deals__name" title="${game.title}">${game.title}</span>
-        <span class="deals__col-review">${reviewText}${reviewIcon}</span>
-        <span class="deals__col-price deals__price">${priceStr}</span>
-        <span class="deals__col-discount deals__discount${discount < 0 ? " deals__discount--off" : ""}">${fmtPct(discount !== 0 ? discount : 0)}</span>
-        <span class="deals__col-low deals__low">${low90 != null ? (low90 === 0 ? '0%' : '-' + Math.abs(low90) + '%') : '—'}</span>
-        <span class="deals__col-remove">
-          <button class="deals__remove" data-id="${game.id}" aria-label="Remove ${game.title}">
-            <svg style="transform:rotate(45deg)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-            </svg>
-          </button>
-        </span>
-      </div>`;
-  }).join("");
+    const row = document.createElement("div");
+    row.className   = "deals__row";
+    row.dataset.id  = game.id;
 
-  dealsList.querySelectorAll(".deals__remove").forEach(btn => {
-    btn.addEventListener("click", () => unpinGame(btn.dataset.id));
+    const nameEl = document.createElement("span");
+    nameEl.className   = "deals__col-title deals__name";
+    nameEl.title       = game.title;
+    nameEl.textContent = game.title;
+
+    const reviewEl = document.createElement("span");
+    reviewEl.className = "deals__col-review";
+    reviewEl.innerHTML = `${reviewText}${reviewIcon}`;
+
+    const priceEl = document.createElement("span");
+    priceEl.className = "deals__col-price deals__price";
+    if (isFire) {
+      priceEl.innerHTML = fireSVG;
+    } else {
+      const placeholder = document.createElement("span");
+      placeholder.className = "deals__fire-placeholder";
+      priceEl.appendChild(placeholder);
+    }
+    priceEl.append(fmtPrice(d?.price));
+
+    const discountEl = document.createElement("span");
+    discountEl.className   = "deals__col-discount deals__discount" + (discount < 0 ? " deals__discount--off" : "");
+    discountEl.textContent = fmtPct(discount !== 0 ? discount : 0);
+
+    const lowEl = document.createElement("span");
+    lowEl.className   = "deals__col-low deals__low";
+    lowEl.textContent = low90 != null ? (low90 === 0 ? "0%" : "-" + Math.abs(low90) + "%") : "—";
+
+    const removeCol = document.createElement("span");
+    removeCol.className = "deals__col-remove";
+    const removeBtn = document.createElement("button");
+    removeBtn.className = "deals__remove";
+    removeBtn.dataset.id = game.id;
+    removeBtn.setAttribute("aria-label", `Remove ${game.title}`);
+    removeBtn.innerHTML = `<svg style="transform:rotate(45deg)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`;
+    removeBtn.addEventListener("click", () => unpinGame(removeBtn.dataset.id));
+    removeCol.appendChild(removeBtn);
+
+    row.append(nameEl, reviewEl, priceEl, discountEl, lowEl, removeCol);
+    dealsList.appendChild(row);
   });
 }
 

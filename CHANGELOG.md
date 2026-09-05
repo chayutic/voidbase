@@ -1,5 +1,16 @@
 # Changelog — Voidbase
 
+## v0.7.3 — 2026-09-05
+*Convention audit, part one*
+
+### Fixed
+- **Game titles from IsThereAnyDeal were interpolated into `innerHTML`.** `renderDeals()` and `searchGames()` build their rows with `createElement`/`textContent`/`dataset` now, the way `search.js` has always built its preset list. Third-party strings, straight into markup
+- Ticker symbols the same way — `createCard()` dropped `stocksSymbols` into its template. That one is persisted and editable, so it was only ever your own XSS to write
+
+### Changed
+- Hardcoded colours moved behind tokens: `--toggle-thumb` for both toggle thumbs, `--axis-line-color` for the Markets chart axis. Anything a theme might want to override belongs in `theme.css`, greys included
+- The customizer scrim derives from `--surface-dark` rather than restating black, and the Markets overlay text-shadow uses `--shadow-sm` rather than restating its value
+
 ## v0.7.2 — 2026-09-05
 *Visited links*
 

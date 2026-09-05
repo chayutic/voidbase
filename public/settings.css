@@ -239,7 +239,7 @@
   height: 12px;
   left: 4px;
   bottom: 4px;
-  background-color: white;
+  background-color: var(--toggle-thumb);
   border-radius: 50%;
   box-shadow: var(--shadow-sm);
   transition: transform var(--transition-normal);
