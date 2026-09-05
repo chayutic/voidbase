@@ -11,22 +11,18 @@ const PORT = 3000;
 
 // ── IsThereAnyDeal API key ────────────────────────────────────────
 const ITAD_KEY = process.env.ITAD_KEY;
-// ─────────────────────────────────────────────────────────────────
 
 // ── Air quality (WAQI) ────────────────────────────────────────────
 const AQ_TOKEN = process.env.AQ_TOKEN;
 const AQ_CITY  = process.env.AQ_CITY || "Bangkok";
-// ─────────────────────────────────────────────────────────────────
 
 // ── Jellyfin ──────────────────────────────────────────────────────
 const JELLYFIN_URL = process.env.JELLYFIN_URL; // e.g. http://192.168.1.41:8096
 const JELLYFIN_KEY = process.env.JELLYFIN_KEY; // API key: Jellyfin Dashboard → API Keys
-// ─────────────────────────────────────────────────────────────────
 
 // ── Notes auth ────────────────────────────────────────────────────
-// Single shared password via HTTP Basic Auth. Rest of the site stays
-// public; this is the only gated surface. Not a substitute for real
-// auth if that ever changes — see CLAUDE.md.
+// The only gated surface — the rest of the site stays public. A single
+// shared password is not a substitute for real auth.
 const NOTES_PASSWORD = process.env.NOTES_PASSWORD;
 
 function notesAuth(req, res, next) {
@@ -49,7 +45,6 @@ function notesAuth(req, res, next) {
   res.set("WWW-Authenticate", 'Basic realm="Notes"');
   res.status(401).send("Authentication required");
 }
-// ─────────────────────────────────────────────────────────────────
 
 // Vendored libraries are version-pinned in their filename, so the bytes
 // at a given path never change. express.static's default is max-age=0,
@@ -71,7 +66,6 @@ app.use("/notes", notesAuth, notesRouter);
 app.use(express.json());
 
 // ── Air quality: AQI + PM2.5 for the configured city ──────────────
-// GET /air/current
 // Returns: { aqi, pm25 } — the token stays server-side.
 //
 // Namespaced under /air rather than /api to stay clear of the
@@ -136,27 +130,23 @@ app.get("/itad/search", async (req, res) => {
   if (!q) return res.status(400).json({ error: "Missing query" });
 
   try {
-    // 1. Get ITAD game IDs and titles
     const itadUrl  = `https://api.isthereanydeal.com/games/search/v1?key=${ITAD_KEY}&title=${encodeURIComponent(q)}&results=6`;
     const itadResp = await fetch(itadUrl, { headers: { "Accept": "application/json" } });
     const itadData = await itadResp.json();
     const games    = Array.isArray(itadData) ? itadData.slice(0, 6) : [];
 
-    // 2. Resolve Steam appids via Steam's storefront search (no key needed)
     const steamUrl  = `https://store.steampowered.com/api/storesearch/?term=${encodeURIComponent(q)}&l=english&cc=TH`;
     const steamResp = await fetch(steamUrl, {
       headers: { "User-Agent": "Mozilla/5.0", "Accept": "application/json" }
     });
     const steamData = await steamResp.json();
 
-    // Build a map of normalized title → appid from Steam results
     const steamMap = new Map();
     (steamData?.items || []).forEach(item => {
       steamMap.set(item.name.toLowerCase().trim(), String(item.id));
     });
 
     const results = games.map(g => {
-      // Try exact match first, then partial match
       const titleLower = g.title.toLowerCase().trim();
       let appid = steamMap.get(titleLower) ?? null;
       if (!appid) {
@@ -197,7 +187,6 @@ app.post("/itad/prices", async (req, res) => {
       const cut         = best?.cut ?? 0;
       const regular     = best?.regular?.amount ?? null;
       const storeLowAmt = best?.storeLow?.amount ?? null;
-      // Derive 90D low discount % from storeLow price vs regular price
       const storeLowCut = (storeLowAmt !== null && regular) 
         ? -Math.round((1 - storeLowAmt / regular) * 100)
         : null;
@@ -216,7 +205,6 @@ app.post("/itad/prices", async (req, res) => {
 });
 
 // ── Steam: real THB price + review summary for a game by App ID ──
-// GET /steam/price/:appid
 // Returns: { appid, price, currency, reviewDesc, reviewCount }
 app.get("/steam/price/:appid", async (req, res) => {
   const { appid } = req.params;
@@ -261,16 +249,8 @@ app.get("/steam/price/:appid", async (req, res) => {
 
 
 // ── Jellyfin: latest movies and episodes ─────────────────────────
-// GET /jellyfin/recent
-// Returns up to 12 recently-added movies and episodes, sorted by
-// DateCreated descending. The client slices to 6.
-//
-// Each item shape:
-//   { id, type, title, year, seriesName, seasonNum, episodeNum, imageTag }
-//
-// imageTag is the Primary image tag for poster art.
-// Construct the image URL on the client:
-//   {JELLYFIN_URL}/Items/{id}/Images/Primary?tag={imageTag}&maxHeight=400
+// Returns MOVIE_SLOTS movies followed by EPISODE_SLOTS episodes, each
+// group sorted by DateCreated descending.
 app.get("/jellyfin/recent", async (req, res) => {
   if (!JELLYFIN_URL || !JELLYFIN_KEY) {
     return res.status(503).json({ error: "Jellyfin not configured" });
@@ -280,7 +260,6 @@ app.get("/jellyfin/recent", async (req, res) => {
   const EPISODE_SLOTS = 3;
 
   try {
-    // Fetch latest Movies
     const moviesUrl = `${JELLYFIN_URL}/Items?` + new URLSearchParams({
       IncludeItemTypes: "Movie",
       SortBy:           "DateCreated,SortName",
@@ -293,8 +272,8 @@ app.get("/jellyfin/recent", async (req, res) => {
       apikey:           JELLYFIN_KEY,
     });
 
-    // Fetch latest Episodes — deduplicated to one per series server-side
-    // Fetch more than needed so we have headroom after deduplication
+    // Limit sits far above EPISODE_SLOTS to leave headroom for the
+    // one-per-series deduplication below.
     const episodesUrl = `${JELLYFIN_URL}/Items?` + new URLSearchParams({
       IncludeItemTypes: "Episode",
       SortBy:           "DateCreated,SortName",
@@ -327,7 +306,6 @@ app.get("/jellyfin/recent", async (req, res) => {
       imageTag:   item.ImageTags?.Primary ?? null,
     }));
 
-    // Deduplicate episodes: one per series, most recent first
     const seenSeries = new Set();
     const episodes   = [];
     for (const item of (episodesData.Items || [])) {
@@ -348,7 +326,6 @@ app.get("/jellyfin/recent", async (req, res) => {
       if (episodes.length >= EPISODE_SLOTS) break;
     }
 
-    // Movies first, then episodes — fixed slots, no timestamp merge
     res.json([...movies, ...episodes]);
   } catch (err) {
     console.error("Jellyfin recent error:", err.message);
@@ -357,7 +334,6 @@ app.get("/jellyfin/recent", async (req, res) => {
 });
 
 // ── Jellyfin: series poster by series ID ──────────────────────────
-// GET /jellyfin/poster/:seriesId
 // Episodes often lack their own Primary image — fall back to the
 // series poster. Returns { imageTag } or { imageTag: null }.
 app.get("/jellyfin/poster/:seriesId", async (req, res) => {
@@ -381,7 +357,6 @@ app.get("/jellyfin/poster/:seriesId", async (req, res) => {
 
 
 // ── Jellyfin: image proxy ─────────────────────────────────────────
-// GET /jellyfin/image/:itemId?tag=xxx
 // Proxies poster art so images load outside the local network.
 app.get("/jellyfin/image/:itemId", async (req, res) => {
   if (!JELLYFIN_URL || !JELLYFIN_KEY) {
@@ -402,7 +377,7 @@ app.get("/jellyfin/image/:itemId", async (req, res) => {
     const buffer      = await response.arrayBuffer();
 
     res.set("Content-Type", contentType);
-    res.set("Cache-Control", "public, max-age=86400"); // cache for 24h
+    res.set("Cache-Control", "public, max-age=86400");
     res.send(Buffer.from(buffer));
   } catch (err) {
     console.error("Jellyfin image proxy error:", err.message);
