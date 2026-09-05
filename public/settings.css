@@ -1,0 +1,411 @@
+/* ======================================================
+   CONTROL PANEL
+   ======================================================
+   Shared by the dashboard and the notes page. Both render the same
+   panel markup with the same ids, so settings.js and theme.js drive
+   them unchanged.
+
+   Requires theme.css. Load order on each page:
+     theme.css -> settings.css -> page stylesheet
+====================================================== */
+
+/* The gear and the cross-page nav button are the only fixed furniture
+   on either page, and they read as a pair. Everything but their corner
+   is shared here so the two cannot drift apart. */
+.settings-trigger,
+.nav-trigger {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 100;
+
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1px solid var(--border-color);
+  background: var(--trigger-bg);
+  color: var(--text-secondary);
+  cursor: pointer;
+
+  /* One is a <button> and one is an <a>, so without this the gear alone
+     picks up the UA button defaults — 1px/6px padding, centred text,
+     appearance: auto and 13.33px Arial. None of it shows today (both
+     centre an 18px SVG in a fixed 42px flex box), but it means the pair
+     is only identical by luck. Normalised so neither depends on which
+     element it happens to be. */
+  appearance: none;
+  padding: 0;
+  font: inherit;
+  text-align: center;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  transition:
+    color          var(--transition-normal),
+    border-color   var(--transition-normal),
+    background     var(--transition-normal),
+    transform      var(--transition-normal);
+}
+
+.settings-trigger:hover,
+.nav-trigger:hover {
+  color: var(--text-primary);
+  border-color: var(--border-hover);
+  background: var(--panel-bg-hover);
+}
+
+/* Gear rotates when panel is open */
+.settings-trigger.open {
+  color: var(--accent-bright);
+  border-color: var(--accent);
+  transform: rotate(60deg);
+}
+
+/* One rule for both glyphs, for the same reason the circles share one:
+   they were two identical copies and only the gear's inherited the
+   transition, so the two icons crossfaded at different rates on hover.
+   Optical weight is the one thing that stays per-glyph — the gear is
+   all curves, the nav icons are all straight edges — and it lives on
+   each svg's stroke-width, not here. */
+.settings-trigger svg,
+.nav-trigger svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  transition: inherit;
+}
+
+
+/* ======================================================
+   CROSS-PAGE NAV TRIGGER
+   ======================================================
+   The dashboard <-> notes journey, as one affordance used in both
+   directions: the same 42px circle in the same corner on both pages,
+   pointing at whichever document you are not currently in.
+
+   Everything but the corner is inherited from .settings-trigger above,
+   including the hover: the two are a pair and a second hover treatment
+   would only make them look like two unrelated controls that happen to
+   be the same size. The opposite corner, not the adjacent one —
+   corners are distinct slots, adjacency would read as a toolbar.
+
+   No tooltip. The gear doesn't carry one either, and the destination is
+   legible from the glyph; aria-label covers the rest. ------------- */
+
+.nav-trigger {
+  right: unset;
+  left: 1.5rem;
+  text-decoration: none;
+}
+
+
+/* ── Settings panel ── */
+
+.settings-panel {
+  position: fixed;
+  bottom: 4.5rem;   /* sits just above the gear button */
+  right: 1.5rem;
+  z-index: 99;
+
+  width: 340px;
+  background: var(--panel-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: 0;
+  overflow: visible;
+
+  /* Closed state */
+  opacity: 0;
+  transform: translateY(8px) scale(0.97);
+  transform-origin: bottom right;
+  pointer-events: none;
+  transition:
+    opacity       var(--transition-normal),
+    transform     var(--transition-normal);
+}
+
+.settings-panel.open {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+/* Panel header */
+.settings-panel__header {
+  padding: 0.75rem 1rem 0.6rem;
+  font-size: 0.9rem;
+  font-family: var(--font-title);
+  font-weight: 200;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* Each section */
+.settings__section {
+  padding: 0.75rem 1rem;
+}
+
+.settings__section + .settings__section {
+  border-top: 1px solid var(--border-color);
+}
+
+.settings__section-label {
+  font-size: 0.8rem;
+  font-family: var(--font-title);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-bottom: 0.6rem;
+}
+
+/* ── Theme swatches ── */
+.swatch-row {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.3rem 0;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.swatch-name {
+  margin-left: auto;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+  text-transform: capitalize;
+  pointer-events: none;
+}
+
+/* ── Placeholder rows for future controls ── */
+.placeholder-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--text-secondary);
+  padding: 0.3rem 0;
+  opacity: 0.45;
+  cursor: default;
+  user-select: none;
+}
+
+.placeholder-pill {
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: var(--surface-glass);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 0.15rem 0.45rem;
+}
+
+/* ── Settings toggle rows ── */
+.settings__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.3rem 0;
+  color: var(--text-primary);
+}
+
+.settings__toggle {
+  position: relative;
+  display: inline-block;
+  width: 36px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.settings__toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.settings__toggle-track {
+  position: absolute;
+  inset: 0;
+  cursor: pointer;
+  border-radius: 20px;
+  background-color: var(--toggle-track-off);
+  transition: background-color var(--transition-normal);
+}
+
+.settings__toggle-track::before {
+  content: "";
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  border-radius: 50%;
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition-normal);
+}
+
+.settings__toggle input:checked + .settings__toggle-track {
+  background-color: var(--toggle-track-on);
+}
+
+.settings__toggle input:checked + .settings__toggle-track::before {
+  transform: translateX(16px);
+}
+
+/* ── Ticker count stepper ── */
+.settings__stepper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.settings__stepper button {
+  all: unset;
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  font-size: 1rem;
+  line-height: 1;
+  transition: border-color var(--transition-normal), color var(--transition-normal);
+}
+
+.settings__stepper button:hover:not(:disabled) {
+  border-color: var(--border-hover);
+  color: var(--text-primary);
+}
+
+.settings__stepper button:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.settings__stepper span {
+  min-width: 1.2ch;
+  text-align: center;
+  color: var(--text-primary);
+}
+
+/* ── Theme swatches ── */
+.theme__swatch {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  transition: transform var(--transition-normal),
+              border-color var(--transition-normal);
+}
+
+.theme__swatch:hover {
+  transform: scale(1.15);
+}
+
+.theme__swatch[data-theme="violet"] { background: oklch(0.433 0.178 295); } /* default: Void Violet */
+.theme__swatch[data-theme="blue"]   { background: oklch(0.5 0.1411 250); }
+.theme__swatch[data-theme="pink"]   { background: oklch(0.3412 0.1411 352); }
+.theme__swatch[data-theme="green"]  { background: oklch(0.5 0.1257 169.32); }
+.theme__swatch[data-theme="black"]  { background: oklch(0.12 0 0); }
+.theme__swatch[data-theme="white"]  { background: oklch(0.96 0 0); }
+
+/* Active swatch ring */
+.theme__swatch.active {
+  border-color: var(--text-primary);
+  transform: scale(1.2);
+}
+
+.settings__open-btn {
+  all: unset;
+  cursor: pointer;
+  font-family: var(--font-title);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 0.2rem 0.55rem;
+  transition: color var(--transition-normal), border-color var(--transition-normal);
+}
+
+.settings__open-btn:hover {
+  color: var(--text-primary);
+  border-color: var(--border-hover);
+}
+
+.settings__version {
+  padding: 1.25rem 1.25rem;
+  border-top: 1px solid var(--border-color);
+  font-family: var(--font-title);
+  font-size: 0.75rem;
+  font-weight: 200;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  user-select: none;
+}
+
+/* ======================================================
+   NARROW SCREENS
+   ======================================================
+   The panel becomes a bottom sheet. Breakpoint copied from the
+   dashboard's own so the two pages behave identically.
+====================================================== */
+
+@media (max-width: 425px) {
+  /* Match settings-panel side padding */
+  .settings-panel__header {
+    padding: 0.75rem 1.25rem 0.6rem;
+  }
+
+  .settings-panel {
+    /* On small screens, panel anchors to bottom edge and stretches full width — feels like a bottom sheet,
+    4rem bottom padding to push elements above gear icon    */
+    top: unset;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    border-radius: 16px 16px 0 0;
+    border-bottom: none;
+    transform: translateY(100%);
+    transform-origin: bottom center;
+    max-height: 80vh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 0;
+  }
+
+  .settings-panel.open {
+    transform: translateY(0);
+  }
+
+  .settings-trigger {
+    top: unset;
+    bottom: 1rem;
+    right: 1rem;
+  }
+
+  /* Stays paired with the gear. */
+  .nav-trigger {
+    top: unset;
+    bottom: 1rem;
+    left: 1rem;
+  }
+
+  .settings__section {
+    padding: 1rem 1.25rem;
+  }
+
+  .theme__swatch {
+    width: 22px;
+    height: 22px;
+  }
+}

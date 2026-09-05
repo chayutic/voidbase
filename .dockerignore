@@ -1,0 +1,21 @@
+# Allowlist, not a blocklist.
+#
+# Listing things to exclude means naming them, and this file is
+# committed. An allowlist keeps the build context to exactly what the
+# runtime needs and says nothing about anything else on disk.
+#
+# node_modules is deliberately absent: the image installs its own with
+# `npm install --production`, so the host copy (which carries esbuild
+# and the CodeMirror sources) must never be copied over it.
+
+*
+
+!server.js
+!lib/
+!public/
+!package.json
+!package-lock.json
+
+# Build inputs stay out; the built bundle lives in public/js/vendor
+# and is covered by the rule above.
+public/js/vendor/*.map

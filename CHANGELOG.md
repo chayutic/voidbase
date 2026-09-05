@@ -1,5 +1,106 @@
 # Changelog — Voidbase
 
+## v0.7.2 — 2026-09-05
+*Visited links*
+
+### Fixed
+- **The notes button's icon sat at full brightness and never dimmed**, while the border around it lit and dimmed exactly as it should. `a:visited { color: inherit }` in `theme.css` scores (0,1,1), which outranks `.nav-trigger`'s (0,1,0) — so the glyph fell back to `--text-primary` the moment `/notes` entered browser history, and not one page load before. The rule was redundant on top of being wrong: `a { color: inherit }` is author-origin and already beats the UA's visited colour in both link states
+- The gear was never affected because it's a `<button>`, and `:visited` has nothing to match
+- **`.gitignore` was excluding the entire notes front-end.** The `notes/` pattern for the local dev directory was unanchored, so it matched `public/js/notes/` too and quietly took all nine modules with it. Anchored to `/notes/`
+
+### Changed
+- `.utilities__card:link, .utilities__card:visited` is now a specificity bump against a rule that no longer exists. Left in place; it's the fossil of the first time this happened
+
+## v0.7.1 — 2026-09-03
+*Notes chrome*
+
+### Added
+- **One button for the dashboard ↔ notes trip**, in both directions. A 42px circle in the bottom-left corner of both pages — same size, same border, same corner as the Control Panel gear, pointing at whichever page you aren't on. The `← Voidbase` text link was always a placeholder, and the dashboard had no way into notes at all
+- New note lives in the sidebar now, as a row directly above the list — which is where the note it makes turns up anyway
+
+### Changed
+- **NOTES is no longer set in Josefin.** It's the VOIDBASE wordmark; a second word in it makes the first one less of a signature. It's the same thin uppercase treatment as MARKETS and NEW ARRIVALS now, which is what it always was — a section label
+- The notes header carries the page name and nothing else. Three identical icon buttons in the top right gave a create action and two view toggles the same weight
+- Collapsing the sidebar leaves a narrow rail rather than nothing, so the button that collapsed it is still there to undo it
+- A sidebar collapsed on desktop no longer follows you to a phone, where there'd be no toggle to get the list back
+
+### Removed
+- Live-formatting toggle. Formatting in place is the whole point of the editor; a switch for turning it off was a switch for making it worse. `layout.js` and the `notesPreview` key go with it
+*Notes app*
+
+### Added
+- **Notes** — a markdown scratch pad at `/notes`, for the things that don't merit an Obsidian entry. Its own document rather than a dashboard section, so it isn't bound to the dashboard's visual language
+- Notes are plain `.md` files on disk in `NOTES_DIR`, bind-mounted from the RAID array. No database, no index, no frontmatter — the directory is the source of truth and stays readable by any editor
+- Filenames are `YYYYMMDD-HHmmss.md` and never change. The display title is derived at read time: the first line if it's a heading, otherwise a humanised timestamp. Retitling is just editing the first line — no renames, no collisions
+- `lib/notes-store.js` and `lib/notes-routes.js` — filesystem layer and Express Router, mounted at `/notes` so a single Cloudflare Access rule can cover the page and its API together
+- Eight notes routes: list, search, create, read, save, delete, plus a POST alias on `/note/:id` because `sendBeacon` can only issue POST and that's what saves your work when the tab dies
+- **CodeMirror 6 live preview** — markdown formats as you type; only the line under the cursor shows raw source. Bold, italic, strikethrough, code, headings, links, quotes, lists, task boxes, tables, rules
+- `Ctrl+B` / `Ctrl+I` / `Ctrl+Shift+X` / `Ctrl+E` toggle formatting rather than blindly inserting markers. `Ctrl+Shift+8` and `Ctrl+Shift+7` toggle bulleted and numbered lists
+- Enter continues a list: same indent, same marker, numbers increment, task boxes reset to unchecked. Enter on an empty item removes the marker instead of adding another
+- Autosave with no save button — 600ms after you stop typing, plus a flush on blur, note switch, tab hide and page unload
+- Full-text search across titles and bodies, filtering the sidebar and highlighting the match. Body matches show surrounding context instead of the note's opening line
+- Thai support on the notes page — Noto Sans Thai in the stack and line-heights that leave room for vowel and tone marks. Substring matching means search works on Thai despite it having no spaces between words
+- Control Panel on the notes page, same markup and same module as the dashboard. Widgets that only affect the dashboard still write their preference from here
+- Live-formatting toggle in the notes header — off shows raw markdown throughout, for when you're fixing a table and want every character visible
+- Notes icon in the dock, with a divider marking it as a local page rather than an external shortcut
+- **Cross-document View Transition** between dashboard and notes. Progressive enhancement; engines without support just navigate
+- `public/theme.css` — design tokens, theme variants and reset, shared by both pages
+- `public/settings.css` — Control Panel styles, likewise shared
+- `SETTINGS_CHANGE` event so Markets can repaint when the Control Panel changes underneath it
+- Immutable caching on `/js/vendor` — those filenames are version-pinned, so `max-age=0` was buying a revalidation round-trip per page load for nothing
+- `.dockerignore`, which stops `COPY . .` shipping 19 MB of build-only dependencies into the image
+- `npm run build:cm6` — the only build step in the project. CodeMirror ships as a dozen interdependent packages and needs a single instance of `@codemirror/state`, so the pieces have to be linked ahead of time. Run manually, output committed
+- Vendored `marked` 18.0.10 for the loading and mobile render paths
+
+### Changed
+- `data-theme` moved from `<body>` to `<html>` and is now set by an inline script in each `<head>`
+- The Control Panel's Markets widgets (Expanded Charts, Ticker Count) are bound in `settings.js` rather than `markets.js`, so they still work on pages that never load Markets. Reverses the arrangement introduced in v0.6.0
+- `@codemirror/lang-markdown` deliberately not used — it depends on `lang-html`, which drags in the full JavaScript and CSS grammars to highlight code fences. Building the language from `@lezer/markdown` directly cut the bundle from 510 KB to 315 KB with GFM intact
+- Markdown rendering escapes raw HTML rather than sanitising it. Underline was dropped for strikethrough, so nothing needs raw HTML, and escaping makes injection structurally impossible
+
+### Fixed
+- **Theme flash on every page load** — the palette was applied by a deferred module, so the browser painted the default violet and then repainted to the saved theme
+- **Text selection was unreadable in the editor.** CodeMirror's base theme ships a light lavender selection under `&light`, and this theme never declared `dark`, so near-white text sat on a near-white block. The black theme needed its own value too — its accent is nearly white, so a derived selection would have been light on light
+- **Thai never actually used Noto Sans Thai.** The font was named in the stack but never requested, so it was falling back to a Windows system face. Headings had a second, separate fault: they used a Latin-only token with no Thai fallback at all
+- List items rendered in the accent colour — the tag covers the whole item, not just the marker
+- `---`, `***` and `___` render as rules; the dashes themselves stayed visible because the highlighter coloured them past the rule meant to hide them
+- View transition washed out to white mid-navigation. The default cross-fade relies on `mix-blend-mode: plus-lighter` to add two half-opacity snapshots back to full brightness; overriding the animation without accounting for that let the backdrop show through
+- View transition fired in one direction only. The opt-in now sits inline in each `<head>`, ahead of any external stylesheet, so the incoming document is opted in before the browser decides
+- A custom `link` renderer added to marked replaced its built-in URL check along with it, so `[click](javascript:alert(1))` rendered as a live link. Now carries its own protocol allowlist
+
+### Removed
+- The split preview pane. Live formatting made a second copy of the same note redundant, which was the complaint that prompted it
+
+## v0.6.0 — 2026-08-24
+*Module split, key handling, dependency cleanup*
+
+### Added
+- **Suwayomi card** in Media & Photos — manga reader. Icon recoloured to `currentColor` and the background circle dropped, so the mark follows the theme accent like every other card icon instead of shipping a fixed light/dark variant
+- **ES module architecture** — the inline `<script>` in `index.html` is gone, split into 14 modules under `public/js/`. Loaded with `<script type="module">`; no bundler, no build step
+- `store.js` — typed `localStorage` wrapper with a `KEYS` registry of every persisted preference. `bool()` takes its default explicitly, since the old code mixed `=== "true"` and `!== "false"` and those read almost the same
+- `config.js` — `VERSION` and `JELLYFIN_BASE` for the values more than one module needs
+- `main.js` entry point, with init order made explicit: theme first so the palette lands before paint, customizer second so section order settles before the data sections fill in
+- `THEME_CHANGE` document event — Markets listens for it and redraws, since uPlot bakes the accent colour into a canvas and a CSS swap alone leaves stale lines
+- `GET /air/current` — air quality proxy, so the WAQI key stops shipping to the browser
+- `.env.example` documenting the five env var names
+
+### Changed
+- WAQI API key moved out of the client and into `.env` as `AQ_TOKEN`, alongside the ITAD and Jellyfin keys
+- AQI dot now uses the `--aqi-*` variables instead of five hardcoded hex values — the variables were already sitting there unused
+- uPlot pinned to 1.6.32. The unversioned unpkg path was silently tracking whatever they released last
+- Fonts moved from two `@import`s in `style.css` to one `<link>` in the head, so they fetch alongside the stylesheet rather than after it
+- Markets now owns its two Control Panel widgets (Expanded Charts, Ticker Count) — they render in the settings panel but the state is Markets state
+- All `localStorage` access routed through `store.js`
+
+### Fixed
+- `.gitignore` was UTF-16 encoded, which git cannot parse — it had been inert since it was written, so `.env` and `node_modules/` were never actually ignored
+- Layout Customizer Reset handed back the default layout by reference while the eye toggles mutate in place. Reset, hide a section, cancel, reset again, and the section stayed hidden
+- Air quality route was originally `/api/air`, which the `/api/:symbol` wildcard matched first and answered with quotes for the NYSE ticker AIR
+
+### Removed
+- Font Awesome — loaded on every page view, zero usages anywhere in the codebase
+- Dead `isDeepDiscount` branch in Game Deals and its orphaned `.deals__low--highlight` rule. `fetchDeals()` never set the flag, so the highlight has never once rendered
+
 ## v0.5.3 — 2026-03-12
 *Layout Customizer fixes and Markets improvements*
 

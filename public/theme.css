@@ -1,0 +1,350 @@
+/* ======================================================
+   THEME — design tokens, theme variants, global reset
+   ======================================================
+   Shared by every page. index.html loads this then style.css;
+   notes.html loads this then notes.css.
+
+   Nothing page-specific belongs here. Typography lives with the
+   page that owns it, because the dashboard and the notes editor
+   want different line-heights — notes needs room for Thai vowel
+   and tone marks that the dashboard's line-height: 1 would clip.
+====================================================== */
+
+/* ======================================================
+   THEME VARIABLES
+====================================================== */
+
+:root {
+  /* ── Non-theme tokens ─────────────────────────────── */
+
+  /* Unified highlight colors */
+  --green-highlights:  oklch(0.72 0.18 142);
+  --red-highlights:    oklch(0.63 0.22 25);
+  --orange-highlights: oklch(0.75 0.18 45);
+
+  /* Steam review sentiment colors */
+  --steam-positive: oklch(0.7597 0.1117 235.46);
+  --steam-mixed:    oklch(0.6868 0.0624 81.71);
+  --steam-negative: oklch(0.6041 0.1488 43.28);
+
+  /* Glass & borders */
+  --surface-glass:      oklch(1 0 0 / 0.04);
+  --surface-glass-hover:oklch(1 0 0 / 0.06);
+  --border-color:       oklch(1 0 0 / 0.08);
+  --border-hover:       oklch(1 0 0 / 0.25);
+
+  /* Toggle off-state track */
+  --toggle-track-off:   oklch(0.65 0 0);
+
+
+  /* AQI status colors */
+  --aqi-good:           oklch(0.72 0.18 142);
+  --aqi-moderate:       oklch(0.82 0.17 85);
+  --aqi-sensitive:      oklch(0.72 0.18 48);
+  --aqi-unhealthy:      oklch(0.63 0.22 25);
+  --aqi-hazardous:      oklch(0.55 0.22 307);
+
+  /* ── Typography ───────────────────────────────────── */
+  --font-header:        'Josefin Sans', sans-serif;
+  --font-title:         'Geist', sans-serif;
+  --font-body:          'Geist', sans-serif;
+
+  /* ── Layout ───────────────────────────────────────── */
+  --radius:             10px;
+  --gap:                0.8rem;
+
+  /* ── Shadows & tints ─────────────────────────────── */
+  --surface-dark:       oklch(0 0 0 / 0.20);
+  --shadow-sm:          0 1px 3px oklch(0 0 0 / 0.40);
+
+  /* ── Transitions ──────────────────────────────────── */
+  --transition-fast:    0.08s ease;
+  --transition-normal:  0.25s cubic-bezier(.4,0,.2,1);
+}
+
+/* ── Default theme tokens (violet) ── */
+body {
+  --theme-hue: 295;
+
+  /* Backgrounds */
+  --bg-primary:     oklch(0.16 0 var(--theme-hue));
+  --bg-secondary:   oklch(from var(--bg-primary) calc(l + 0.04) calc(c + 0.004) h);
+
+  /* Text */
+  --text-primary:   oklch(0.97 0 var(--theme-hue));
+  --text-secondary: oklch(0.71 0 var(--theme-hue));
+
+  /* Accent */
+  --accent:         oklch(0.45 0.18 var(--theme-hue));
+  --accent-bright:  oklch(from var(--accent) calc(l + 0.08) c h);
+  --accent-muted:   oklch(from var(--accent) calc(l - 0.10) calc(c - 0.05) h);
+  --toggle-track-on: var(--accent);
+
+  /* Text selection. Derived from the accent, so it has to sit here
+     rather than in :root — --accent is not in scope up there. Must stay
+     readable against --text-primary, so the black and light themes
+     override it below. */
+  --selection-bg:      oklch(from var(--accent) calc(l + 0.12) c h / 0.55);
+  --selection-bg-blur: oklch(from var(--accent) calc(l + 0.04) c h / 0.28);
+
+  /* Search bar */
+  --search-bg:          var(--surface-glass);
+  --search-border:      var(--border-color);
+  --search-text:        var(--text-secondary);
+  --search-placeholder: var(--text-secondary);
+  --search-shadow:      var(--accent-bright);
+
+  /* Panel & surface backgrounds — overridable per theme */
+  --panel-bg:       oklch(0.17 0.008 var(--theme-hue));
+  --panel-bg-hover: oklch(0.21 0.010 var(--theme-hue));
+  --trigger-bg:     oklch(0.18 0.008 var(--theme-hue));
+  --tooltip-bg:     oklch(0.22 0.010 var(--theme-hue));
+}
+
+/* ======================================================
+   GLOBAL RESET
+====================================================== */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Cross-site theme transition — color properties only.
+   transform/opacity excluded to keep interactions snappy. */
+*, *::before, *::after {
+  transition:
+    background-color var(--transition-normal),
+    border-color     var(--transition-normal),
+    color            var(--transition-normal),
+    box-shadow       var(--transition-normal);
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  margin: 0;
+  position: relative;
+  overflow-x: hidden;
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 400;
+
+  /* Static base: two accent blobs + dark linear gradient */
+  background:
+    radial-gradient(ellipse 55% 40% at 18% 25%, oklch(0.38 0.18 var(--theme-hue) / 0.22), transparent 65%),
+    radial-gradient(ellipse 65% 55% at 80% 72%, oklch(0.44 0.21 var(--theme-hue) / 0.20), transparent 65%),
+    linear-gradient(150deg, var(--bg-primary) 0%, oklch(0.12 0.008 var(--theme-hue)) 100%);
+}
+
+/* ── Colour theme hue overrides ──
+   The attribute sits on <html>, not <body>, so the inline script in each
+   page's <head> can set it before <body> exists. Setting it on <body>
+   meant the deferred module ran after first paint, so every load flashed
+   the default violet before repainting to the saved theme. */
+:root[data-theme="violet"] body { --theme-hue: 295; }
+:root[data-theme="blue"] body   { --theme-hue: 261; }
+:root[data-theme="pink"] body   { --theme-hue: 352; }
+:root[data-theme="green"] body  { --theme-hue: 170; }
+
+/* Single pseudo-element: static gradient, opacity-only pulse.
+   opacity is compositor-only — zero GPU rasterization cost.  */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  background:
+    radial-gradient(ellipse 70% 60% at 75% 20%, oklch(0.42 0.20 var(--theme-hue) / 0.14), transparent 60%),
+    radial-gradient(ellipse 50% 45% at 25% 80%, oklch(0.38 0.17 var(--theme-hue) / 0.12), transparent 60%);
+  animation: ambientPulse 12s ease-in-out infinite alternate;
+  will-change: opacity;
+}
+
+/* ── Black theme ── */
+:root[data-theme="black"] body {
+  --theme-hue:      0;
+  --bg-primary:     oklch(0.08 0 0);
+  --bg-secondary:   oklch(0.12 0 0);
+  --text-primary:   oklch(0.97 0 0);
+  --text-secondary: oklch(0.71 0 0);
+  --accent:         oklch(0.82 0 0);
+  --accent-bright:  oklch(0.95 0 0);
+  --accent-muted:   oklch(0.48 0 0);
+  --toggle-track-on: oklch(0.3 0 0);
+  --panel-bg:       oklch(0.11 0 0);
+  --panel-bg-hover: oklch(0.15 0 0);
+  /* Accent here is near-white, so the derived selection would be
+     light text on a light block. */
+  --selection-bg:      oklch(0.42 0 0 / 0.9);
+  --selection-bg-blur: oklch(0.32 0 0 / 0.7);
+  --trigger-bg:     oklch(0.12 0 0);
+  --tooltip-bg:     oklch(0.14 0 0);
+  background:
+    radial-gradient(ellipse 55% 40% at 18% 25%, oklch(0.22 0 0 / 0.50), transparent 65%),
+    radial-gradient(ellipse 65% 55% at 80% 72%, oklch(0.25 0 0 / 0.40), transparent 65%),
+    linear-gradient(150deg, oklch(0.12 0 0) 0%, oklch(0.15 0 0) 100%);
+}
+
+:root[data-theme="black"] body::before {
+  background:
+    radial-gradient(ellipse 70% 60% at 75% 20%, oklch(0.20 0 0 / 0.40), transparent 60%),
+    radial-gradient(ellipse 50% 45% at 25% 80%, oklch(0.18 0 0 / 0.35), transparent 60%);
+}
+
+/* ── White theme (WIP) ── */
+:root[data-theme="white"] body {
+  --theme-hue:      0;
+  --bg-primary:     oklch(0.96 0 0);
+  --bg-secondary:   oklch(0.91 0 0);
+  --text-primary:   oklch(0.15 0 0);
+  --text-secondary: oklch(0.50 0 0);
+  --accent:         oklch(0.50 0 0);
+  --accent-bright:  oklch(0.30 0 0);
+  --accent-muted:   oklch(0.60 0 0);
+  --surface-glass:      oklch(0 0 0 / 0.04);
+  --surface-glass-hover:oklch(0 0 0 / 0.07);
+  --border-color:       oklch(0 0 0 / 0.10);
+  --border-hover:       oklch(0 0 0 / 0.30);
+  /* Light theme: selection sits behind dark text. */
+  --selection-bg:      oklch(0.78 0.03 265 / 0.8);
+  --selection-bg-blur: oklch(0.78 0.03 265 / 0.45);
+  --panel-bg:       oklch(0.90 0 0);
+  --panel-bg-hover: oklch(0.86 0 0);
+  --trigger-bg:     oklch(0.89 0 0);
+  --tooltip-bg:     oklch(0.88 0 0);
+  background:
+    radial-gradient(ellipse 55% 40% at 18% 25%, oklch(0.80 0 0 / 0.40), transparent 65%),
+    radial-gradient(ellipse 65% 55% at 80% 72%, oklch(0.78 0 0 / 0.35), transparent 65%),
+    linear-gradient(150deg, oklch(0.97 0 0) 0%, oklch(0.92 0 0) 100%);
+}
+
+:root[data-theme="white"] body::before {
+  background:
+    radial-gradient(ellipse 70% 60% at 75% 20%, oklch(0.75 0 0 / 0.25), transparent 60%),
+    radial-gradient(ellipse 50% 45% at 25% 80%, oklch(0.72 0 0 / 0.20), transparent 60%);
+}
+
+/* ── Beige theme (WIP) ── */
+:root[data-theme="beige"] body {
+  --theme-hue:      0;
+  --bg-primary:     oklch(0.96 0.04 100);
+  --bg-secondary:   oklch(0.91 0.04 100);
+  --text-primary:   oklch(0.20 0.04 125);
+  --text-secondary: oklch(0.50 0.04 125);
+  --accent:         oklch(0.50 0.04 125);
+  --accent-bright:  oklch(0.30 0.04 125);
+  --accent-muted:   oklch(0.60 0.04 100);
+  --surface-glass:      oklch(0 0 0 / 0.04);
+  --surface-glass-hover:oklch(0 0 0 / 0.07);
+  --border-color:       oklch(0 0 0 / 0.10);
+  --border-hover:       oklch(0 0 0 / 0.30);
+  /* Light theme: selection sits behind dark text. */
+  --selection-bg:      oklch(0.80 0.05 95 / 0.8);
+  --selection-bg-blur: oklch(0.80 0.05 95 / 0.45);
+  --panel-bg:       oklch(0.90 0.04 100);
+  --panel-bg-hover: oklch(0.86 0.04 100);
+  --trigger-bg:     oklch(0.89 0.04 100);
+  --tooltip-bg:     oklch(0.88 0.04 100);
+  background:
+    radial-gradient(ellipse 55% 40% at 18% 25%, oklch(0.80 0.04 100 / 0.40), transparent 65%),
+    radial-gradient(ellipse 65% 55% at 80% 72%, oklch(0.78 0.04 100 / 0.35), transparent 65%),
+    linear-gradient(150deg, oklch(0.97 0 0) 0%, oklch(0.92 0.04 100 ) 100%);
+}
+
+:root[data-theme="beige"] body::before {
+  background:
+    radial-gradient(ellipse 70% 60% at 75% 20%, oklch(0.75 0.04 100 / 0.25), transparent 60%),
+    radial-gradient(ellipse 50% 45% at 25% 80%, oklch(0.72 0.04 100 / 0.20), transparent 60%);
+}
+
+/* body::after unused */
+body::after { display: none; }
+
+@keyframes ambientPulse {
+  0%   { opacity: 0.55; }
+  100% { opacity: 1;    }
+}
+
+/* Strip default link styling.
+
+   There is deliberately no `a:visited` companion here. It would be
+   redundant — `a` is author-origin, and author beats UA in both link
+   states, so this one rule already kills the UA's visited colour — and
+   it is actively harmful, because `a:visited` scores (0,1,1) and so
+   outranks every single-class rule in the project. Any
+   `.thing { color: … }` on a link held until the target entered
+   history, then silently reverted to inherit.
+
+   That is not hypothetical: `.nav-trigger` lost its 0.71 icon colour to
+   --text-primary this way, visible only once /notes had been opened
+   once, and `.utilities__card` still carries a `:link, :visited`
+   specificity bump from the first time it happened. Note that
+   getComputedStyle cannot see any of it — Chrome reports the unvisited
+   value for :visited on purpose, to block history sniffing — so this
+   class of bug has to be diagnosed from painted pixels, not the DOM. */
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* ======================================================
+   VIEW TRANSITION — dashboard <-> notes
+   ======================================================
+   Progressive enhancement. Cross-document view transitions shipped in
+   Chromium first; engines without support navigate instantly.
+
+   A true crossfade, done the way that avoids a brightness artifact.
+
+   The naive version animates both snapshots' opacity in opposite
+   directions. Halfway through, both sit at 50% — and what happens next
+   depends entirely on the blend mode:
+
+     plus-lighter  the two halves ADD back to full brightness. This is
+                   why the UA stylesheet sets it, and why its default
+                   crossfade looks clean.
+     normal        the two halves composite over the transition
+                   backdrop instead, so it shows through the middle of
+                   every navigation as a bright flash.
+
+   Neither is what we want here, because plus-lighter also brightens
+   any colour difference between the pages. So: leave the incoming page
+   fully opaque underneath and fade only the outgoing one out on top of
+   it. Nothing is ever semi-transparent over the backdrop, so the blend
+   mode stops mattering and there is no flash in either direction.
+====================================================== */
+
+@view-transition { navigation: auto; }
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  mix-blend-mode: normal;
+  animation: none;
+}
+
+/* Incoming page: fully opaque, underneath, not animated. */
+::view-transition-new(root) {
+  z-index: 0;
+}
+
+/* Outgoing page: sits on top and fades away, revealing the new one. */
+::view-transition-old(root) {
+  z-index: 1;
+  animation: vt-fade-out 200ms ease both;
+}
+
+@keyframes vt-fade-out {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root) { animation-duration: 80ms; }
+}

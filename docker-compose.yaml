@@ -5,10 +5,21 @@ services:
     restart: unless-stopped
     ports:
       - "3005:3000"
+    # Files are written into the notes volume, so the container must not
+    # run as root or every note ends up root-owned on the NAS.
+    user: "1000:10"
     volumes:
       - ./public:/app/public
       - ./server.js:/app/server.js
+      - ./lib:/app/lib
+      # Notes live on the RAID array, not the app volume, so the existing
+      # backup regime covers them. Host path comes from .env.
+      - ${NOTES_HOST_DIR:-./notes}:/app/notes
     env_file:
       - .env
     environment:
       - NODE_ENV=production
+      # Container path, set here rather than in .env so running
+      # `node server.js` on a dev machine falls back to ./notes.
+      - NOTES_DIR=/app/notes
+      - NOTES_TZ=Asia/Bangkok

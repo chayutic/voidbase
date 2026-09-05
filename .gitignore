@@ -1,0 +1,16 @@
+# Dependencies
+node_modules/
+
+# Secrets & local config
+.env
+.env.local
+
+# Local dev notes directory (real notes live on the NAS).
+# Leading slash anchors this to the repo root — unanchored, it also
+# swallowed public/js/notes/, i.e. the entire notes front-end.
+/notes/
+
+# Editor / OS cruft
+.DS_Store
+Thumbs.db
+*.swp

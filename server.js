@@ -1,6 +1,10 @@
 require('dotenv').config();
 
+const crypto  = require("crypto");
 const express = require("express");
+
+const notesRouter = require("./lib/notes-routes");
+const notesStore  = require("./lib/notes-store");
 
 const app = express();
 const PORT = 3000;
@@ -9,13 +13,90 @@ const PORT = 3000;
 const ITAD_KEY = process.env.ITAD_KEY;
 // ─────────────────────────────────────────────────────────────────
 
+// ── Air quality (WAQI) ────────────────────────────────────────────
+const AQ_TOKEN = process.env.AQ_TOKEN;
+const AQ_CITY  = process.env.AQ_CITY || "Bangkok";
+// ─────────────────────────────────────────────────────────────────
+
 // ── Jellyfin ──────────────────────────────────────────────────────
 const JELLYFIN_URL = process.env.JELLYFIN_URL; // e.g. http://192.168.1.41:8096
 const JELLYFIN_KEY = process.env.JELLYFIN_KEY; // API key: Jellyfin Dashboard → API Keys
 // ─────────────────────────────────────────────────────────────────
 
+// ── Notes auth ────────────────────────────────────────────────────
+// Single shared password via HTTP Basic Auth. Rest of the site stays
+// public; this is the only gated surface. Not a substitute for real
+// auth if that ever changes — see CLAUDE.md.
+const NOTES_PASSWORD = process.env.NOTES_PASSWORD;
+
+function notesAuth(req, res, next) {
+  if (!NOTES_PASSWORD) return next(); // unset — leave ungated rather than lock yourself out
+
+  const header = req.headers.authorization || "";
+  const [scheme, encoded] = header.split(" ");
+
+  if (scheme === "Basic" && encoded) {
+    const decoded  = Buffer.from(encoded, "base64").toString("utf8");
+    const password = decoded.slice(decoded.indexOf(":") + 1);
+
+    const given    = Buffer.from(password);
+    const expected = Buffer.from(NOTES_PASSWORD);
+    if (given.length === expected.length && crypto.timingSafeEqual(given, expected)) {
+      return next();
+    }
+  }
+
+  res.set("WWW-Authenticate", 'Basic realm="Notes"');
+  res.status(401).send("Authentication required");
+}
+// ─────────────────────────────────────────────────────────────────
+
+// Vendored libraries are version-pinned in their filename, so the bytes
+// at a given path never change. express.static's default is max-age=0,
+// which costs a revalidation round-trip on every page load — over the
+// tunnel that is real latency for no benefit.
+app.use("/js/vendor", express.static("public/js/vendor", {
+  maxAge:    "1y",
+  immutable: true,
+}));
+
+// Everything else is edited in place and bind-mounted, so it must stay
+// revalidated. ETag still means a 304 rather than a re-download.
 app.use(express.static("public"));
+
+// Mounted before the global JSON parser so the notes router can apply
+// its own, larger body limit.
+app.use("/notes", notesAuth, notesRouter);
+
 app.use(express.json());
+
+// ── Air quality: AQI + PM2.5 for the configured city ──────────────
+// GET /air/current
+// Returns: { aqi, pm25 } — the token stays server-side.
+//
+// Namespaced under /air rather than /api to stay clear of the
+// /api/:symbol proxy below, which would otherwise match this path and
+// happily return quotes for the NYSE ticker AIR.
+app.get("/air/current", async (req, res) => {
+  if (!AQ_TOKEN) return res.status(503).json({ error: "Air quality not configured" });
+
+  try {
+    const url  = `https://api.waqi.info/feed/${encodeURIComponent(AQ_CITY)}/?token=${AQ_TOKEN}`;
+    const resp = await fetch(url, { headers: { "Accept": "application/json" } });
+    const data = await resp.json();
+
+    if (data.status !== "ok") return res.status(502).json({ error: "Upstream error" });
+
+    res.set("Cache-Control", "public, max-age=300"); // AQI updates hourly at best
+    res.json({
+      aqi:  data.data?.aqi ?? null,
+      pm25: data.data?.iaqi?.pm25?.v ?? null,
+    });
+  } catch (err) {
+    console.error("Air quality error:", err.message);
+    res.status(500).json({ error: "Air quality fetch failed" });
+  }
+});
 
 // Valid combinations: 1d/5m, 5d/15m, 1mo/1d, 6mo/1d, 1y/1wk
 const RANGE_MAP = {
@@ -328,6 +409,10 @@ app.get("/jellyfin/image/:itemId", async (req, res) => {
     res.status(500).end();
   }
 });
+
+notesStore.init()
+  .then(dir => console.log(`Notes directory: ${dir}`))
+  .catch(err => console.error("Notes directory unavailable:", err.message));
 
 app.listen(PORT, () => {
   console.log(`Dashboard running on port ${PORT}`);

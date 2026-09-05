@@ -1,0 +1,668 @@
+/* ======================================================
+   NOTES
+   ======================================================
+   Requires theme.css, linked first. The dashboard's style.css is
+   deliberately absent — this page owns its own typography.
+
+   Line-heights here are all >= 1.55. The dashboard uses line-height: 1
+   in several places, which clips Thai vowel and tone marks; notes has
+   to hold Thai, so it never inherits that.
+====================================================== */
+
+:root {
+  --notes-sidebar-w: 17rem;
+  --notes-header-h:  3.5rem;
+  --notes-radius:    8px;
+
+  /* What the sidebar collapses to rather than 0. Wide enough to hold
+     the collapse button, which is the only way back — a control inside
+     a zero-width sidebar cannot reopen it, and a second reopen control
+     elsewhere would break "one journey, one affordance". */
+  --notes-rail-w:    2.25rem;
+
+  /* Thai faces are appended rather than replacing Geist. Browsers fall
+     back per glyph, so mixed Thai and English resolves automatically.
+     Never use theme.css's --font-title/--font-body on this page: they
+     are Latin-only and Thai silently drops to a generic sans. */
+  --notes-font: 'Geist', 'Noto Sans Thai', sans-serif;
+}
+
+body.notes {
+  height: 100dvh;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  font-family: var(--notes-font);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--text-primary);
+}
+
+/* ======================================================
+   HEADER
+====================================================== */
+
+/* A recessed band holding one label, mirroring the dashboard's own
+   header so both documents open the same way. Everything that used to
+   live out here has moved: navigation to the corner button, note
+   actions into the sidebar they act on. */
+.notes__header {
+  flex: none;
+  height: var(--notes-header-h);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 1rem;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--surface-dark);
+}
+
+/* The Headline token, verbatim — the same voice as MARKETS and NEW
+   ARRIVALS on the dashboard. Josefin is deliberately absent: it is the
+   VOIDBASE wordmark and setting a second word in it turns a signature
+   into a display face. Line-height stays >= 1.55 like everything else
+   on this page. */
+.notes__header h1 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 200;
+  letter-spacing: 0.08em;
+  line-height: 1.6;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+/* ======================================================
+   LAYOUT
+====================================================== */
+
+.notes__layout {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: var(--notes-sidebar-w) 1fr;
+}
+
+/* No transition here — width is a layout property, and CLAUDE.md
+   restricts animation to opacity/transform, so this snaps instead. */
+.notes__layout--sidebar-collapsed {
+  grid-template-columns: var(--notes-rail-w) 1fr;
+}
+
+/* ======================================================
+   SIDEBAR
+====================================================== */
+
+.notes__sidebar {
+  min-height: 0;
+  overflow-y: auto;
+  border-right: 1px solid var(--border-color);
+  background: var(--surface-dark);
+}
+
+/* The rail keeps its right border — it is still the sidebar's edge,
+   just a narrower one. */
+.notes__layout--sidebar-collapsed .notes__sidebar {
+  overflow: hidden;
+}
+
+/* Search, collapse and create ride above the scrolling list. */
+.notes__sidebar-head {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--panel-bg);
+}
+
+.notes__searchbar {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.6rem 0.7rem;
+}
+
+.notes__search-icon {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  color: var(--text-secondary);
+}
+
+.notes__search {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: none;
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.8rem;
+  line-height: 1.6;
+}
+
+.notes__search::placeholder { color: var(--text-secondary); }
+
+/* Structural chrome, so it stays visible at rest rather than hiding
+   behind :hover the way row-level controls do. Once collapsed there is
+   nothing left to hover it out of. */
+.notes__collapse {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  border-radius: var(--notes-radius);
+  background: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.notes__collapse svg { width: 14px; height: 14px; }
+
+.notes__collapse:hover {
+  background: var(--surface-glass-hover);
+  color: var(--text-primary);
+}
+
+/* The list's own vocabulary rather than new chrome: same geometry and
+   same hover fill as a note row, sitting exactly where the note it
+   creates will land. */
+.notes__new-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: calc(100% - 1rem);
+  margin: 0 0.5rem 0.5rem;
+  padding: 0.5rem 0.65rem;
+  border: none;
+  border-radius: var(--notes-radius);
+  background: none;
+  font: inherit;
+  font-size: 0.85rem;
+  line-height: 1.55;
+  text-align: left;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.notes__new-row svg {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  transition: color var(--transition-fast);
+}
+
+.notes__new-row:hover {
+  background: var(--surface-glass);
+  color: var(--text-primary);
+}
+
+.notes__new-row:hover svg { color: var(--accent-bright); }
+
+/* ── Collapsed rail ──────────────────────────────────────────────
+   Everything but the collapse button is dropped; the button flips and
+   centres in what is left. Same element, same handler — it simply
+   travels with the sidebar's edge. */
+
+.notes__layout--sidebar-collapsed .notes__search,
+.notes__layout--sidebar-collapsed .notes__search-icon,
+.notes__layout--sidebar-collapsed .notes__new-row,
+.notes__layout--sidebar-collapsed .notes__list {
+  display: none;
+}
+
+.notes__layout--sidebar-collapsed .notes__searchbar {
+  justify-content: center;
+  padding: 0.6rem 0;
+}
+
+.notes__layout--sidebar-collapsed .notes__collapse svg {
+  transform: rotate(180deg);
+}
+
+/* Matched substring inside a result */
+.notes__row mark {
+  padding: 0 1px;
+  border-radius: 2px;
+  background: var(--accent-muted);
+  color: var(--text-primary);
+}
+
+.notes__list {
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem;
+  gap: 2px;
+}
+
+.notes__row {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  width: 100%;
+  padding: 0.55rem 1.9rem 0.6rem 0.65rem;
+  border: 1px solid transparent;
+  border-radius: var(--notes-radius);
+  background: none;
+  font: inherit;
+  text-align: left;
+  color: inherit;
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+}
+
+.notes__row:hover { background: var(--surface-glass); }
+
+.notes__row.active {
+  background: var(--surface-glass-hover);
+  border-color: var(--border-hover);
+}
+
+.notes__row-title,
+.notes__row-excerpt {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.notes__row-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  line-height: 1.55;
+  color: var(--text-primary);
+}
+
+/* Timestamp stand-ins read as metadata, not as an authored title */
+.notes__row-title.untitled {
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-secondary);
+}
+
+.notes__row-excerpt {
+  font-size: 0.75rem;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
+.notes__row-remove {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.45rem;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 5px;
+  color: var(--text-secondary);
+  opacity: 0;
+  transition: opacity var(--transition-fast), background var(--transition-fast), color var(--transition-fast);
+}
+
+.notes__row-remove svg { width: 13px; height: 13px; }
+
+.notes__row:hover .notes__row-remove { opacity: 1; }
+
+.notes__row-remove:hover {
+  background: var(--surface-glass-hover);
+  color: var(--red-highlights);
+}
+
+.notes__empty {
+  margin: 0;
+  padding: 1.5rem 0.75rem;
+  font-size: 0.8rem;
+  line-height: 1.6;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+/* ======================================================
+   EDITOR
+====================================================== */
+
+.notes__pane {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Three surfaces occupy the same slot; exactly one is visible.
+   .cm6-ready   -> CodeMirror mounted
+   .fallback-mode -> CodeMirror failed, plain textarea
+   neither      -> still loading, read-only marked render */
+
+.notes__editor,
+.notes__preview,
+.notes__fallback {
+  flex: 1;
+  min-height: 0;
+  display: none;
+}
+
+.notes__pane.cm6-ready    .notes__editor   { display: block; }
+.notes__pane.fallback-mode .notes__fallback { display: block; }
+.notes__pane:not(.cm6-ready):not(.fallback-mode) .notes__preview { display: block; }
+
+/* CodeMirror owns its own scroller and padding — see editorTheme in
+   livepreview.js. Only the box it lives in is styled here. */
+.notes__editor { overflow: hidden; }
+.notes__editor .cm-editor { height: 100%; }
+
+/* Nothing selected */
+.notes__pane.is-empty .notes__editor,
+.notes__pane.is-empty .notes__fallback { opacity: 0.5; }
+
+.notes__fallback {
+  width: 100%;
+  padding: 1.5rem 1.75rem;
+  border: none;
+  outline: none;
+  resize: none;
+  overflow-y: auto;
+  background: none;
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.9rem;
+  line-height: 1.75;
+  tab-size: 4;
+}
+
+.notes__fallback::placeholder { color: var(--text-secondary); }
+
+/* ── Status bar ── */
+
+.notes__statusbar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap);
+  padding: 0.4rem 1.75rem;
+  border-top: 1px solid var(--border-color);
+  font-size: 0.7rem;
+  line-height: 1.6;
+  letter-spacing: 0.04em;
+  color: var(--text-secondary);
+}
+
+.notes__status[data-state="saving"] { color: var(--text-secondary); }
+.notes__status[data-state="saved"]  { color: var(--green-highlights); }
+.notes__status[data-state="dirty"]  { color: var(--orange-highlights); }
+.notes__status[data-state="error"]  { color: var(--red-highlights); }
+
+.notes__meta { font-variant-numeric: tabular-nums; }
+
+/* ======================================================
+   PREVIEW — loading state and the mobile reading surface
+====================================================== */
+
+.notes__preview {
+  padding: 1.5rem 1.75rem;
+  overflow-y: auto;
+  overflow-wrap: break-word;
+}
+
+.notes__preview.empty {
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+/* ======================================================
+   RENDERED MARKDOWN
+   ======================================================
+   Every line-height here stays at or above 1.5. Thai stacks vowel
+   marks above and tone marks below the baseline, and tighter leading
+   shears them off.
+====================================================== */
+
+.markdown > *:first-child { margin-top: 0; }
+.markdown > *:last-child  { margin-bottom: 0; }
+
+.markdown h1,
+.markdown h2,
+.markdown h3,
+.markdown h4,
+.markdown h5,
+.markdown h6 {
+  margin: 1.6em 0 0.6em;
+  font-family: var(--notes-font);
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--text-primary);
+}
+
+.markdown h1 { font-size: 1.5rem;  letter-spacing: 0.01em; }
+.markdown h2 { font-size: 1.25rem; }
+.markdown h3 { font-size: 1.08rem; }
+.markdown h4 { font-size: 0.95rem; }
+.markdown h5,
+.markdown h6 {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.markdown p {
+  margin: 0 0 1em;
+  line-height: 1.75;
+}
+
+.markdown strong { font-weight: 600; color: var(--text-primary); }
+.markdown em     { font-style: italic; }
+.markdown del    { color: var(--text-secondary); text-decoration-thickness: 1px; }
+
+.markdown a {
+  color: var(--accent-bright);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.markdown a:hover { text-decoration-thickness: 2px; }
+
+/* ── Lists ── */
+
+.markdown ul,
+.markdown ol {
+  margin: 0 0 1em;
+  padding-left: 1.4rem;
+}
+
+.markdown li {
+  margin-bottom: 0.3em;
+  line-height: 1.7;
+}
+
+.markdown li::marker { color: var(--text-secondary); }
+
+.markdown li > ul,
+.markdown li > ol {
+  margin: 0.3em 0 0;
+}
+
+/* Task lists — GFM `- [ ]`. Checkboxes render disabled; making them
+   write back to the source is deferred. */
+.markdown li:has(> input[type="checkbox"]) {
+  list-style: none;
+  margin-left: -1.4rem;
+  padding-left: 1.4rem;
+  position: relative;
+}
+
+.markdown input[type="checkbox"] {
+  position: absolute;
+  left: 0;
+  top: 0.45em;
+  width: 13px;
+  height: 13px;
+  margin: 0;
+  accent-color: var(--accent);
+}
+
+.markdown input[type="checkbox"]:checked + * ,
+.markdown li:has(> input[type="checkbox"]:checked) {
+  color: var(--text-secondary);
+}
+
+/* ── Rules, quotes, code ── */
+
+.markdown hr {
+  margin: 1.8em 0;
+  border: none;
+  border-top: 1px solid var(--border-color);
+}
+
+.markdown blockquote {
+  margin: 0 0 1em;
+  padding: 0.1rem 0 0.1rem 0.9rem;
+  border-left: 2px solid var(--accent-muted);
+  color: var(--text-secondary);
+}
+
+.markdown code {
+  padding: 0.12em 0.36em;
+  border-radius: 4px;
+  background: var(--surface-glass-hover);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Noto Sans Thai', monospace;
+  font-size: 0.85em;
+}
+
+.markdown pre {
+  margin: 0 0 1em;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--notes-radius);
+  background: var(--surface-dark);
+  overflow-x: auto;
+  line-height: 1.6;
+}
+
+.markdown pre code {
+  padding: 0;
+  border-radius: 0;
+  background: none;
+  font-size: 0.82rem;
+}
+
+/* ── Tables ── */
+
+.markdown table {
+  width: 100%;
+  margin: 0 0 1em;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.markdown th,
+.markdown td {
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--border-color);
+  line-height: 1.6;
+  text-align: left;
+}
+
+.markdown th {
+  background: var(--surface-glass);
+  font-weight: 600;
+}
+
+.markdown img { max-width: 100%; height: auto; border-radius: var(--notes-radius); }
+
+.markdown__error { color: var(--red-highlights); }
+
+/* ======================================================
+   NARROW SCREENS
+   ======================================================
+   Deliberately minimal. This is a desktop-first tool; the phone case
+   only needs to let you find a note and read it.
+====================================================== */
+
+@media (max-width: 700px) {
+  .notes__layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+  }
+
+  .notes__sidebar {
+    max-height: 38dvh;
+    border-right: none;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  /* The sidebar is already a collapsed strip here — nothing left for
+     the desktop toggle to do. New note stays; it is the one control
+     that still means something on a phone. */
+  .notes__collapse { display: none; }
+
+  /* A collapsed state saved on desktop must not follow you onto a
+     phone, where the rail has no toggle to undo it and the whole list
+     would be hidden with no way back. */
+  .notes__layout--sidebar-collapsed .notes__new-row,
+  .notes__layout--sidebar-collapsed .notes__list {
+    display: flex;
+  }
+
+  .notes__layout--sidebar-collapsed .notes__search,
+  .notes__layout--sidebar-collapsed .notes__search-icon {
+    display: block;
+  }
+
+  .notes__layout--sidebar-collapsed .notes__searchbar {
+    justify-content: flex-start;
+    padding: 0.6rem 0.7rem;
+  }
+
+  /* Read-only rendered view. Editing on a phone was never the point,
+     and it keeps the editor bundle off the critical path there. */
+  .notes__pane .notes__editor,
+  .notes__pane .notes__fallback { display: none; }
+  .notes__pane .notes__preview  { display: block; }
+
+  .notes__preview   { padding: 1rem 1.1rem; }
+  .notes__statusbar { padding: 0.4rem 1.1rem; }
+
+  /* Always visible — there is no hover on touch */
+  .notes__row-remove { opacity: 1; }
+}
+
+/* ======================================================
+   EDITOR — horizontal rule
+   ======================================================
+   The --- keeps its place in the document; only the glyphs are hidden,
+   so the line box does not change height when the cursor lands on it
+   and the source is revealed.
+====================================================== */
+
+.cm-md-rule {
+  position: relative;
+}
+
+/* The descendant selector is the point. CodeMirror wraps the --- in a
+   highlight span, and a colour on that span outranks one set on the
+   line, so hiding the line alone left the dashes showing. */
+.cm-md-rule,
+.cm-md-rule * {
+  /* Hides the dashes without collapsing the line — font-size: 0 would
+     make the row jump every time the cursor entered it. */
+  color: transparent;
+}
+
+.cm-md-rule::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  /* --border-hover, not --border-color: the latter is oklch(1 0 0 /
+     0.08), tuned for card edges that sit against a surface. A divider
+     inside body text needs to hold its own, and this is the same token
+     the rest of the site already uses for a raised border. */
+  border-top: 1px solid var(--border-hover);
+  pointer-events: none;
+}

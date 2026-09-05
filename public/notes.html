@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Notes — Voidbase</title>
+
+  <!-- Anti-flash: applies the saved theme before first paint.
+       Must stay inline and blocking — a deferred module runs after the
+       browser has already painted the default palette, which is exactly
+       the violet-then-repaint flash this avoids. -->
+  <script>
+    try {
+      document.documentElement.dataset.theme =
+        localStorage.getItem("theme") || "violet";
+    } catch (e) {
+      document.documentElement.dataset.theme = "violet";
+    }
+  </script>
+
+  <!-- View transition opt-in, inline and before any external CSS.
+       The incoming document has to be opted in by the time the browser
+       decides whether to run the transition. In theme.css that depends
+       on when the stylesheet lands; here it cannot be missed. The
+       animation itself stays in theme.css. -->
+  <style>@view-transition { navigation: auto; }</style>
+
+
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@700&family=Geist:wght@200;400;600;700&family=Noto+Sans+Thai:wght@400;600;700&display=swap">
+
+  <!-- Shared theme layer, then the notes-only stylesheet. The dashboard's
+       style.css is deliberately not loaded — this page has its own
+       typography, and none of the dashboard components exist here. -->
+  <link rel="stylesheet" href="theme.css" />
+  <link rel="stylesheet" href="settings.css" />
+  <link rel="stylesheet" href="notes.css" />
+</head>
+
+<body class="notes">
+
+  <!-- The header carries the page label and nothing else. Navigation
+       lives in the corner button below, and every note action now lives
+       in the sidebar it acts on. -->
+  <header class="notes__header">
+    <h1>Notes</h1>
+  </header>
+
+  <main class="notes__layout">
+
+    <aside class="notes__sidebar">
+
+      <!-- Search, collapse and create stay pinned while the list
+           scrolls under them. -->
+      <div class="notes__sidebar-head">
+        <div class="notes__searchbar">
+          <svg class="notes__search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/>
+          </svg>
+          <input class="notes__search" id="notesSearch" type="text"
+                 placeholder="Search notes…" autocomplete="off" spellcheck="false">
+
+          <!-- Collapsing leaves a rail rather than nothing, so this
+               button travels with the sidebar's edge instead of being
+               orphaned by its own click. -->
+          <button class="notes__collapse" id="sidebarToggle" type="button"
+                  aria-controls="notesList" aria-expanded="true"
+                  aria-label="Collapse note list" title="Collapse note list">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="15 18 9 12 15 6"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Sits exactly where the note it creates will land. -->
+        <button class="notes__new-row" id="noteNew" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          <span>New note</span>
+        </button>
+      </div>
+
+      <div class="notes__list" id="notesList"></div>
+    </aside>
+
+    <section class="notes__pane">
+
+      <!-- CodeMirror mounts here. Until it does, the note is shown
+           read-only via marked; if it never loads, the textarea takes
+           over. Exactly one of the three is visible at a time. -->
+      <div class="notes__editor" id="noteEditor"></div>
+
+      <article class="notes__preview markdown" id="notePreview"></article>
+
+      <textarea class="notes__fallback"
+                id="noteFallback"
+                spellcheck="false"
+                autocomplete="off"
+                placeholder="Start typing. A first line like “# Groceries” becomes the title."></textarea>
+
+      <div class="notes__statusbar">
+        <span class="notes__status" id="noteStatus"></span>
+        <span class="notes__meta" id="noteMeta"></span>
+      </div>
+    </section>
+
+  </main>
+
+
+  <!-- ════ CONTROL PANEL ════
+       Same markup and same ids as the dashboard, so settings.js and
+       theme.js drive it unchanged. The Layout Customizer row is omitted
+       — it reorders dashboard sections that do not exist here.
+
+       Widgets that only affect the dashboard still persist from this
+       page; the dashboard reads them on its next load. -->
+  <!-- ════ DASHBOARD BUTTON ════
+       The return half of the cross-page affordance. Same component and
+       same corner as the dashboard's, pointing the other way. -->
+  <a class="nav-trigger" href="/" aria-label="Go to dashboard">
+    <!-- 1.5 on 24, not the gear's 1.75. Both glyphs are the same
+         colour token and both peak at exactly that colour — measured,
+         not assumed. What differs is how much of each reaches it: four
+         axis-aligned rects land on the pixel grid at full coverage,
+         while every one of the gear's eight teeth is a ~1.5px feature
+         drawn with a 1.31px stroke, so almost none of it does. At a
+         matched 1.75 the grid put 54 pixels at full value to the
+         gear's 16, which is the whole of the "brighter" effect. 1.5
+         brings it to 28 and leaves the gear carrying slightly more
+         total ink, so the two trade crispness against weight.
+
+         This correction is specific to this glyph. The dashboard's
+         nav icon measures 19 against the same gear and is left as-is;
+         do not "fix" it to match this number. -->
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="3" width="7" height="7" rx="1"/>
+      <rect x="14" y="3" width="7" height="7" rx="1"/>
+      <rect x="14" y="14" width="7" height="7" rx="1"/>
+      <rect x="3" y="14" width="7" height="7" rx="1"/>
+    </svg>
+  </a>
+
+
+  <!-- ════ SETTINGS BUTTON ════ -->
+  <button class="settings-trigger" id="settingsTrigger" aria-label="Open settings">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="3"/>
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+    </svg>
+  </button>
+
+
+  <!-- ════ SETTINGS PANEL ════ -->
+  <div class="settings-panel" id="settingsPanel">
+
+    <div class="settings-panel__header">Control Panel</div>
+
+    <!-- Theme colour -->
+    <div class="settings__section">
+      <div class="settings__section-label">Theme</div>
+      <div class="swatch-row">
+        <button class="theme__swatch" data-theme="violet" aria-label="Violet"></button>
+        <button class="theme__swatch" data-theme="blue"   aria-label="Blue"></button>
+        <button class="theme__swatch" data-theme="pink"   aria-label="Pink"></button>
+        <button class="theme__swatch" data-theme="green"  aria-label="Green"></button>
+        <button class="theme__swatch" data-theme="black"  aria-label="Black"></button>
+        <button class="theme__swatch" data-theme="white"  aria-label="White"></button>
+        <button class="theme__swatch" data-theme="beige"  aria-label="beige"></button>
+        <span class="swatch-name" id="swatchName"></span>
+      </div>
+    </div>
+
+    <!-- Display section -->
+    <div class="settings__section">
+      <div class="settings__section-label">Display</div>
+
+      <!-- Status info toggle -->     
+      <div class="settings__row">
+        <span>Status Info</span>
+        <label class="settings__toggle">
+          <input type="checkbox" id="statusInfoToggle" checked>
+          <span class="settings__toggle-track"></span>
+        </label>
+      </div>
+
+      <!-- Guest mode toggle -->
+      <div class="settings__row">
+        <span>Guest Mode</span>
+        <label class="settings__toggle">
+          <input type="checkbox" id="guestModeToggle">
+          <span class="settings__toggle-track"></span>
+        </label>
+      </div>
+
+    </div>
+
+    <!-- Widgets section -->
+    <div class="settings__section">
+      <div class="settings__section-label">Widgets</div>
+
+      <!-- Force 90D Low column on small screens -->
+      <div class="settings__row">
+        <span>Force 90D Low</span>
+        <label class="settings__toggle">
+          <input type="checkbox" id="force90dToggle">
+          <span class="settings__toggle-track"></span>
+        </label>
+      </div>
+
+      <!-- Expanded charts toggle -->
+      <div class="settings__row">
+        <span>Expanded Charts</span>
+        <label class="settings__toggle">
+          <input type="checkbox" id="expandedChartsToggle">
+          <span class="settings__toggle-track"></span>
+        </label>
+      </div>
+
+      <!-- Ticker count --> 
+      <div class="settings__row">
+        <span>Ticker Count</span>
+        <div class="settings__stepper">
+          <button id="tickerMinus">−</button>
+          <span id="tickerCount">6</span>
+          <button id="tickerPlus">+</button>
+        </div>
+      </div>
+
+      <!-- Placeholder slot -->
+      <div class="placeholder-row">Nuclear launch<span class="placeholder-pill">soon</span></div>
+    </div>
+
+    <!-- Version stamp -->
+    <div class="settings__version" id="settingsVersion"></div>
+
+  </div>
+
+  <script type="module" src="js/notes/main.js"></script>
+
+</body>
+</html>
