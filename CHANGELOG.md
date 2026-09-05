@@ -1,5 +1,17 @@
 # Changelog — Voidbase
 
+## v0.7.4 — 2026-09-05
+*Convention audit, part two — cascade layers*
+
+### Changed
+- **Every stylesheet now lives in a cascade layer** — `@layer reset, tokens, components`, declared in `theme.css` and appended to by the other three. A rule in an earlier layer cannot beat one in a later layer whatever its specificity, so the reset can no longer outrank a component. The `a:visited` bug that started this audit isn't fixed so much as no longer expressible
+- The dashboard's `h1`–`h4` moved into `reset` for the same reason. Bare element selectors carrying colour are the exact shape that went wrong; at (0,0,1) they lose to any class today, but in `reset` they lose to any component forever
+- **Six `:root[data-theme="white"|"beige"] body .header…` rules are gone**, replaced by a `--header-text` token. They keyed a component off the theme from the dashboard stylesheet and scored (0,3,1), the highest specificity in the project. Four of the six were measured to be doing nothing at all — `.header__aqi` and `.header__location` already set that colour themselves, and `.header__meta` inherits it. The two that worked only ever worked by inheritance, which is what the token does
+- The render matrix runs its `:link` canary twice now. The `layered` variant injects into `@layer reset`, which is where such a rule would actually land, and reports `protected` — this is Lane A's acceptance test. The `unlayered` variant reports `VULNERABLE` and always will: CSS in no layer beats CSS in every layer, by design
+
+### Known
+- **uPlot's stylesheet and CodeMirror's injected theme are unlayered, so they now outrank all of ours.** Nothing collides today — uPlot sets no background on the elements we style, and our only `.cm-` rules are our own decoration class. Booked in `TODO.md`: self-hosting uPlot lets it go in a `vendor` layer. CodeMirror injects at runtime and can't be layered from CSS at all, which is why the `!important`s in `livepreview.js` stay
+
 ## v0.7.3 — 2026-09-05
 *Convention audit, part one*
 

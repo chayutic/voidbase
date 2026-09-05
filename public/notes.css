@@ -9,6 +9,10 @@
    to hold Thai, so it never inherits that.
 ====================================================== */
 
+/* Page-scoped tokens, in the same layer as theme.css's. See theme.css
+   for the layer order. */
+@layer tokens {
+
 :root {
   --notes-sidebar-w: 17rem;
   --notes-header-h:  3.5rem;
@@ -26,6 +30,12 @@
      are Latin-only and Thai silently drops to a generic sans. */
   --notes-font: 'Geist', 'Noto Sans Thai', sans-serif;
 }
+
+} /* @layer tokens */
+
+/* Everything below is component styling. Contents are not re-indented
+   for the wrapper. */
+@layer components {
 
 body.notes {
   height: 100dvh;
@@ -666,3 +676,5 @@ body.notes {
   border-top: 1px solid var(--border-hover);
   pointer-events: none;
 }
+
+} /* @layer components */

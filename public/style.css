@@ -5,6 +5,11 @@
    var() below resolves against the tokens it declares.
 ====================================================== */
 
+/* Bare element selectors setting colour — the shape that started this
+   audit. In `reset` they cannot outrank a component whatever they grow
+   into. See theme.css for the layer order. */
+@layer reset {
+
 h1 {  
   font-family: var(--font-header);
   font-weight: 700;
@@ -40,36 +45,11 @@ h4 {
   margin: 0;
 }
 
+} /* @layer reset */
 
-/* ── Light-theme header overrides ──────────────────────
-   Theme-conditional but dashboard-specific, so they live here
-   rather than in theme.css. ─────────────────────────────── */
-
-:root[data-theme="white"] body .header {
-  color: var(--text-secondary);
-}
-
-:root[data-theme="white"] body .header__meta{
-  color: var(--text-secondary);
-}
-
-:root[data-theme="white"] body .header__aqi,
-:root[data-theme="white"] body .header__location {
-  color: var(--text-secondary);
-}
-
-:root[data-theme="beige"] body .header {
-  color: var(--text-secondary);
-}
-
-:root[data-theme="beige"] body .header__meta{
-  color: var(--text-secondary);
-}
-
-:root[data-theme="beige"] body .header__aqi,
-:root[data-theme="beige"] body .header__location {
-  color: var(--text-secondary);
-}
+/* Everything below is component styling. Contents are not re-indented
+   for the wrapper. */
+@layer components {
 
 /* ======================================================
    HEADER
@@ -79,6 +59,12 @@ h4 {
   padding: 4rem 0 1.5rem;
   background: var(--surface-dark);
   border-bottom: 1px solid var(--border-color);
+  /* Resolves to --text-primary everywhere except the light themes, which
+     step it down to --text-secondary. Replaces six
+     `:root[data-theme=…] body .header…` rules; four of those were
+     measured no-ops and the other two only ever worked by inheritance,
+     which is exactly what this does. */
+  color: var(--header-text);
 }
 
 /* Vertical stack, centered */
@@ -1845,3 +1831,5 @@ body.force-90d .deals__col-low {
 body.guest-mode .section--homelab {
   display: none;
 }
+
+} /* @layer components */

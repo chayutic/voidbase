@@ -11,8 +11,34 @@
 ====================================================== */
 
 /* ======================================================
+   CASCADE LAYERS
+   ======================================================
+   Declared here, before anything uses them, because this file is
+   linked first on both pages. Later layer blocks — in settings.css,
+   style.css, notes.css — append to these; they do not reorder them.
+
+   A rule in an earlier layer cannot beat one in a later layer no
+   matter how specific it is. That is the whole point: the reset can
+   no longer outrank a component. `a:visited { color: inherit }` at
+   (0,1,1) used to beat `.nav-trigger` at (0,1,0) and silently strip
+   the icon's colour once /notes was in history. Sitting in `reset`,
+   that rule now loses to every component regardless of specificity,
+   so the bug is not fixable-again — it is unrepresentable.
+
+   Note the one asymmetry: CSS that is in NO layer beats CSS that is
+   in any layer. uPlot's stylesheet and CodeMirror's runtime-injected
+   theme are both unlayered and therefore now outrank everything
+   here. That is deliberate and documented — see CLAUDE.md and the
+   uPlot entry in TODO.md.
+====================================================== */
+
+@layer reset, tokens, components;
+
+/* ======================================================
    THEME VARIABLES
 ====================================================== */
+
+@layer tokens {
 
 :root {
   /* ── Non-theme tokens ─────────────────────────────── */
@@ -76,6 +102,13 @@ body {
   --text-primary:   oklch(0.97 0 var(--theme-hue));
   --text-secondary: oklch(0.71 0 var(--theme-hue));
 
+  /* Dashboard header text. A token rather than a `[data-theme] .header`
+     rule in style.css, because that rule keyed a component off the theme
+     from the page stylesheet and scored (0,3,1) — higher than anything
+     else in the project. The light themes override this to the secondary
+     tone; everything else inherits the primary one. */
+  --header-text:    var(--text-primary);
+
   /* Accent */
   --accent:         oklch(0.45 0.18 var(--theme-hue));
   --accent-bright:  oklch(from var(--accent) calc(l + 0.08) c h);
@@ -103,9 +136,18 @@ body {
   --tooltip-bg:     oklch(0.22 0.010 var(--theme-hue));
 }
 
+} /* @layer tokens */
+
 /* ======================================================
    GLOBAL RESET
+   ======================================================
+   Everything here is in `reset`, the lowest layer, so none of it can
+   outrank a component rule however specific it gets. Contents are not
+   re-indented for the layer block — the wrapper is structural, and
+   indenting 200 lines would bury the change it is documenting.
 ====================================================== */
+
+@layer reset {
 
 * {
   box-sizing: border-box;
@@ -144,6 +186,10 @@ body {
     radial-gradient(ellipse 65% 55% at 80% 72%, oklch(0.44 0.21 var(--theme-hue) / 0.20), transparent 65%),
     linear-gradient(150deg, var(--bg-primary) 0%, oklch(0.12 0.008 var(--theme-hue)) 100%);
 }
+
+} /* @layer reset */
+
+@layer tokens {
 
 /* ── Colour theme hue overrides ──
    The attribute sits on <html>, not <body>, so the inline script in each
@@ -208,6 +254,8 @@ body::before {
   --bg-secondary:   oklch(0.91 0 0);
   --text-primary:   oklch(0.15 0 0);
   --text-secondary: oklch(0.50 0 0);
+  /* Primary is near-black here; the header reads better one step down. */
+  --header-text:    var(--text-secondary);
   --accent:         oklch(0.50 0 0);
   --accent-bright:  oklch(0.30 0 0);
   --accent-muted:   oklch(0.60 0 0);
@@ -241,6 +289,8 @@ body::before {
   --bg-secondary:   oklch(0.91 0.04 100);
   --text-primary:   oklch(0.20 0.04 125);
   --text-secondary: oklch(0.50 0.04 125);
+  /* Primary is near-black here; the header reads better one step down. */
+  --header-text:    var(--text-secondary);
   --accent:         oklch(0.50 0.04 125);
   --accent-bright:  oklch(0.30 0.04 125);
   --accent-muted:   oklch(0.60 0.04 100);
@@ -270,6 +320,11 @@ body::before {
 /* body::after unused */
 body::after { display: none; }
 
+} /* @layer tokens */
+
+/* Keyframes stay unlayered. Layers order declarations, and @keyframes
+   contributes none — each name here is defined exactly once, so there is
+   nothing for a layer to disambiguate. */
 @keyframes ambientPulse {
   0%   { opacity: 0.55; }
   100% { opacity: 1;    }
@@ -291,11 +346,21 @@ body::after { display: none; }
    specificity bump from the first time it happened. Note that
    getComputedStyle cannot see any of it — Chrome reports the unvisited
    value for :visited on purpose, to block history sniffing — so this
-   class of bug has to be diagnosed from painted pixels, not the DOM. */
+   class of bug has to be diagnosed from painted pixels, not the DOM.
+
+   Since v0.7.4 this sits in the `reset` layer, so even the `a:visited`
+   companion could not do the damage described above: a reset-layer rule
+   loses to every component rule whatever its specificity. The rule stays
+   absent anyway — it was always redundant — but the reasoning above is
+   now belt as well as braces. */
+@layer reset {
+
 a {
   text-decoration: none;
   color: inherit;
 }
+
+} /* @layer reset */
 
 /* ======================================================
    VIEW TRANSITION — dashboard <-> notes

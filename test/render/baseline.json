@@ -69,9 +69,9 @@
     "rest .footer": {
       "w": 5600,
       "h": 576,
-      "digest": "862d5cf8",
+      "digest": "93afc428",
       "peakL": 0.709,
-      "atPeak": 8961
+      "atPeak": 8990
     },
     "hover .dock__item": {
       "w": 224,
@@ -166,7 +166,19 @@
       "focusL": 1,
       "focusDigest": "4e9a8a59"
     },
-    "canary a:link": {
+    "canary a:link layered": {
+      ".nav-trigger": {
+        "vulnerable": false,
+        "beforeL": 0.709,
+        "afterL": 0.709
+      },
+      ".utilities__card": {
+        "vulnerable": false,
+        "beforeL": 0.1354,
+        "afterL": 0.1354
+      }
+    },
+    "canary a:link unlayered": {
       ".nav-trigger": {
         "vulnerable": true,
         "beforeL": 0.709,
@@ -263,9 +275,9 @@
     "rest .footer": {
       "w": 5600,
       "h": 576,
-      "digest": "10330014",
+      "digest": "6f3147cc",
       "peakL": 0.709,
-      "atPeak": 8961
+      "atPeak": 8990
     }
   },
   "index-pink-w1400": {
@@ -338,9 +350,9 @@
     "rest .footer": {
       "w": 5600,
       "h": 576,
-      "digest": "dd6c7d8f",
+      "digest": "33b7f9b5",
       "peakL": 0.709,
-      "atPeak": 8961
+      "atPeak": 8990
     }
   },
   "index-green-w1400": {
@@ -413,9 +425,9 @@
     "rest .footer": {
       "w": 5600,
       "h": 576,
-      "digest": "993bab04",
+      "digest": "b57d0c62",
       "peakL": 0.709,
-      "atPeak": 8961
+      "atPeak": 8990
     }
   },
   "index-violet-w640": {
@@ -488,7 +500,7 @@
     "rest .footer": {
       "w": 2560,
       "h": 576,
-      "digest": "8684207c",
+      "digest": "85f9e420",
       "peakL": 1,
       "atPeak": 2560
     }
@@ -563,9 +575,9 @@
     "rest .footer": {
       "w": 1920,
       "h": 576,
-      "digest": "3eb60db2",
+      "digest": "f5837f8d",
       "peakL": 0.709,
-      "atPeak": 8961
+      "atPeak": 8990
     }
   },
   "index-violet-w400": {
@@ -638,9 +650,9 @@
     "rest .footer": {
       "w": 1600,
       "h": 576,
-      "digest": "52d512ab",
+      "digest": "6fd84f79",
       "peakL": 0.709,
-      "atPeak": 8961
+      "atPeak": 8990
     }
   },
   "index-violet-w1400-guest": {
@@ -709,7 +721,7 @@
     "rest .footer": {
       "w": 5600,
       "h": 576,
-      "digest": "cf7d4575",
+      "digest": "71d252f5",
       "peakL": 1,
       "atPeak": 5600
     }
@@ -803,7 +815,17 @@
       "focusL": 1,
       "focusDigest": "fdcc83b2"
     },
-    "canary a:link": {
+    "canary a:link layered": {
+      ".nav-trigger": {
+        "vulnerable": false,
+        "beforeL": 0.709,
+        "afterL": 0.709
+      },
+      ".utilities__card": {
+        "absent": true
+      }
+    },
+    "canary a:link unlayered": {
       ".nav-trigger": {
         "vulnerable": true,
         "beforeL": 0.709,

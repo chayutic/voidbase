@@ -6,7 +6,7 @@
 //  things read by more than one module belong here.
 
 /** Shown in the footer and the Control Panel. Update in one place. */
-export const VERSION = "v0.7.3";
+export const VERSION = "v0.7.4";
 
 /**
  * Jellyfin base URL used for *browser-facing* links (New Arrivals cards,

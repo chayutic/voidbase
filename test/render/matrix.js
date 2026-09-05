@@ -428,23 +428,41 @@ async function forceState(cdp, selector, states) {
 // still scores (0,1,0), so any bare a:link/a:visited rule beats it again.
 //
 // This injects the twin, `a:link { color: inherit }`, and records whether
-// each probe repaints. Today .nav-trigger does and .utilities__card does
-// not, because the card carries a :link/:visited specificity bump — the
-// Lane B fossil, which turns out to be genuinely protective against this.
+// each probe repaints.
 //
-// The result is diffed like any other probe rather than asserted, because
-// "vulnerable" is the honest current state. When Lane A lands cascade
-// layers and puts the reset below components, these flip to false and the
-// diff will say so. After that, a flip back to true is the regression.
+// It runs in TWO variants, because cascade layers made the distinction
+// load-bearing:
+//
+//   layered    the rule goes into `@layer reset`, which is where it would
+//              land if someone added it to theme.css. This is the real
+//              threat model, and since v0.7.4 every probe reports
+//              `protected` — a reset-layer rule cannot outrank a component
+//              rule at any specificity. A flip back to VULNERABLE means
+//              the layer architecture has been broken.
+//
+//   unlayered  the rule goes in bare, as before. This reports VULNERABLE
+//              forever and that is CORRECT, not a failure: CSS in no layer
+//              outranks CSS in every layer, by design. It is kept because
+//              it is the only live signal on the one real exposure layers
+//              introduced — uPlot's stylesheet and CodeMirror's injected
+//              theme are both unlayered and now outrank all of ours.
+//              See the uPlot entry in TODO.md.
+//
+// Results are diffed like any other probe rather than asserted, so the
+// stable VULNERABLE line costs nothing and a change in either direction
+// shows up in the diff.
 
-async function linkCanary(cdp, dpr) {
+async function linkCanary(cdp, dpr, { layered }) {
   const targets = [".nav-trigger", ".utilities__card"];
   const before = {};
   for (const s of targets) before[s] = await measure(cdp, s, dpr);
 
+  const rule = layered
+    ? "@layer reset { a:link{color:inherit} }"
+    : "a:link{color:inherit}";
   await cdp.send("Runtime.evaluate", {
     expression: `{const s=document.createElement("style");s.id="__canary";
-      s.textContent="a:link{color:inherit}";document.head.appendChild(s);}`,
+      s.textContent=${JSON.stringify(rule)};document.head.appendChild(s);}`,
   });
   await sleep(300);
 
@@ -603,7 +621,8 @@ async function run() {
           await forceState(cdp, sel, []);
         }
       }
-      bucket["canary a:link"] = await linkCanary(cdp, dpr);
+      bucket["canary a:link layered"] = await linkCanary(cdp, dpr, { layered: true });
+      bucket["canary a:link unlayered"] = await linkCanary(cdp, dpr, { layered: false });
 
       // The two stroke-width comment blocks assert pixel-coverage counts
       // at DPR 1. Without this pass they cannot be checked at all.
@@ -697,15 +716,21 @@ function compare(base, now) {
   }
 
   // Canary status, reported every run. Not an assertion — see linkCanary.
+  // `unlayered` reporting VULNERABLE is the expected, correct result.
   for (const [cfg, bucket] of Object.entries(now)) {
-    const c = bucket["canary a:link"];
-    if (!c) continue;
-    for (const [sel, r] of Object.entries(c)) {
-      if (r.absent) continue;
-      const state = r.vulnerable
-        ? `VULNERABLE  L ${r.beforeL} -> ${r.afterL} under a:link{color:inherit}`
-        : `protected`;
-      console.log(`  canary ${cfg} ${sel.padEnd(18)} ${state}`);
+    for (const variant of ["layered", "unlayered"]) {
+      const c = bucket[`canary a:link ${variant}`];
+      if (!c) continue;
+      for (const [sel, r] of Object.entries(c)) {
+        if (r.absent) continue;
+        const state = r.vulnerable
+          ? `VULNERABLE  L ${r.beforeL} -> ${r.afterL}`
+          : `protected`;
+        const note = r.vulnerable && variant === "unlayered" ? "  (expected)" : "";
+        console.log(
+          `  canary ${variant.padEnd(9)} ${cfg} ${sel.padEnd(18)} ${state}${note}`
+        );
+      }
     }
   }
 

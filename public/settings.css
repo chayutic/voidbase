@@ -9,6 +9,10 @@
      theme.css -> settings.css -> page stylesheet
 ====================================================== */
 
+/* Everything in this file is component styling — see theme.css for the
+   layer order. Contents are not re-indented for the wrapper. */
+@layer components {
+
 /* The gear and the cross-page nav button are the only fixed furniture
    on either page, and they read as a pair. Everything but their corner
    is shared here so the two cannot drift apart. */
@@ -409,3 +413,5 @@
     height: 22px;
   }
 }
+
+} /* @layer components */
