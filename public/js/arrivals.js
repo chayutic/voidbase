@@ -2,10 +2,8 @@
 //  NEW ARRIVALS — recently added Jellyfin media
 // ═══════════════════════════════════════════════════════════════
 //
-//  GET /jellyfin/recent returns three movies and three episodes
-//  (deduplicated to one per series server-side). Episodes frequently
-//  have no Primary image of their own, so those fall back to the series
-//  poster via GET /jellyfin/poster/:seriesId.
+//  Episodes frequently have no Primary image of their own, so those
+//  fall back to the series poster via GET /jellyfin/poster/:seriesId.
 //
 //  Poster images route through the /jellyfin/image/ proxy so they load
 //  from outside the LAN. Card *links* use JELLYFIN_BASE directly and so
@@ -31,11 +29,9 @@ function padNum(n) {
 }
 
 async function resolveEpisodePoster(item) {
-  // If episode has its own poster, use it
   if (item.imageTag) {
     return { id: item.id, tag: item.imageTag };
   }
-  // Otherwise fall back to series poster via proxy
   if (!item.seriesId) return { id: item.id, tag: null };
   try {
     const res  = await fetch(`/jellyfin/poster/${item.seriesId}`);
@@ -53,7 +49,6 @@ function createArrivalCard(item, posterInfo) {
   a.target    = "_blank";
   a.rel       = "noopener noreferrer";
 
-  // Poster
   const imgWrap = document.createElement("div");
   imgWrap.className = "arrivals__poster";
 
@@ -69,7 +64,6 @@ function createArrivalCard(item, posterInfo) {
     imgWrap.classList.add("arrivals__poster--placeholder");
   }
 
-  // Info block
   const info = document.createElement("div");
   info.className = "arrivals__info";
 
@@ -85,7 +79,6 @@ function createArrivalCard(item, posterInfo) {
     info.appendChild(title);
     info.appendChild(year);
   } else {
-    // Episode
     const seriesTitle = document.createElement("span");
     seriesTitle.className   = "arrivals__title";
     seriesTitle.textContent = item.seriesName ?? item.title;
@@ -139,7 +132,6 @@ async function fetchArrivals() {
 
     const top = items.slice(0, ARRIVALS_LIMIT);
 
-    // Resolve episode posters in parallel
     const posterInfos = await Promise.all(
       top.map(item =>
         item.type === "Episode"

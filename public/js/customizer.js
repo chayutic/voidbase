@@ -6,15 +6,12 @@
 //  saved layout is applied — that is what makes Reset restore the real
 //  authored order rather than whatever was last saved. Nothing may
 //  reorder .section elements before this module is imported.
-//
-//  loadLayout() merges the saved array against that snapshot: stale IDs
-//  are dropped and newly added sections are appended rather than lost.
+
 
 import * as store              from "./store.js";
 import { KEYS }                from "./store.js";
 import { closeSettingsPanel }  from "./settings.js";
 
-// Human-readable names for each section ID
 const SECTION_NAMES = {
   "deals":           "Game Deals",
   "arrivals":        "New Arrivals",
@@ -32,7 +29,6 @@ const DEFAULT_LAYOUT = Array.from(document.querySelectorAll(".section[data-secti
   visible: true,
 }));
 
-// Returns the default layout in variable when called
 function getDefaultLayout() {
   return DEFAULT_LAYOUT;
 }
@@ -53,7 +49,6 @@ function loadLayout() {
   return getDefaultLayout();
 }
 
-// Apply a layout array to the DOM — reorder + show/hide
 function applyLayout(layout) {
   const container = document.querySelector(".container");
   layout.forEach(({ id, visible }) => {
@@ -84,17 +79,14 @@ function buildCustomizerList(layout) {
     row.draggable = true;
     row.dataset.index = index;
 
-    // Drag handle
     const handle = document.createElement("span");
     handle.className = "customizer__handle";
     handle.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="18" x2="16" y2="18"/></svg>`;
 
-    // Label
     const label = document.createElement("span");
     label.className = "customizer__label";
     label.textContent = SECTION_NAMES[item.id] ?? item.id;
 
-    // Eye toggle
     const eye = document.createElement("button");
     eye.className = "customizer__eye";
     eye.setAttribute("aria-label", item.visible ? "Hide section" : "Show section");
@@ -107,7 +99,6 @@ function buildCustomizerList(layout) {
       buildCustomizerList(workingLayout);
     });
 
-    // Drag events
     row.addEventListener("dragstart", (e) => {
       dragSrcIndex = index;
       row.classList.add("dragging");

@@ -7,13 +7,8 @@
 //    POST /itad/prices         → current cut + 90-day store low
 //    GET  /steam/price/:appid  → real THB price + review summary
 //
-//  Pinned games persist in localStorage; prices are fetched fresh and
-//  held in memory only.
-//
-//  Titles (ITAD-supplied, external) are always inserted via textContent/
-//  dataset, never interpolated into innerHTML — buildReviewIcon/Text are
-//  the one exception, since their input is Steam's own fixed review-
-//  sentiment vocabulary rather than arbitrary text.
+//  Titles are ITAD-supplied and always go in via textContent/dataset,
+//  never innerHTML. buildReviewIcon/Text are the one exception.
 
 import * as store from "./store.js";
 import { KEYS }   from "./store.js";
@@ -173,15 +168,12 @@ async function fetchDeals() {
 
 // ── Render ────────────────────────────────────────────────────
 
-// SVG paths reused across thumb icons
 const THUMB_UP_PATH   = `<path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/>
   <path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/>`;
 const THUMB_DOWN_PATH = `<path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z"/>
   <path d="M17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/>`;
 
-// Plus SVG (matches existing + in add button)
 const PLUS_SVG  = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`;
-// Minus SVG — same stroke weight/length as plus, horizontal bar only
 const MINUS_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>`;
 
 function fmtReviewCount(n) {
@@ -211,7 +203,6 @@ function buildReviewIcon(desc, count) {
   const countStr = count != null ? `(${fmtReviewCount(count)})` : "";
   const d        = desc.toLowerCase();
 
-  // "Mixed" — text only, no thumb
   if (d.includes("mixed")) {
     return `<span class="deals__review-icon" title="${desc}${count != null ? ` · ${count.toLocaleString()} reviews` : ''}" style="color:${color}">
       <span style="font-size:0.85rem">Mixed</span>${countStr ? `<span style="font-size:0.85rem">${countStr}</span>` : ""}
@@ -222,7 +213,6 @@ function buildReviewIcon(desc, count) {
   const thumbPath  = isPositive ? THUMB_UP_PATH : THUMB_DOWN_PATH;
   const thumbSVG   = buildThumbSVG(thumbPath);
 
-  // Determine modifier: ++ / + / (none) / - / --
   let modifier = "";
   if (d.startsWith("overwhelmingly")) {
     modifier = isPositive
@@ -235,7 +225,6 @@ function buildReviewIcon(desc, count) {
   } else if (d.startsWith("mostly negative") || d.startsWith("negative")) {
     modifier = `<span class="deals__review-modifier">${MINUS_SVG}</span>`;
   }
-  // "Positive", "Mostly Positive" — no modifier
 
   return `<span class="deals__review-icon" title="${desc}${count != null ? ` · ${count.toLocaleString()} reviews` : ''}" style="color:${color}">
     ${thumbSVG}${modifier}${countStr ? `<span style="font-size:0.85rem">${countStr}</span>` : ""}

@@ -2,11 +2,8 @@
 //  SEARCH — Google search bar and Turbo Mode
 // ═══════════════════════════════════════════════════════════════
 //
-//  Turbo Mode is a collapsible panel holding three things: the
-//  &udm=14 web-results-only switch, an open-in-new-tab switch, and up
-//  to six saved query prefixes ("presets"). The active preset is
-//  prepended to the query on submit, then stripped straight back out so
-//  the visible input never shows it.
+//  The active preset is prepended to the query on submit, then
+//  stripped straight back out so the visible input never shows it.
 //
 //  The preset list is built with DOM methods rather than innerHTML —
 //  preset text is user input and must never be parsed as markup.
@@ -59,7 +56,6 @@ function getActivePresetTerm() {
   return turboActive || null;
 }
 
-// Intercept form submit to prepend preset
 searchForm.addEventListener('submit', function(e) {
   const term = getActivePresetTerm();
   const qInput = this.querySelector('input[name="q"]');
@@ -83,7 +79,6 @@ function renderPresets() {
     const item = document.createElement('div');
     item.className = 'search__preset-item';
 
-    // Radio button
     const radio = document.createElement('button');
     radio.type = 'button';
     radio.className = 'search__preset-radio' + (isActive ? ' active' : '');
@@ -97,12 +92,10 @@ function renderPresets() {
       renderPresets();
     });
 
-    // Label
     const label = document.createElement('span');
     label.className = 'search__preset-label';
     label.textContent = term;
 
-    // Edit button
     const editBtn = document.createElement('button');
     editBtn.type = 'button';
     editBtn.className = 'search__preset-edit';
@@ -144,7 +137,6 @@ function renderPresets() {
       input.addEventListener('blur', () => setTimeout(commitEdit, 150));
     });
 
-    // Remove button
     const remove = document.createElement('button');
     remove.type = 'button';
     remove.className = 'search__preset-remove';
@@ -226,7 +218,6 @@ udmToggle.addEventListener('change', () => {
 });
 
 export function initSearch() {
-  // Escape blurs the search field without submitting.
   searchForm.querySelector('.search__input').addEventListener('keydown', e => {
     if (e.key === 'Escape') {
       e.preventDefault();
