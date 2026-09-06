@@ -1,13 +1,9 @@
 /* ======================================================
    DASHBOARD STYLES
-   ======================================================
-   Requires theme.css, which must be linked first — every
-   var() below resolves against the tokens it declares.
 ====================================================== */
 
-/* Bare element selectors setting colour — the shape that started this
-   audit. In `reset` they cannot outrank a component whatever they grow
-   into. See theme.css for the layer order. */
+/* Bare element selectors carrying colour. In `reset` they cannot
+   outrank a component whatever they grow into. */
 @layer reset {
 
 h1 {  
@@ -47,8 +43,6 @@ h4 {
 
 } /* @layer reset */
 
-/* Everything below is component styling. Contents are not re-indented
-   for the wrapper. */
 @layer components {
 
 /* ======================================================
@@ -59,29 +53,23 @@ h4 {
   padding: 4rem 0 1.5rem;
   background: var(--surface-dark);
   border-bottom: 1px solid var(--border-color);
-  /* Resolves to --text-primary everywhere except the light themes, which
-     step it down to --text-secondary. Replaces six
-     `:root[data-theme=…] body .header…` rules; four of those were
-     measured no-ops and the other two only ever worked by inheritance,
-     which is exactly what this does. */
+  /* Resolves to --text-primary except in the light themes, which step it
+     down to --text-secondary. */
   color: var(--header-text);
 }
 
-/* Vertical stack, centered */
 .header__inner {
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-/* Site title */
 .header h1 {
   padding: .8rem 0 0 0;
   margin: 0;
   text-align: center;
 }
 
-/* Separator line between title and status */
 .header__separator {
   width: 120px;
   height: 1px;
@@ -149,7 +137,6 @@ h4 {
   color: var(--text-secondary);
 }
 
-/* Accent baseline */
 .dock__list::after {
   content: "";
   position: absolute;
@@ -163,7 +150,6 @@ h4 {
   transition: var(--transition-normal);
 }
 
-/* Individual dock item */
 .dock__item {
   flex: 0 0 36px;
   height: 36px;
@@ -177,21 +163,18 @@ h4 {
     color      var(--transition-normal);
 }
 
-/* Hover expansion */
 .dock__item:hover {
   flex-basis: 46px;
   height: 56px;
   color: var(--accent-bright);
 }
 
-/* Icon sizing — works for SVG + IMG */
 .dock__item > svg {
   height: 100%;
   width: auto;
   display: block;
 }
 
-/* Tooltip that appears below the dock on hover */
 .dock__tooltip {
   position: absolute;
   left: 50%;
@@ -219,14 +202,12 @@ h4 {
    SEARCH
 ====================================================== */
 
-/* Outer wrapper — centers everything */
 .search {
   display: flex;
   justify-content: center;
   padding: 0 2rem;
 }
 
-/* The form stacks the input row and toggle row vertically, centered */
 .search__form {
   display: flex;
   flex-direction: column;
@@ -236,7 +217,6 @@ h4 {
   gap: 0.25rem;
 }
 
-/* Input + button row — Google capsule style */
 .search__input-row {
   display: flex;
   align-items: center;
@@ -277,7 +257,6 @@ h4 {
   opacity: 0;
 }
 
-/* Search submit icon button */
 .search__submit {
   all: unset;
   display: flex;
@@ -305,7 +284,6 @@ h4 {
   color: var(--accent);
 }
 
-/* Toggle row — label + switch, centered under the search bar */
 .search__toggle-row {
   display: flex;
   align-items: center;
@@ -315,7 +293,6 @@ h4 {
   color: var(--text-secondary);
 }
 
-/* Toggle switch track */
 .search__toggle {
   position: relative;
   display: inline-block;
@@ -323,8 +300,6 @@ h4 {
   height: 20px;
   flex-shrink: 0;
 }
-
-/* Hide the native checkbox */
 
 .search__toggle-track {
   position: absolute;
@@ -335,7 +310,6 @@ h4 {
   transition: background-color var(--transition-normal);
 }
 
-/* Toggle thumb */
 .search__toggle-track::before {
   content: "";
   position: absolute;
@@ -349,7 +323,6 @@ h4 {
   transition: transform var(--transition-normal);
 }
 
-/* Checked (on) state */
 input:checked + .search__toggle-track {
   background-color: var(--toggle-track-on);
 }
@@ -417,7 +390,6 @@ input:checked + .search__toggle-track::before {
 
 .search__turbo-add.active svg { transform: rotate(45deg); }
 
-/* Add preset input row — reuses deals pattern */
 .search__turbo-add-row {
   display: none;
   align-items: center;
@@ -434,7 +406,6 @@ input:checked + .search__toggle-track::before {
 }
 
 
-/* Preset list */
 .search__turbo-preset-list {
   display: flex;
   flex-direction: column;
@@ -456,7 +427,6 @@ input:checked + .search__toggle-track::before {
 
 .search__preset-item:last-child { border-bottom: none; }
 
-/* Radio button */
 .search__preset-radio {
   all: unset;
   cursor: pointer;
@@ -501,7 +471,6 @@ input:checked + .search__toggle-track::before {
   color: var(--text-primary);
 }
 
-/* Edit button */
 .search__preset-edit {
   all: unset;
   cursor: pointer;
@@ -517,7 +486,6 @@ input:checked + .search__toggle-track::before {
 .search__preset-item:hover .search__preset-edit { opacity: 1; }
 .search__preset-edit:hover { color: var(--text-primary); }
 
-/* Inline edit input */
 .search__preset-input {
   all: unset;
   font-family: var(--font-title);
@@ -529,7 +497,6 @@ input:checked + .search__toggle-track::before {
   caret-color: var(--accent);
 }
 
-/* Remove button */
 .search__preset-remove {
   all: unset;
   cursor: pointer;
@@ -600,7 +567,6 @@ input:checked + .search__toggle-track::before {
   transition: transform var(--transition-fast);
 }
 
-/* Icon — spans both text rows, vertically centered */
 .card__icon {
   grid-row: 1 / span 2;
   align-self: center;
@@ -641,7 +607,6 @@ input:checked + .search__toggle-track::before {
 
 .deals__add.active svg { transform: rotate(45deg); }
 
-/* Add game input row */
 .deals__add-row {
   display: none;
   align-items: center;
@@ -707,7 +672,6 @@ input:checked + .search__toggle-track::before {
   border-color: var(--border-hover);
 }
 
-/* Search results dropdown */
 .deals__search-results {
   display: none;
   flex-direction: column;
@@ -734,7 +698,6 @@ input:checked + .search__toggle-track::before {
 
 .deals__result-loading { cursor: default; }
 
-/* Table layout — shared grid for header + rows */
 /* columns: title | reviews | price (with fire) | discount | 90d low | remove */
 .deals__table-header,
 .deals__row {
@@ -759,7 +722,6 @@ input:checked + .search__toggle-track::before {
   color: var(--text-secondary);
 }
 
-/* Right-align numeric columns */
 .deals__col-price,
 .deals__col-discount,
 .deals__col-low,
@@ -851,10 +813,8 @@ input:checked + .search__toggle-track::before {
   text-overflow: ellipsis;
 }
 
-/* Full text label — visible ≥800px */
 .deals__review-text { display: inline; }
 
-/* Icon view — hidden ≥800px, visible 600–799px */
 .deals__review-icon {
   display: none;
   align-items: center;
@@ -884,7 +844,6 @@ input:checked + .search__toggle-track::before {
   height: 0.55rem;
 }
 
-/* Tooltip on icon view — matches fire icon pattern */
 .deals__review-icon[title]:hover::after {
   content: attr(title);
   position: absolute;
@@ -934,7 +893,6 @@ input:checked + .search__toggle-track::before {
   padding-bottom: 0.25rem; /* prevent border clipping on scroll */
 }
 
-/* Base card */
 .arrivals__card {
   flex: 0 0 120px;
   display: flex;
@@ -962,7 +920,6 @@ input:checked + .search__toggle-track::before {
   transition: transform var(--transition-normal);
 }
 
-/* Poster image area — tall aspect ratio for movie posters */
 .arrivals__poster {
   width: 100%;
   aspect-ratio: 2 / 3;
@@ -983,12 +940,10 @@ input:checked + .search__toggle-track::before {
   transform: scale(1.03);
 }
 
-/* Placeholder when no image is available */
 .arrivals__poster--placeholder {
   background: var(--surface-glass-hover);
 }
 
-/* Info block below the poster */
 .arrivals__info {
   padding: 0.5rem 0.6rem 0.55rem;
   display: flex;
@@ -1018,7 +973,7 @@ input:checked + .search__toggle-track::before {
   mask-image: linear-gradient(to right, black 60%, transparent 100%);
 }
 
-/* Library card — centered icon + label, same height as poster cards */
+/* Library card — min-height matches the poster cards' computed height. */
 .arrivals__card--library {
   flex: 0 0 120px;
   align-items: center;
@@ -1115,8 +1070,6 @@ input:checked + .search__toggle-track::before {
   transform: translateY(1px);
 }
 
-/* Range buttons */
-
 .stocks__ranges {
   display: flex;
   gap: 0.4rem;
@@ -1145,8 +1098,7 @@ input:checked + .search__toggle-track::before {
   text-decoration-color: var(--accent);
 }
 
-/* Grid — 140px min fits ~6 cards wide */
-
+/* 140px min fits ~6 cards wide */
 .stocks__grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
@@ -1167,7 +1119,6 @@ input:checked + .search__toggle-track::before {
   background: var(--surface-glass);
 }
 
-/* Chart fills the card completely */
 .stocks__chart {
   display: block;
   height: 100px;
@@ -1180,7 +1131,6 @@ input:checked + .search__toggle-track::before {
   background: transparent !important;
 }
 
-/* Overlay sits on top of the chart */
 .stocks__overlay {
   position: absolute;
   inset: 0;
@@ -1248,7 +1198,6 @@ input:checked + .search__toggle-track::before {
   gap: var(--gap);
 }
 
-/* Edit button */
 .stocks__edit {
   all: unset;
   display: inline-flex;
@@ -1300,7 +1249,6 @@ input:checked + .search__toggle-track::before {
   margin: 0;
 }
 
-/* Chevron expand button */
 .utilities__toggle {
   all: unset;
   cursor: pointer;
@@ -1323,7 +1271,6 @@ input:checked + .search__toggle-track::before {
   color: var(--text-primary);
 }
 
-/* Flip chevron when expanded */
 .utilities__toggle.expanded svg {
   transform:
     scaleY(-1)
@@ -1331,7 +1278,6 @@ input:checked + .search__toggle-track::before {
   color: var(--text-primary);
 }
 
-/* Collapsed by default */
 .utilities__content {
   display: grid;
   overflow: hidden;
@@ -1450,10 +1396,6 @@ input:checked + .search__toggle-track::before {
    LAYOUT CUSTOMIZER
 ====================================================== */
 
-/* Open button in settings panel */
-
-
-/* Overlay */
 .customizer-overlay {
   position: fixed;
   inset: 0;
@@ -1472,7 +1414,6 @@ input:checked + .search__toggle-track::before {
   pointer-events: auto;
 }
 
-/* Panel */
 .customizer {
   background: var(--panel-bg);
   border: 1px solid var(--border-color);
@@ -1488,7 +1429,6 @@ input:checked + .search__toggle-track::before {
   transform: translateY(0) scale(1);
 }
 
-/* Header */
 .customizer__header {
   padding: 0.75rem 1rem 0.6rem;
   border-bottom: 1px solid var(--border-color);
@@ -1503,7 +1443,6 @@ input:checked + .search__toggle-track::before {
   color: var(--text-secondary);
 }
 
-/* Row list */
 .customizer__list {
   padding: 0.5rem 0;
 }
@@ -1534,7 +1473,6 @@ input:checked + .search__toggle-track::before {
   color: var(--text-secondary);
 }
 
-/* Handle icon */
 .customizer__handle {
   display: flex;
   align-items: center;
@@ -1547,14 +1485,12 @@ input:checked + .search__toggle-track::before {
   height: 16px;
 }
 
-/* Label */
 .customizer__label {
   flex: 1;
   font-size: 0.875rem;
   letter-spacing: 0.02em;
 }
 
-/* Eye button */
 .customizer__eye {
   all: unset;
   cursor: pointer;
@@ -1580,7 +1516,6 @@ input:checked + .search__toggle-track::before {
   height: 16px;
 }
 
-/* Footer */
 .customizer__footer {
   display: flex;
   justify-content: flex-end;
@@ -1642,7 +1577,6 @@ input:checked + .search__toggle-track::before {
   border-color: var(--border-hover);
 }
 
-/* Save fill animation */
 .customizer__save::after {
   content: "";
   position: absolute;
@@ -1661,20 +1595,17 @@ input:checked + .search__toggle-track::before {
   width: 100%;
 }
 
-/* Save button text sits above fill */
+/* Sits above the ::after fill, which is at z-index -1. */
 .customizer__save span {
   position: relative;
   z-index: 1;
 }
 
 
-/* Version stamp at bottom of settings panel */
-
 /* ======================================================
    RESPONSIVE
 ====================================================== */
 @media (max-width: 425px) {
-  /* Tighter padding on mobile, slightly more space above Markets section */
   .container {
   padding: 1.5rem 1rem;
   }
@@ -1683,35 +1614,29 @@ input:checked + .search__toggle-track::before {
   padding: 0 1rem;
 }
 
-/* Only 1 big chart per row on mobile */
   .stocks__grid.expanded-charts {
   grid-template-columns: repeat(1, 1fr);
 }
 
   /* ── Header ── */
-/* Less white space above VOIDBASE */
 .header {
   padding: 3rem 0 1rem;
 }
 
-/* Smaller VOIDBASE */
 .header h1 {
   font-size: 3rem;
 }
 
-/* 20px shorter and less margin */
 .header__separator {
   width: 100px;
   margin: 0.5rem 0 0.8rem;
 }
 
-/* Smaller font and gap */
 .header__meta {
   font-size: 1.1rem;
   gap: 0.25rem;
 }
 
-/* Smaller font and dot */
 .header__aqi {
   font-size: 0.875rem;
 }
@@ -1735,19 +1660,16 @@ input:checked + .search__toggle-track::before {
   margin: 0 0 1rem;
 }
 
-/* Tighter icon gap */
 .dock__list {
   gap: 0.8rem;
 }
 
-/* Smaller scaling */
 .dock__item:hover {
   flex-basis: 36px;
   height: 42px;
   color: var(--accent-bright);
 }
 
-/* Can't hover on mobile, save the space */
 .dock__tooltip {
   display: none;
 }
@@ -1792,12 +1714,11 @@ input:checked + .search__toggle-track::before {
   }
 }
 
-/* Force 90D Low visible regardless of screen width */
 body.force-90d .deals__col-low {
   display: revert;
 }
 
-/* At ≤425px with force-90d: restore the low column (no reviews col at this width) */
+/* Five columns, not six: the reviews column is already gone at this width. */
 @media (max-width: 425px) {
   body.force-90d .deals__table-header,
   body.force-90d .deals__row {
