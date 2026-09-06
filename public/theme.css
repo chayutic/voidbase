@@ -29,7 +29,7 @@
 @layer tokens {
 
 :root {
-  /* ── Non-theme tokens ─────────────────────────────── */
+  /* ── Non-theme tokens ── */
 
   /* Unified highlight colors */
   --green-highlights:  oklch(0.72 0.18 142);
@@ -60,20 +60,20 @@
   --aqi-unhealthy:      oklch(0.63 0.22 25);
   --aqi-hazardous:      oklch(0.55 0.22 307);
 
-  /* ── Typography ───────────────────────────────────── */
+  /* ── Typography ── */
   --font-header:        'Josefin Sans', sans-serif;
   --font-title:         'Geist', sans-serif;
   --font-body:          'Geist', sans-serif;
 
-  /* ── Layout ───────────────────────────────────────── */
+  /* ── Layout ── */
   --radius:             10px;
   --gap:                0.8rem;
 
-  /* ── Shadows & tints ─────────────────────────────── */
+  /* ── Shadows & tints ── */
   --surface-dark:       oklch(0 0 0 / 0.20);
   --shadow-sm:          0 1px 3px oklch(0 0 0 / 0.40);
 
-  /* ── Transitions ──────────────────────────────────── */
+  /* ── Transitions ── */
   --transition-fast:    0.08s ease;
   --transition-normal:  0.25s cubic-bezier(.4,0,.2,1);
 }
