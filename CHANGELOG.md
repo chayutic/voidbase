@@ -1,5 +1,26 @@
 # Changelog — Voidbase
 
+## v0.7.7 — 2026-09-06
+*Comment cleanup*
+
+### Removed
+- **Comments that restated the line below them.** All fourteen `<!-- Jellyfin -->`-style labels in `index.html`, each sitting above an anchor whose visible text is the same word; the Control Panel row labels in both documents, each above a row whose `<span>` already says it; and the CSS equivalents — `/* Vertical stack, centered */` over `flex-direction: column; align-items: center`, `/* Panel */` over `.customizer`, `/* Edit button */` twice in two different sections
+- **The convention audit's own paper trail.** `style.css` opened by naming the bug that started the audit, and explained that `--header-text` replaced six rules, four of them measured no-ops. All accurate, none of it anything you need while reading the file — it is in git and three entries up this page
+- Design-voice commentary in `notes.css` that belongs to `DESIGN.md`; load-order preambles in all four stylesheets and both documents that `CLAUDE.md` carries; the `.nav-trigger` case study in `theme.css` that has a permanent section there since v0.7.6
+- Net 273 comment lines across 32 files. The rule was: keep a "why" only if silently breaking it causes a bug you cannot see in review
+
+### Fixed
+- **Ten comments were wrong rather than merely redundant**, and every one sat in the file you would open first when acting on it. `server.js` claimed `/jellyfin/recent` returns up to 12 items for the client to slice, when it returns 6 and the client doesn't. `air-quality.js` said it reads `GET /api/air` — the one path that cannot work, since `/api/:symbol` swallows it and answers with quotes for the NYSE ticker AIR. `notes/api.js` described an expired session as a Cloudflare Access redirect; Access is not in front of `/notes` yet. `theme.css` said `.utilities__card` still carries a `:link, :visited` specificity bump, deleted one release ago. `style.css` put the deals review breakpoints at 800px and 600–799px when they are 650 and 501–650, labelled `.dock__item > svg` as working for `IMG` in a document containing no `<img>`, and carried three headings for rules that had moved to `settings.css` or ceased to exist
+- **The render matrix stopped measuring hidden elements**, closing the hole booked under *Known* in v0.7.5. `measure()` called a probe hidden only on a zero-sized box, which misses both ways of being invisible that leave the layout box intact — so it screenshotted `.utilities__card` inside its `max-height: 0; opacity: 0` container and hashed the backdrop behind it, peak L 0.1354 against the card's real 0.709, reporting `protected` and `{"paints": false}` with total confidence. It now refuses to sample anything failing `checkVisibility` or clipped to nothing by an ancestor, and probes the card expanded. The unlayered canary reports it **VULNERABLE, 0.709 → 0.9702** — byte-identical to `.nav-trigger`, its structural twin, where every previous run said `protected`. Baseline is 150 probes, up from 147
+- The focus sweep's `.utilities__card` row in `TODO.md` was an artifact of the same hole. Measured expanded, it paints Chrome's default white ring like the other four, so it is five controls falling back to the UA ring and one showing nothing
+
+### Changed
+- **The two stroke-width blocks are down from 8 and 13 lines to 4 and 5.** Both were written while chasing the wrong root cause and `HANDOFF.md` had flagged them as suspect since the audit began. The measurements were fine; the causal story around them was not. What survives is the instruction — the glyphs are deliberately mismatched, do not "fix" either to match the other
+- **`style.css` opens with `LAYOUT` and `CARDS`** instead of leaving them stranded between `SEARCH` and `GAME DEALS`. `.container` and `.section` define the page's box and `.card` defines the unit four later sections fill, so they read first. Sorting the file before and after gives identical output — every source line is byte-identical and only the order differs
+- Section rules in JS all end at column 66 now, matching the file-top rule they never quite lined up with. `search.js` had never padded at all, and `markets.js` varied by 89 bytes between its own sections
+- HTML section banners are all `<!-- ════ NAME ════ -->`. The `=`-ruled form they replace wasn't even self-consistent — five rule characters in one banner, seventeen in the next
+- CSS subsections are unpadded `/* ── Name ── */` everywhere, which five rules in `theme.css`'s token block were the last holdouts against
+
 ## v0.7.6 — 2026-09-05
 *Convention audit, part four — docs*
 
