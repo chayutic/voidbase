@@ -3,10 +3,6 @@
 // ═══════════════════════════════════════════════════════════════
 //
 //  Price data comes from GET /api/:symbol, which proxies Yahoo Finance.
-//
-//  Expanded Charts and Ticker Count live in the Control Panel and are
-//  bound by settings.js, so they keep working on pages that never load
-//  this module. Markets just listens for SETTINGS_CHANGE and repaints.
 
 import * as store           from "./store.js";
 import { KEYS }             from "./store.js";
@@ -109,12 +105,13 @@ function createCard(symbol) {
 }
 
 // ── Render grid from symbols array ───────────────────────────────────
+// Diffs against the cards already in the DOM rather than rebuilding the
+// grid: a rebuild destroys every uPlot instance and the charts flash.
 function renderGrid() {
   stocksGrid.classList.toggle("expanded-charts", expandedCharts);
 
   const targetSymbols = symbols.slice(0, tickerCount);
 
-  // Remove cards that are no longer in the target list
   const existingCards = Array.from(stocksGrid.querySelectorAll(".stocks__card"));
   existingCards.forEach(card => {
     if (!targetSymbols.includes(card.dataset.symbol)) {
@@ -124,7 +121,6 @@ function renderGrid() {
     }
   });
 
-  // Append any new symbols that don't have a card yet
   const existingSymbols = Array.from(stocksGrid.querySelectorAll(".stocks__card")).map(c => c.dataset.symbol);
   targetSymbols.forEach(sym => {
     if (!existingSymbols.includes(sym)) {
@@ -132,7 +128,6 @@ function renderGrid() {
     }
   });
 
-  // Reorder cards to match targetSymbols order without destroying them
   targetSymbols.forEach(sym => {
     const card = stocksGrid.querySelector(`.stocks__card[data-symbol="${sym}"]`);
     if (card) stocksGrid.appendChild(card); // appendChild moves if already in DOM
@@ -146,14 +141,13 @@ async function fetchCard(card) {
   const priceEl        = card.querySelector(".stocks__price");
   const deltaEl        = card.querySelector(".stocks__delta");
 
-  // ── Paint from cache immediately if available ─────────────────
   const key = `${symbol}:${currentRange}`;
   if (dataCache.has(key)) {
     renderCardData(card, dataCache.get(key), chartContainer, priceEl, deltaEl);
   }
 
   try {
-    const data = await fetchSymbol(symbol);   // fetchSymbol now also writes to cache
+    const data = await fetchSymbol(symbol);   // fetchSymbol also writes to cache
     renderCardData(card, data, chartContainer, priceEl, deltaEl);
   } catch (err) {
     console.error("Error fetching", symbol, err);
@@ -213,7 +207,7 @@ async function fetchSymbol(symbol) {
   }
 
   const data = [timestamps, closes];
-  dataCache.set(key, data);   // store after every successful fetch
+  dataCache.set(key, data);
   return data;
 }
 
@@ -224,7 +218,6 @@ async function fetchStocks() {
 }
 
 // ── Chart factory ────────────────────────────────────────────────
-// Reads expandedCharts and currentRange from module scope.
 function createChart(container, data) {
   const style         = getComputedStyle(document.body);
   const accentColor   = style.getPropertyValue('--accent').trim();
@@ -256,7 +249,6 @@ function createChart(container, data) {
     const min = u.scales.x.min, max = u.scales.x.max;
 
     if (currentRange === '6mo' || currentRange === '1y') {
-      // Snap to 1st of each month
       const ticks = [];
       const start = new Date(min * 1000);
       let d = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth() + 1, 1));
@@ -265,7 +257,6 @@ function createChart(container, data) {
         if (t > min) ticks.push(t);
         d = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 1));
       }
-      // For 1Y, keep only every other month
       return currentRange === '1y' ? ticks.filter((_, i) => i % 2 === 0) : ticks;
     }
 
@@ -354,7 +345,6 @@ function initRangeButtons() {
   });
 }
 
-// Auto-refresh every 60s, no toggle needed
 function startAutoRefresh() {
   clearInterval(refreshTimer);
   refreshTimer = setInterval(fetchStocks, REFRESH_MS);
@@ -365,8 +355,6 @@ export function initMarkets() {
 
   initRangeButtons();
 
-  // The Control Panel owns these two controls; re-read and repaint when
-  // it says they changed.
   document.addEventListener(SETTINGS_CHANGE, (e) => {
     const key = e.detail?.key;
     if (key !== KEYS.expandedCharts && key !== KEYS.tickerCount) return;
