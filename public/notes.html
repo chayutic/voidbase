@@ -5,10 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Notes — Voidbase</title>
 
-  <!-- Anti-flash: applies the saved theme before first paint.
-       Must stay inline and blocking — a deferred module runs after the
-       browser has already painted the default palette, which is exactly
-       the violet-then-repaint flash this avoids. -->
+  <!-- Applies the saved theme before first paint. Must stay inline and
+       blocking: a deferred module runs after the default palette is
+       already on screen. -->
   <script>
     try {
       document.documentElement.dataset.theme =
@@ -18,11 +17,9 @@
     }
   </script>
 
-  <!-- View transition opt-in, inline and before any external CSS.
-       The incoming document has to be opted in by the time the browser
-       decides whether to run the transition. In theme.css that depends
-       on when the stylesheet lands; here it cannot be missed. The
-       animation itself stays in theme.css. -->
+  <!-- View transition opt-in. Must stay inline and precede every
+       external stylesheet: the incoming document has to be opted in
+       before the browser decides whether to run the transition. -->
   <style>@view-transition { navigation: auto; }</style>
 
 
@@ -32,9 +29,8 @@
   <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@700&family=Geist:wght@200;400;600;700&family=Noto+Sans+Thai:wght@400;600;700&display=swap">
 
-  <!-- Shared theme layer, then the notes-only stylesheet. The dashboard's
-       style.css is deliberately not loaded — this page has its own
-       typography, and none of the dashboard components exist here. -->
+  <!-- style.css is deliberately not loaded: this page has its own
+       typography, and no dashboard component exists here. -->
   <link rel="stylesheet" href="theme.css" />
   <link rel="stylesheet" href="settings.css" />
   <link rel="stylesheet" href="notes.css" />
@@ -42,9 +38,6 @@
 
 <body class="notes">
 
-  <!-- The header carries the page label and nothing else. Navigation
-       lives in the corner button below, and every note action now lives
-       in the sidebar it acts on. -->
   <header class="notes__header">
     <h1>Notes</h1>
   </header>
@@ -53,8 +46,6 @@
 
     <aside class="notes__sidebar">
 
-      <!-- Search, collapse and create stay pinned while the list
-           scrolls under them. -->
       <div class="notes__sidebar-head">
         <div class="notes__searchbar">
           <svg class="notes__search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -63,9 +54,6 @@
           <input class="notes__search" id="notesSearch" type="text"
                  placeholder="Search notes…" autocomplete="off" spellcheck="false">
 
-          <!-- Collapsing leaves a rail rather than nothing, so this
-               button travels with the sidebar's edge instead of being
-               orphaned by its own click. -->
           <button class="notes__collapse" id="sidebarToggle" type="button"
                   aria-controls="notesList" aria-expanded="true"
                   aria-label="Collapse note list" title="Collapse note list">
@@ -89,9 +77,9 @@
 
     <section class="notes__pane">
 
-      <!-- CodeMirror mounts here. Until it does, the note is shown
-           read-only via marked; if it never loads, the textarea takes
-           over. Exactly one of the three is visible at a time. -->
+      <!-- Three surfaces, one slot, exactly one visible: CodeMirror once
+           it mounts, a read-only marked render until then, the textarea
+           if it never loads. -->
       <div class="notes__editor" id="noteEditor"></div>
 
       <article class="notes__preview markdown" id="notePreview"></article>
@@ -111,31 +99,15 @@
   </main>
 
 
-  <!-- ════ CONTROL PANEL ════
-       Same markup and same ids as the dashboard, so settings.js and
-       theme.js drive it unchanged. The Layout Customizer row is omitted
-       — it reorders dashboard sections that do not exist here.
-
-       Widgets that only affect the dashboard still persist from this
-       page; the dashboard reads them on its next load. -->
   <!-- ════ DASHBOARD BUTTON ════
-       The return half of the cross-page affordance. Same component and
-       same corner as the dashboard's, pointing the other way. -->
+       Its twin sits in the same corner on the dashboard, pointing back
+       here — same markup, same styles. -->
   <a class="nav-trigger" href="/" aria-label="Go to dashboard">
-    <!-- 1.5 on 24, not the gear's 1.75. Both glyphs are the same
-         colour token and both peak at exactly that colour — measured,
-         not assumed. What differs is how much of each reaches it: four
-         axis-aligned rects land on the pixel grid at full coverage,
-         while every one of the gear's eight teeth is a ~1.5px feature
-         drawn with a 1.31px stroke, so almost none of it does. At a
-         matched 1.75 the grid put 54 pixels at full value to the
-         gear's 16, which is the whole of the "brighter" effect. 1.5
-         brings it to 28 and leaves the gear carrying slightly more
-         total ink, so the two trade crispness against weight.
-
-         This correction is specific to this glyph. The dashboard's
-         nav icon measures 19 against the same gear and is left as-is;
-         do not "fix" it to match this number. -->
+    <!-- 1.5 on 24, not the gear's 1.75 — deliberately mismatched. Axis-
+         aligned rects hit the pixel grid at full coverage where the
+         gear's teeth do not, so equal stroke-widths look unequal. The
+         dashboard's nav icon is correct at its own value; do not "fix"
+         either to match the other. -->
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
       <rect x="3" y="3" width="7" height="7" rx="1"/>
       <rect x="14" y="3" width="7" height="7" rx="1"/>
@@ -154,12 +126,15 @@
   </button>
 
 
-  <!-- ════ SETTINGS PANEL ════ -->
+  <!-- ════ SETTINGS PANEL ════
+       Same markup and same ids as the dashboard, so settings.js and
+       theme.js drive it unchanged. The Layout Customizer row is
+       omitted: it reorders dashboard sections that do not exist here.
+       Dashboard-only widgets still persist from this page. -->
   <div class="settings-panel" id="settingsPanel">
 
     <div class="settings-panel__header">Control Panel</div>
 
-    <!-- Theme colour -->
     <div class="settings__section">
       <div class="settings__section-label">Theme</div>
       <div class="swatch-row">
@@ -174,11 +149,9 @@
       </div>
     </div>
 
-    <!-- Display section -->
     <div class="settings__section">
       <div class="settings__section-label">Display</div>
 
-      <!-- Status info toggle -->     
       <div class="settings__row">
         <span>Status Info</span>
         <label class="settings__toggle">
@@ -187,7 +160,6 @@
         </label>
       </div>
 
-      <!-- Guest mode toggle -->
       <div class="settings__row">
         <span>Guest Mode</span>
         <label class="settings__toggle">
@@ -198,7 +170,6 @@
 
     </div>
 
-    <!-- Widgets section -->
     <div class="settings__section">
       <div class="settings__section-label">Widgets</div>
 
@@ -211,7 +182,6 @@
         </label>
       </div>
 
-      <!-- Expanded charts toggle -->
       <div class="settings__row">
         <span>Expanded Charts</span>
         <label class="settings__toggle">
@@ -220,7 +190,6 @@
         </label>
       </div>
 
-      <!-- Ticker count --> 
       <div class="settings__row">
         <span>Ticker Count</span>
         <div class="settings__stepper">
@@ -230,11 +199,9 @@
         </div>
       </div>
 
-      <!-- Placeholder slot -->
       <div class="placeholder-row">Nuclear launch<span class="placeholder-pill">soon</span></div>
     </div>
 
-    <!-- Version stamp -->
     <div class="settings__version" id="settingsVersion"></div>
 
   </div>

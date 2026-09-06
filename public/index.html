@@ -5,10 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Voidbase</title>
 
-  <!-- Anti-flash: applies the saved theme before first paint.
-       Must stay inline and blocking — a deferred module runs after the
-       browser has already painted the default palette, which is exactly
-       the violet-then-repaint flash this avoids. -->
+  <!-- Applies the saved theme before first paint. Must stay inline and
+       blocking: a deferred module runs after the default palette is
+       already on screen. -->
   <script>
     try {
       document.documentElement.dataset.theme =
@@ -18,11 +17,9 @@
     }
   </script>
 
-  <!-- View transition opt-in, inline and before any external CSS.
-       The incoming document has to be opted in by the time the browser
-       decides whether to run the transition. In theme.css that depends
-       on when the stylesheet lands; here it cannot be missed. The
-       animation itself stays in theme.css. -->
+  <!-- View transition opt-in. Must stay inline and precede every
+       external stylesheet: the incoming document has to be opted in
+       before the browser decides whether to run the transition. -->
   <style>@view-transition { navigation: auto; }</style>
 
 
@@ -31,27 +28,22 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-  <!-- Fonts loaded here rather than via @import in style.css, so they
+  <!-- Loaded here rather than via @import in style.css, so the fonts
        download in parallel with the stylesheet instead of after it. -->
   <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@700&family=Geist:wght@200;400;600;700&display=swap">
 
-  <!-- Shared theme layer, then dashboard styles. Order matters:
-       style.css resolves var() against the tokens theme.css declares. -->
+  <!-- Order matters: style.css resolves var() against theme.css's
+       tokens. -->
   <link rel="stylesheet" href="theme.css" />
   <link rel="stylesheet" href="settings.css" />
   <link rel="stylesheet" href="style.css" />
 
-  <!-- The notes editor is heavy and most dashboard visits never open it.
-       prefetch grabs it at idle priority without parsing or executing,
-       so it is already in the HTTP cache if you do navigate.
-
-       Deliberately not a dynamic import(): module and compile caches are
-       per-document, so importing here would execute CodeMirror in a page
-       that has no use for it and still not carry the parsed module across
-       the navigation. Only the HTTP cache survives, and prefetch fills it
-       for free. Paired with immutable caching on /js/vendor, this is a
-       one-time cost per browser. -->
+  <!-- Deliberately a prefetch and not a dynamic import(): module and
+       compile caches are per-document, so importing here would execute
+       CodeMirror in a page with no use for it and still not carry the
+       parsed module across the navigation. Only the HTTP cache
+       survives. -->
   <link rel="prefetch" as="script" href="/js/vendor/cm6.min.js">
 
   <!-- uPlot — version-pinned; the unversioned unpkg path silently follows
@@ -141,7 +133,6 @@
   <form action="https://www.google.com/search" method="GET" id="searchForm" class="search__form">
     <div class="search__input-row">
       <input type="text" name="q" placeholder="Search Google" class="search__input" autocomplete="off" required>
-      <!-- &udm=14 FEATURE -->
       <input type="hidden" name="udm" id="udmParam" value="14">
       <!-- new tab hidden input — added/removed by JS -->
       <button type="submit" class="search__submit" aria-label="Search">
@@ -152,7 +143,6 @@
       </button>
     </div>
 
-    <!-- Turbo Mode toggle row -->
     <div class="search__toggle-row">
       <span class="toggle-label">Turbo Mode</span>
       <label class="search__toggle">
@@ -164,7 +154,6 @@
     <!-- Turbo Mode panel — hidden until toggled on -->
     <div class="search__turbo" id="searchTurbo">
 
-      <!-- Web Results Only -->
       <div class="search__turbo-row">
         <span>Web Results Only</span>
         <label class="search__toggle">
@@ -173,7 +162,6 @@
         </label>
       </div>
 
-      <!-- New Tab -->
       <div class="search__turbo-row">
         <span>Open in New Tab</span>
         <label class="search__toggle">
@@ -182,7 +170,6 @@
         </label>
       </div>
 
-      <!-- Presets -->
       <div class="search__turbo-presets">
         <div class="search__turbo-presets-header">
           <span class="search__turbo-label">Search Presets</span>
@@ -200,7 +187,6 @@
           <button class="deals__cancel-btn" id="turboPresetCancel" type="button">Cancel</button>
         </div>
 
-        <!-- Preset list -->
         <div class="search__turbo-preset-list" id="turboPresetList"></div>
       </div>
 
@@ -279,7 +265,6 @@
       <h2>Media Automation</h2>
       <div class="card-grid">
 
-        <!-- qBittorrent -->
         <a class="card" href="http://192.168.1.41:8888">
         <svg class="card__icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <path d="M11.911 23.994c-1.31 0-2.605-.232-3.831-.705-3.4-1.024-6.2-3.865-7.433-7.58-1.23-3.708-.685-7.654 1.459-10.554C4.062 2.038 7.677.094 11.742.008c4.064-.079 7.758 1.703 9.882 4.785a12.066 12.066 0 0 1 2.369 7.145c.138 3.733-1.75 7.368-5.052 9.728-2.147 1.535-4.61 2.328-7.03 2.328zm.11-22.314c-.081 0-.162 0-.244.002-3.5.074-6.599 1.725-8.29 4.415-1.856 2.516-2.31 5.893-1.25 9.086 1.06 3.197 3.448 5.636 6.386 6.523 3.025 1.165 6.496.633 9.345-1.402 2.847-2.035 4.473-5.144 4.351-8.318v-.032c0-2.214-.73-4.41-2.055-6.185-1.78-2.58-4.84-4.09-8.243-4.09zM9.406 20.246v-4.578a2.663 2.663 0 0 1-.952.863 2.573 2.573 0 0 1-1.29.344c-1.016 0-1.893-.444-2.63-1.33-.731-.887-1.097-2.102-1.097-3.646 0-.939.148-1.781.444-2.527.301-.746.734-1.309 1.299-1.69A3.26 3.26 0 0 1 7.052 7.1c1.058 0 1.891.487 2.5 1.46v-1.25h1.306v12.935H9.406zm-4.477-8.285c0 1.203.232 2.108.694 2.711.463.6 1.016.9 1.662.9.619 0 1.15-.286 1.597-.855.446-.576.67-1.447.67-2.615 0-1.245-.237-2.18-.71-2.81-.468-.627-1.02-.941-1.654-.941-.63 0-1.164.293-1.605.88-.435.581-.654 1.491-.654 2.73m9.55 4.702h-1.346V3.755h1.452v4.604c.613-.84 1.395-1.258 2.347-1.258.526 0 1.024.117 1.492.351.464.222.864.558 1.161.978.307.416.546.922.718 1.514.172.593.258 1.227.258 1.902 0 1.603-.363 2.841-1.088 3.716-.727.874-1.598 1.312-2.614 1.312-1.011 0-1.804-.46-2.379-1.382v1.17m-.016-4.746c0 1.122.14 1.932.42 2.432.456.815 1.074 1.223 1.854 1.223.635 0 1.183-.3 1.646-.898.462-.604.693-1.503.693-2.695 0-1.22-.224-2.122-.67-2.703-.44-.58-.975-.872-1.605-.872-.634 0-1.182.303-1.645.907-.463.6-.694 1.468-.694 2.607"/>
@@ -289,7 +274,6 @@
           <h4>Torrent client</h4>
         </a>
 
-        <!-- Radarr -->
         <a class="card" href="http://192.168.1.41:7878">
         <svg class="card__icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <path d="M5.274 0C3.189.039 1.19 1.547 1.19 4.705l.184 14.518c0 1.47 1.103 2.205 2.573 2.021L3.764 3.786c0-1.654.919-1.838 2.022-1.103l14.7 8.27c1.103.734 1.655 1.47 1.838 2.756.92-1.654.552-4.043-1.286-5.33L7.991.846A4.559 4.559 0 0 0 5.274.001zm1.982 6.91-.184 10.107 9.004-5.146Zm13.598 6.064-15.068 8.82c-.92.552-2.022.736-3.124.368.918 1.47 3.307 2.389 5.145 1.47l12.68-7.35c1.102-.736 1.286-2.022.367-3.308z"/>
@@ -299,7 +283,6 @@
           <h4>Movie automation</h4>
         </a>
 
-        <!-- Sonarr -->
         <a class="card" href="http://192.168.1.41:8989">
         <svg class="card__icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <path d="M21.212 4.282c1.851 2.204 2.777 4.776 2.777 7.718 0 2.848-.867 5.344-2.602 7.489a934.355 934.355 0 0 1-2.101-2.095c-1.477-1.477-1.792-3.293-1.792-5.278 0-2.224.127-3.486 1.577-4.935l2.478-2.478a13.209 13.209 0 0 0-.337-.421Zm-17.7 16.193C1.708 18.678.6 16.59.188 14.213A11.84 11.84 0 0 1 .011 12c0-.28.006-.548.017-.802 0-.026.007-.052.022-.078.153-2.601 1.076-4.889 2.767-6.865-.108.127-.214.256-.316.387 0 0 1.351 1.346 2.329 2.323 1.408 1.409 1.726 3.215 1.726 5.151 0 1.985-.249 3.762-1.781 5.295-1.035 1.035-2.119 2.124-2.119 2.124.112.136.229.271.349.404.029-.027 1.297-1.348 2.123-2.175 1.638-1.637 1.928-3.528 1.928-5.648 0-2.072-.365-3.997-1.873-5.504a620.045 620.045 0 0 0-2.366-2.357c.168-.196.342-.388.523-.576l3.117 3.106-.194.195 1.903 1.898.547-.549L6.81 6.432l-.196.196L3.495 3.52c.01-.009.436-.416.643-.597.009.011 2.28 2.283 2.28 2.283 1.538 1.537 3.5 1.955 5.621 1.955 2.18 0 4.134-.442 5.731-2.038.907-.908 2.153-2.149 2.162-2.16.17.151.491.461.56.528l.013.013-3.111 3.028-.001.002-.197-.194-1.876 1.903.552.543 1.875-1.903-.197-.194 3.109-3.026c.193.203.377.41.553.619-.03.025-2.495 2.546-2.495 2.546-1.556 1.556-1.723 2.9-1.723 5.288 0 2.121.361 4.054 1.939 5.632a576.91 576.91 0 0 0 2.133 2.124c-.183.208-.599.645-.613.66l-3.066-3.174.195-.196-1.995-1.986-.546.549 1.995 1.986.195-.196 3.065 3.172c-.021.019-.385.362-.552.506-.01-.013-1.974-1.978-1.974-1.978-1.842-1.842-3.299-2.039-5.731-2.039-2.338 0-3.92.239-5.632 1.95-.944.944-2.078 2.085-2.089 2.099-.275-.23-.649-.594-.649-.594l3.019-3.024.199.192 1.854-1.925-.558-.538-1.854 1.926.199.191-3.016 3.022ZM12 8.672A3.33 3.33 0 0 0 8.672 12 3.33 3.33 0 0 0 12 15.328 3.33 3.33 0 0 0 15.328 12 3.33 3.33 0 0 0 12 8.672ZM4.52 2.6C6.665.867 9.162 0 12.011 0c2.88 0 5.394.88 7.541 2.639 0 0-1.215 1.209-2.136 2.13-1.496 1.496-3.334 1.892-5.377 1.892-1.985 0-3.829-.37-5.267-1.809L4.52 2.6Zm14.837 18.909a9.507 9.507 0 0 1-.342.256C16.994 23.255 14.659 24 12.011 24c-2.652 0-4.983-.745-6.993-2.235-.104-.074-.208-.15-.31-.227 0 0 1.096-1.101 2.053-2.058 1.602-1.602 3.09-1.804 5.278-1.804 2.28 0 3.651.166 5.377 1.892l1.941 1.941Z"/>
@@ -309,7 +292,6 @@
           <h4>Series automation</h4>
         </a>
 
-        <!-- Prowlarr -->
         <a class="card" href="http://192.168.1.41:9696">
         <svg class="card__icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <path d="M12 2c5.523 0 10 4.477 10 10a10 10 0 0 1 -20 0l.004 -.28c.148 -5.393 4.566 -9.72 9.996 -9.72m1.334 5h-3.334a1 1 0 0 0 -1 1v8a1 1 0 0 0 1 1l.117 -.007a1 1 0 0 0 .883 -.993v-3h2.334c1.516 0 2.666 -1.38 2.666 -3s-1.15 -3 -2.666 -3m0 2c.323 0 .666 .411 .666 1s-.343 1 -.666 1h-2.334v-2z" />
@@ -327,7 +309,6 @@
     <h2>Media & Photos</h2>
     <div class="card-grid">
 
-        <!-- Jellyfin -->
         <a class="card" href="http://192.168.1.41:8096">
         <svg class="card__icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <path d="M12 .002C8.826.002-1.398 18.537.16 21.666c1.56 3.129 22.14 3.094 23.682 0C25.384 18.573 15.177 0 12 0zm7.76 18.949c-1.008 2.028-14.493 2.05-15.514 0C3.224 16.9 9.92 4.755 12.003 4.755c2.081 0 8.77 12.166 7.759 14.196zM12 9.198c-1.054 0-4.446 6.15-3.93 7.189.518 1.04 7.348 1.027 7.86 0 .511-1.027-2.874-7.19-3.93-7.19z"/>
@@ -338,7 +319,6 @@
         </a>
 
 
-        <!-- Immich -->
         <a class="card" href="http://192.168.1.41:2283">
         <svg class="card__icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <path d="M11.9863.2695c-2.409 0-5.207 1.091-5.207 3.8946v.1523c1.3428.597 2.9347 1.6629 4.4121 2.9707 1.5713 1.3912 2.8374 2.8821 3.6524 4.2871 1.3997-2.5034 2.3358-5.4784 2.3476-7.373V4.164c0-2.8035-2.796-3.8946-5.205-3.8946m7.5117 4.4903c-.3778-.0081-.7747.0502-1.1914.1855-.0366.0118-.086.0278-.1445.0469-.1525 1.4611-.6756 3.304-1.4629 5.1133-.8373 1.9243-1.8627 3.5898-2.9472 4.7988 2.8132.558 5.9307.5273 7.7363-.0469.0126-.004.0246-.0065.0351-.0097 2.6665-.8666 2.84-3.8636 2.0957-6.1543-.6279-1.9332-2.081-3.89-4.121-3.9336m-14.996.039C2.4618 4.8424 1.0088 6.7973.3809 8.7305c-.7442 2.291-.5708 5.288 2.0957 6.1543l.1445.0468c.982-1.0926 2.4873-2.2761 4.1875-3.2773 1.8088-1.0646 3.619-1.808 5.207-2.1484-1.9483-2.1049-4.4884-3.9132-6.287-4.5098l-.0352-.0117c-.4167-.1354-.8136-.1936-1.1914-.1856m4.6718 6.7578c-2.6038 1.2025-5.1088 3.0598-6.2324 4.586l-.0215.0293c-1.6478 2.2683-.0272 4.7953 1.9219 6.211 1.9487 1.4159 4.8518 2.1765 6.5-.0919.0228-.0309.0536-.071.0898-.121-.7356-1.2717-1.396-3.0718-1.8222-4.9981-.4534-2.0492-.6023-4-.4356-5.6153m1.0723 3.338c.3387 2.8478 1.3315 5.8037 2.4355 7.3437l.0215.0293c1.6478 2.2683 4.551 1.5078 6.5.0918 1.9487-1.416 3.5697-3.943 1.9219-6.211-.0228-.0309-.0517-.073-.0879-.123-1.4367.3066-3.3522.3794-5.3164.1894-2.089-.2017-3.9895-.6623-5.4746-1.3203"/>
@@ -348,13 +328,12 @@
         <h4>Photo backup & gallery</h4>
         </a>
 
-        <!-- Suwayomi -->
         <a class="card" href="http://192.168.1.41:4567">
         <svg class="card__icon" viewBox="0 0 100 100" fill="currentColor" aria-hidden="true">
-            <!-- Outer ring drawn as a stroke rather than the source's two stacked
-                 circles, so the centre stays transparent and the whole mark
-                 inherits currentColor from .card__icon. r/width reproduce the
-                 original 50/39 radii exactly. -->
+            <!-- Outer ring is a stroke, not the source's two stacked
+                 circles, so the centre stays transparent and the mark
+                 inherits currentColor. r/width reproduce the original
+                 50/39 radii exactly. -->
             <circle cx="50" cy="50" r="44.5" fill="none" stroke="currentColor" stroke-width="11"/>
             <path d="M26.46 38.07l15.633-.27c3.348-.081 3.348-.081 4.482.783.783.972 1.161 1.701 1.404 2.916-.216 1.053-.567 1.593-1.242 2.403l-3.321 4.509c-.513.702-.513.702-.756 1.539.216.108.216.108.459.189 2.322 1.269 4.347 3.402 6.291 5.211l1.539 1.431c.459.621.594 1.053.621 1.809l-2.268 2.619c-.675.54-1.188.459-2.052.351-.702-.513-.702-.513-1.404-1.242l-3.861-3.996c-.81-.837-1.674-1.593-2.565-2.322-.972.459-1.62.999-2.376 1.728-7.29 6.723-7.29 6.723-10.206 6.615-1.161-.432-1.998-1.215-2.808-2.133-.27-.918-.27-.918-.27-1.62 1.08-.918 2.187-1.755 3.402-2.457 4.428-2.592 8.046-6.183 11.124-10.287 1.026-1.431 1.35-1.998 1.674-2.646l-12.15.054c-.54-.054-.54-.054-1.08-.594-.243-1.107-.27-2.16-.27-3.24v-1.35z"/>
             <path d="M78.649 37.838l1.54 1.513c-.54 8.027-5.432 16.19-10.865 21.838-1.405 1.433-1.865 1.892-3.08 2.108a10.382 10.382 0 01-2.541-.838l-1.352-.675c-.108-1.216-.108-1.216.324-1.838l3.244-3.081c3.892-3.892 6.189-9.27 7.513-14.54H61.811v7.837c-.622.297-.973.297-1.649.297-3.73 0-3.73 0-4.027-.297V36.92l18.486-.297c1.622.027 2.838.054 4.027 1.216z"/>
@@ -372,7 +351,6 @@
       <h2>Local Network</h2>
       <div class="card-grid">
 
-        <!-- AdGuard Home -->
         <a class="card" href="http://192.168.1.41:9080">
         <svg class="card__icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <path d="M12 0C8.249 0 3.725.861 0 2.755 0 6.845-.051 17.037 12 24 24.051 17.037 24 6.845 24 2.755 20.275.861 15.751 0 12 0zm-.106 15.429L6.857 9.612c.331-.239 1.75-1.143 2.794.042l2.187 2.588c.009-.001 5.801-5.948 5.815-5.938.246-.22.694-.503 1.204-.101l-6.963 9.226z"/>
@@ -382,7 +360,6 @@
           <h4>DNS & Network filtering</h4>
         </a>
 
-        <!-- Tailscale -->
         <a class="card" href="https://login.tailscale.com/admin/machines">
         <svg class="card__icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <path d="M24 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0zm-9 9a3 3 0 1 1-6 0 3 3 0 0 1 6 0zm0-9a3 3 0 1 1-6 0 3 3 0 0 1 6 0zm6-6a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm0-.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zM3 24a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm0-.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zm18 .5a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm0-.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zM6 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0zm9-9a3 3 0 1 1-6 0 3 3 0 0 1 6 0zm-3 2.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zM6 3a3 3 0 1 1-6 0 3 3 0 0 1 6 0zM3 5.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"/>
@@ -392,7 +369,6 @@
           <h4>Zero-trust mesh VPN</h4>
         </a>
 
-        <!-- Router -->
         <a class="card" href="http://192.168.1.1">
         <svg class="card__icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <path d="M3.67 6.14S1.82 7.91 1.72 9.78v.35c.08 1.51 1.22 2.4 1.22 2.4 1.83 1.79 6.26 4.04 7.3 4.55 0 0 .06.03.1-.01l.02-.04v-.04C7.52 10.8 3.67 6.14 3.67 6.14zM9.65 18.6c-.02-.08-.1-.08-.1-.08l-7.38.26c.8 1.43 2.15 2.53 3.56 2.2.96-.25 3.16-1.78 3.88-2.3.06-.05.04-.09.04-.09zm.08-.78C6.49 15.63.21 12.28.21 12.28c-.15.46-.2.9-.21 1.3v.07c0 1.07.4 1.82.4 1.82.8 1.69 2.34 2.2 2.34 2.2.7.3 1.4.31 1.4.31.12.02 4.4 0 5.54 0 .05 0 .08-.05.08-.05v-.06c0-.03-.03-.05-.03-.05zM9.06 3.19a3.42 3.42 0 00-2.57 3.15v.41c.03.6.16 1.05.16 1.05.66 2.9 3.86 7.65 4.55 8.65.05.05.1.03.1.03a.1.1 0 00.06-.1c1.06-10.6-1.11-13.42-1.11-13.42-.32.02-1.19.23-1.19.23zm8.299 2.27s-.49-1.8-2.44-2.28c0 0-.57-.14-1.17-.22 0 0-2.18 2.81-1.12 13.43.01.07.06.08.06.08.07.03.1-.03.1-.03.72-1.03 3.9-5.76 4.55-8.64 0 0 .36-1.4.02-2.34zm-2.92 13.07s-.07 0-.09.05c0 0-.01.07.03.1.7.51 2.85 2 3.88 2.3 0 0 .16.05.43.06h.14c.69-.02 1.9-.37 3-2.26l-7.4-.25zm7.83-8.41c.14-2.06-1.94-3.97-1.94-3.98 0 0-3.85 4.66-6.67 10.8 0 0-.03.08.02.13l.04.01h.06c1.06-.53 5.46-2.77 7.28-4.54 0 0 1.15-.93 1.21-2.42zm1.52 2.14s-6.28 3.37-9.52 5.55c0 0-.05.04-.03.11 0 0 .03.06.07.06 1.16 0 5.56 0 5.67-.02 0 0 .57-.02 1.27-.29 0 0 1.56-.5 2.37-2.27 0 0 .73-1.45.17-3.14z"/>
@@ -410,7 +386,6 @@
       <h2>Website & CMS</h2>
       <div class="card-grid">
 
-        <!-- Voiport -->
         <a class="card" href="https://voidport.com">            
         <svg class="card__icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <path d="M19 4a3 3 0 0 1 3 3v10a3 3 0 0 1 -3 3h-14a3 3 0 0 1 -3 -3v-10a3 3 0 0 1 3 -3zm-12.99 3l-.127 .007a1 1 0 0 0 .117 1.993l.127 -.007a1 1 0 0 0 -.117 -1.993zm3 0l-.127 .007a1 1 0 0 0 .117 1.993l.127 -.007a1 1 0 0 0 -.117 -1.993z" />
@@ -420,7 +395,6 @@
           <h4>Step into the void</h4>
         </a>
 
-        <!-- Voidport Ghost CMS -->
         <a class="card" href="https://voidport.com/ghost">            
         <svg class="card__icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm.256 2.313c2.47.005 5.116 2.008 5.898 2.962l.244.3c1.64 1.994 3.569 4.34 3.569 6.966 0 3.719-2.98 5.808-6.158 7.508-1.433.766-2.98 1.508-4.748 1.508-4.543 0-8.366-3.569-8.366-8.112 0-.706.17-1.425.342-2.15.122-.515.244-1.033.307-1.549.548-4.539 2.967-6.795 8.422-7.408a4.29 4.29 0 01.49-.026Z"/>
@@ -430,7 +404,6 @@
           <h4>Ghost CMS backend</h4>
         </a>
 
-        <!-- Porkbun -->
         <a class="card" href="https://porkbun.com/">            
         <svg class="card__icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <path d="M12 0C5.3708 0 .0176 5.3532.0176 11.9824.0176 18.6117 5.3708 24 12 24s11.9824-5.3532 11.9824-11.9824C23.9824 5.3883 18.6292 0 12 0ZM5.832 5.8848c1.0635.2481 2.092.6384 3.0137 1.1347-1.099.5318-1.9866 1.3824-2.6602 2.375-.4254-.5672-.6738-1.2767-.6738-2.0566 0-.5318.1076-.9923.3203-1.4531zm12.336 0c.2127.4254.3203.9213.3203 1.453 0 .78-.2484 1.4895-.6738 2.0567-.6736-.9926-1.5967-1.8432-2.6602-2.375a9.9821 9.9821 0 0 1 3.0137-1.1347zm-6.0723.8105c3.5286.0471 6.3547 2.9198 6.3203 6.457v3.8282c0 .638-.5318 1.1699-1.17 1.1699-.638 0-1.1698-.5318-1.1698-1.17v-.957H7.8516v.957c0 .6382-.5319 1.17-1.17 1.17-.638 0-1.1699-.5318-1.1699-1.17v-3.6503c0-3.5096 2.7307-6.489 6.2403-6.6309.1152-.0044.2299-.0054.3437-.0039zm1.5 3.7988c-.4963 0-.9219.4256-.9219.922 0 .248.0711.4242.213.6015.1417.2127.3536.3546.5663.461-.1418.0708-.3188.1425-.496.1425-.2128 0-.3907.176-.3907.3887s.178.3906.3906.3906h.1778c.6026 0 1.1346-.3553 1.3828-.8516.39-.1418.7092-.3896.9219-.7441.0709-.1064.0337-.2484-.0372-.2129-.1063-.0355-.2123-.034-.2832.0723-.1063.1418-.2485.2826-.4257.3535v-.1426c0-.39-.1409-.7086-.3536-.9922-.1772-.2481-.425-.3887-.7441-.3887zm0 .5313c.2127 0 .3532.1408.3887.3535v.1777c0 .1773-.0346.3543-.1055.4961-.2481-.0709-.4617-.213-.6035-.4257-.0355-.071-.0703-.14-.0703-.211 0-.2392.2063-.3906.3906-.3906z"/>
@@ -440,7 +413,6 @@
           <h4>Domain name registrar</h4>
         </a>
 
-        <!-- Cloudflare Dashboard -->
         <a class="card" href="https://dash.cloudflare.com/7ff2bf5321140f060ccd5b00b8ac4073/home/domains">            
         <svg class="card__icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <path d="M16.5088 16.8447c.1475-.5068.0908-.9707-.1553-1.3154-.2246-.3164-.6045-.499-1.0615-.5205l-8.6592-.1123a.1559.1559 0 0 1-.1333-.0713c-.0283-.042-.0351-.0986-.021-.1553.0278-.084.1123-.1484.2036-.1562l8.7359-.1123c1.0351-.0489 2.1601-.8868 2.5537-1.9136l.499-1.3013c.0215-.0561.0293-.1128.0147-.168-.5625-2.5463-2.835-4.4453-5.5499-4.4453-2.5039 0-4.6284 1.6177-5.3876 3.8614-.4927-.3658-1.1187-.5625-1.794-.499-1.2026.119-2.1665 1.083-2.2861 2.2856-.0283.31-.0069.6128.0635.894C1.5683 13.171 0 14.7754 0 16.752c0 .1748.0142.3515.0352.5273.0141.083.0844.1475.1689.1475h15.9814c.0909 0 .1758-.0645.2032-.1553l.12-.4268zm2.7568-5.5634c-.0771 0-.1611 0-.2383.0112-.0566 0-.1054.0415-.127.0976l-.3378 1.1744c-.1475.5068-.0918.9707.1543 1.3164.2256.3164.6055.498 1.0625.5195l1.8437.1133c.0557 0 .1055.0263.1329.0703.0283.043.0351.1074.0214.1562-.0283.084-.1132.1485-.204.1553l-1.921.1123c-1.041.0488-2.1582.8867-2.5527 1.914l-.1406.3585c-.0283.0713.0215.1416.0986.1416h6.5977c.0771 0 .1474-.0489.169-.126.1122-.4082.1757-.837.1757-1.2803 0-2.6025-2.125-4.727-4.7344-4.727"/>
@@ -476,18 +448,13 @@
     </section>
 
     <!-- ════ NOTES BUTTON ════
-         The dashboard half of the cross-page affordance. Its twin sits
-         in the same corner on /notes pointing back here — same markup,
-         same styles, opposite direction. -->
+         Its twin sits in the same corner on /notes, pointing back
+         here — same markup, same styles. -->
     <a class="nav-trigger" href="/notes" aria-label="Go to notes">
-      <!-- Stroke-only: the ruled lines cannot be a fill. viewBox is the
-           path's own extents (x 22-188, y 22-171) squared off and padded
-           so the glyph centres in the 42px circle. stroke-width 13.8 is
-           the gear's 1.75-on-24 rescaled to this viewBox: both land at
-           1.31px on screen. Measured against the gear at 18px, this
-           glyph puts 19 pixels at the full token value to the gear's
-           16 — the pair is already balanced, so leave it alone. The
-           notes page's grid glyph is the one that is not; see there. -->
+      <!-- Stroke-only: the ruled lines cannot be a fill. stroke-width
+           13.8 is the gear's 1.75-on-24 rescaled to this viewBox; both
+           land at 1.31px on screen. Balanced against the gear as-is —
+           see notes.html before changing either. -->
       <svg viewBox="10 2 190 190" fill="none" stroke="currentColor" stroke-width="13.8" stroke-linecap="round" stroke-linejoin="round">
         <path d="M55 139.591 61.173 171l26.432-17.816L136 35.594 103.394 22 55 139.591ZM22 42h72m40 0h36M22 78h57m41 0h50M22 114h41m41 0h66M22 150h34m34 0h32"/>
       </svg>
@@ -508,7 +475,6 @@
 
       <div class="settings-panel__header">Control Panel</div>
 
-      <!-- Theme colour -->
       <div class="settings__section">
         <div class="settings__section-label">Theme</div>
         <div class="swatch-row">
@@ -523,11 +489,9 @@
         </div>
       </div>
 
-      <!-- Display section -->
       <div class="settings__section">
         <div class="settings__section-label">Display</div>
 
-        <!-- Status info toggle -->     
         <div class="settings__row">
           <span>Status Info</span>
           <label class="settings__toggle">
@@ -536,7 +500,6 @@
           </label>
         </div>
 
-        <!-- Guest mode toggle -->
         <div class="settings__row">
           <span>Guest Mode</span>
           <label class="settings__toggle">
@@ -545,7 +508,6 @@
           </label>
         </div>
 
-        <!-- Layout customizer -->
         <div class="settings__row">
           <span>Layout Customizer</span>
           <button class="settings__open-btn" id="customizerOpen">OPEN</button>
@@ -553,7 +515,6 @@
 
       </div>
 
-      <!-- Widgets section -->
       <div class="settings__section">
         <div class="settings__section-label">Widgets</div>
 
@@ -566,7 +527,6 @@
           </label>
         </div>
 
-        <!-- Expanded charts toggle -->
         <div class="settings__row">
           <span>Expanded Charts</span>
           <label class="settings__toggle">
@@ -575,7 +535,6 @@
           </label>
         </div>
 
-        <!-- Ticker count --> 
         <div class="settings__row">
           <span>Ticker Count</span>
           <div class="settings__stepper">
@@ -585,11 +544,9 @@
           </div>
         </div>
 
-        <!-- Placeholder slot -->
         <div class="placeholder-row">Nuclear launch<span class="placeholder-pill">soon</span></div>
       </div>
 
-      <!-- Version stamp -->
       <div class="settings__version" id="settingsVersion"></div>
 
     </div>
