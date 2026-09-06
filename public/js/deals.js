@@ -30,7 +30,7 @@ const dealsSearchBtn  = document.getElementById("dealsSearchBtn");
 const dealsCancelBtn  = document.getElementById("dealsCancelBtn");
 const dealsSearchResults = document.getElementById("dealsSearchResults");
 
-// ── Search UI ────────────────────────────────────────────────────
+// ── Search UI ──────────────────────────────────────────────────
 function initSearchUI() {
   dealsAddBtn.addEventListener("click", () => {
     dealsAddRow.classList.toggle("visible");
@@ -125,7 +125,7 @@ function unpinGame(id) {
   renderDeals();
 }
 
-// ── Data fetching ─────────────────────────────────────────────
+// ── Data fetching ──────────────────────────────────────────────
 async function fetchDeals() {
   if (!pinnedGames.length) return;
   const ids = pinnedGames.map(g => g.id);
@@ -166,7 +166,7 @@ async function fetchDeals() {
   }
 }
 
-// ── Render ────────────────────────────────────────────────────
+// ── Render ─────────────────────────────────────────────────────
 
 const THUMB_UP_PATH   = `<path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/>
   <path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/>`;

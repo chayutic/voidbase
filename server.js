@@ -9,18 +9,18 @@ const notesStore  = require("./lib/notes-store");
 const app = express();
 const PORT = 3000;
 
-// ── IsThereAnyDeal API key ────────────────────────────────────────
+// ── IsThereAnyDeal API key ─────────────────────────────────────
 const ITAD_KEY = process.env.ITAD_KEY;
 
-// ── Air quality (WAQI) ────────────────────────────────────────────
+// ── Air quality (WAQI) ─────────────────────────────────────────
 const AQ_TOKEN = process.env.AQ_TOKEN;
 const AQ_CITY  = process.env.AQ_CITY || "Bangkok";
 
-// ── Jellyfin ──────────────────────────────────────────────────────
+// ── Jellyfin ───────────────────────────────────────────────────
 const JELLYFIN_URL = process.env.JELLYFIN_URL; // e.g. http://192.168.1.41:8096
 const JELLYFIN_KEY = process.env.JELLYFIN_KEY; // API key: Jellyfin Dashboard → API Keys
 
-// ── Notes auth ────────────────────────────────────────────────────
+// ── Notes auth ─────────────────────────────────────────────────
 // The only gated surface — the rest of the site stays public. A single
 // shared password is not a substitute for real auth.
 const NOTES_PASSWORD = process.env.NOTES_PASSWORD;
@@ -65,7 +65,7 @@ app.use("/notes", notesAuth, notesRouter);
 
 app.use(express.json());
 
-// ── Air quality: AQI + PM2.5 for the configured city ──────────────
+// ── Air quality: AQI + PM2.5 for the configured city ───────────
 // Returns: { aqi, pm25 } — the token stays server-side.
 //
 // Namespaced under /air rather than /api to stay clear of the
@@ -123,7 +123,7 @@ app.get("/api/:symbol", async (req, res) => {
   }
 });
 
-// ── ITAD: search games by title ───────────────────────────────────
+// ── ITAD: search games by title ────────────────────────────────
 // Returns up to 6 results: [{ id, title, appid }, ...]
 app.get("/itad/search", async (req, res) => {
   const q = req.query.q;
@@ -166,7 +166,7 @@ app.get("/itad/search", async (req, res) => {
   }
 });
 
-// ── ITAD: discount % and 90D low % for pinned games ──────────────
+// ── ITAD: discount % and 90D low % for pinned games ────────────
 // Expects POST body: { ids: ["id1", "id2", ...] }
 // Returns: [{ id, discount, low90discount }, ...]
 app.post("/itad/prices", async (req, res) => {
@@ -204,7 +204,7 @@ app.post("/itad/prices", async (req, res) => {
   }
 });
 
-// ── Steam: real THB price + review summary for a game by App ID ──
+// ── Steam: THB price and review summary ────────────────────────
 // Returns: { appid, price, currency, reviewDesc, reviewCount }
 app.get("/steam/price/:appid", async (req, res) => {
   const { appid } = req.params;
@@ -248,7 +248,7 @@ app.get("/steam/price/:appid", async (req, res) => {
 });
 
 
-// ── Jellyfin: latest movies and episodes ─────────────────────────
+// ── Jellyfin: latest movies and episodes ───────────────────────
 // Returns MOVIE_SLOTS movies followed by EPISODE_SLOTS episodes, each
 // group sorted by DateCreated descending.
 app.get("/jellyfin/recent", async (req, res) => {
@@ -333,7 +333,7 @@ app.get("/jellyfin/recent", async (req, res) => {
   }
 });
 
-// ── Jellyfin: series poster by series ID ──────────────────────────
+// ── Jellyfin: series poster by series ID ───────────────────────
 // Episodes often lack their own Primary image — fall back to the
 // series poster. Returns { imageTag } or { imageTag: null }.
 app.get("/jellyfin/poster/:seriesId", async (req, res) => {
@@ -356,7 +356,7 @@ app.get("/jellyfin/poster/:seriesId", async (req, res) => {
 });
 
 
-// ── Jellyfin: image proxy ─────────────────────────────────────────
+// ── Jellyfin: image proxy ──────────────────────────────────────
 // Proxies poster art so images load outside the local network.
 app.get("/jellyfin/image/:itemId", async (req, res) => {
   if (!JELLYFIN_URL || !JELLYFIN_KEY) {

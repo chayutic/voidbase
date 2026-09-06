@@ -32,25 +32,25 @@ let turboEnabled = store.bool(KEYS.turboEnabled, false);
 let turboNewTab  = store.bool(KEYS.turboNewTab, false);
 let turboUdm     = store.bool(KEYS.turboUdm, true);
 
-// ── Apply turbo panel visibility ──
+// ── Apply turbo panel visibility ───────────────────────────────
 function applyTurboPanel(on) {
   searchTurbo.classList.toggle('visible', on);
   turboToggle.checked = on;
 }
 
-// ── Apply new tab ──
+// ── Apply new tab ──────────────────────────────────────────────
 function applyNewTab(on) {
   searchForm.target = on ? '_blank' : '';
   newtabToggle.checked = on;
 }
 
-// ── Apply udm ──
+// ── Apply udm ──────────────────────────────────────────────────
 function applyUdm(on) {
   udmParam.value = on ? '14' : '';
   udmToggle.checked = on;
 }
 
-// ── Build preset query prefix on submit ──
+// ── Build preset query prefix on submit ────────────────────────
 function getActivePresetTerm() {
   if (!turboEnabled) return null;
   return turboActive || null;
@@ -67,7 +67,7 @@ searchForm.addEventListener('submit', function(e) {
   }
 });
 
-// ── Render preset list ──
+// ── Render preset list ─────────────────────────────────────────
 function renderPresets() {
   turboPresetList.innerHTML = '';
   if (!turboPresets.length) {
@@ -157,7 +157,7 @@ function renderPresets() {
   });
 }
 
-// ── Add preset ──
+// ── Add preset ─────────────────────────────────────────────────
 turboPresetsAdd.addEventListener('click', () => {
   turboAddRow.classList.toggle('visible');
   if (turboAddRow.classList.contains('visible')) {
@@ -196,21 +196,21 @@ turboPresetInput.addEventListener('keydown', e => {
   }
 });
 
-// ── Turbo toggle ──
+// ── Turbo toggle ───────────────────────────────────────────────
 turboToggle.addEventListener('change', () => {
   turboEnabled = turboToggle.checked;
   store.set(KEYS.turboEnabled, turboEnabled);
   applyTurboPanel(turboEnabled);
 });
 
-// ── New tab toggle ──
+// ── New tab toggle ─────────────────────────────────────────────
 newtabToggle.addEventListener('change', () => {
   turboNewTab = newtabToggle.checked;
   store.set(KEYS.turboNewTab, turboNewTab);
   applyNewTab(turboNewTab);
 });
 
-// ── Udm toggle ──
+// ── Udm toggle ─────────────────────────────────────────────────
 udmToggle.addEventListener('change', () => {
   turboUdm = udmToggle.checked;
   store.set(KEYS.turboUdm, turboUdm);

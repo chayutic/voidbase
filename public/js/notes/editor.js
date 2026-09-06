@@ -34,7 +34,7 @@ let mode = "loading";
 let view = null;           // CodeMirror EditorView once ready
 let cm   = null;           // the loaded module namespace
 
-// ── Status line ──────────────────────────────────────────────────
+// ── Status line ────────────────────────────────────────────────
 
 function setStatus(text, state = "") {
   statusEl.textContent = text;
@@ -45,7 +45,7 @@ function setMeta(note) {
   metaEl.textContent = note ? `Edited ${formatEdited(note.mtime)}` : "";
 }
 
-// ── Surface abstraction ──────────────────────────────────────────
+// ── Surface abstraction ────────────────────────────────────────
 
 function getValue() {
   if (mode === "cm6" && view) return view.state.doc.toString();
@@ -70,7 +70,7 @@ function setEditable(on) {
   paneEl.classList.toggle("is-empty", !on);
 }
 
-// ── Saving ───────────────────────────────────────────────────────
+// ── Saving ─────────────────────────────────────────────────────
 
 function isDirty() {
   return currentId !== null && getValue() !== lastSaved;
@@ -117,7 +117,7 @@ export async function flush() {
   await save();
 }
 
-// ── CodeMirror bootstrap ─────────────────────────────────────────
+// ── CodeMirror bootstrap ───────────────────────────────────────
 
 async function mountCodeMirror(initialText) {
   cm = await import("../vendor/cm6.min.js");
@@ -156,7 +156,7 @@ async function mountCodeMirror(initialText) {
   paneEl.classList.add("cm6-ready");
 }
 
-// ── Loading a note ───────────────────────────────────────────────
+// ── Loading a note ─────────────────────────────────────────────
 
 export async function load(id) {
   await flush();
@@ -185,7 +185,7 @@ export function focus() {
   else if (mode === "fallback" && !fallbackEl.disabled) fallbackEl.focus();
 }
 
-// ── Init ─────────────────────────────────────────────────────────
+// ── Init ───────────────────────────────────────────────────────
 
 export async function initEditor(handlers = {}) {
   onSaved = handlers.onSaved ?? onSaved;

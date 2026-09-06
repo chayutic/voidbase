@@ -57,7 +57,7 @@ const args = process.argv.slice(2);
 const UPDATE = args.includes("--update");
 const ONLY = (args.find((a) => a.startsWith("--only=")) || "").slice(7);
 
-// ── Static host ──────────────────────────────────────────────────
+// ── Static host ────────────────────────────────────────────────
 // Serves public/ only. Everything else is intercepted before it gets here.
 
 const MIME = {
@@ -85,7 +85,7 @@ const server = http.createServer((req, res) => {
   });
 });
 
-// ── CDP plumbing ─────────────────────────────────────────────────
+// ── CDP plumbing ───────────────────────────────────────────────
 
 let msgId = 0;
 function connect(url) {
@@ -119,7 +119,7 @@ function connect(url) {
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-// ── Colour ───────────────────────────────────────────────────────
+// ── Colour ─────────────────────────────────────────────────────
 
 function srgbToLinear(c) {
   c /= 255;
@@ -135,7 +135,7 @@ function oklabL(r, g, b) {
   return 0.2104542553 * l + 0.793617785 * m - 0.0040720468 * s;
 }
 
-// ── Request interception ─────────────────────────────────────────
+// ── Request interception ───────────────────────────────────────
 // Maps an intercepted URL to a file on disk, or null to let it through.
 // Fixtures are matched by route shape, so adding a symbol or a note means
 // adding a fixture file, not editing this function.
@@ -218,7 +218,7 @@ async function installInterception(cdp) {
 }
 const missingFixtures = new Set();
 
-// ── Seeded state ─────────────────────────────────────────────────
+// ── Seeded state ───────────────────────────────────────────────
 // Every key in store.js's KEYS registry that can move a pixel. Pinned
 // explicitly: a fresh profile would give defaults, but by accident rather
 // than intent, and a future default change would silently rewrite the
@@ -279,7 +279,7 @@ function seedScript(theme, guest) {
 // the newest fixture mtime so relative timestamps render in the past.
 const FIXED_NOW = 1788586496000;
 
-// ── Probes ───────────────────────────────────────────────────────
+// ── Probes ─────────────────────────────────────────────────────
 
 const PROBES = {
   index: [
@@ -334,7 +334,7 @@ const FOCUS = {
   notes: [".notes__search", ".notes__row", ".nav-trigger"],
 };
 
-// ── Measurement ──────────────────────────────────────────────────
+// ── Measurement ────────────────────────────────────────────────
 // One clipped screenshot per element. Clipping to the element's own box
 // means a layout shift somewhere else on the page cannot smear across
 // every region's digest, and it reaches elements below the fold without
@@ -425,7 +425,7 @@ async function measure(cdp, selector, dpr) {
   };
 }
 
-// ── Pseudo-state forcing ─────────────────────────────────────────
+// ── Pseudo-state forcing ───────────────────────────────────────
 
 async function forceState(cdp, selector, states) {
   const doc = await cdp.send("DOM.getDocument", { depth: -1 });
@@ -441,7 +441,7 @@ async function forceState(cdp, selector, states) {
   return true;
 }
 
-// ── The :link canary ─────────────────────────────────────────────
+// ── The :link canary ───────────────────────────────────────────
 // Not a measurement of the current CSS — a probe of whether the bug class
 // is still *representable*.
 //
@@ -511,7 +511,7 @@ async function linkCanary(cdp, dpr, { layered, targets }) {
   return out;
 }
 
-// ── Configurations ───────────────────────────────────────────────
+// ── Configurations ─────────────────────────────────────────────
 //
 // Not a full cross product. Verified precondition: no stylesheet contains
 // a data-theme selector inside any @media block, so themes and breakpoints
@@ -541,7 +541,7 @@ function configs() {
   return out;
 }
 
-// ── Run ──────────────────────────────────────────────────────────
+// ── Run ────────────────────────────────────────────────────────
 
 async function run() {
   await new Promise((r) => server.listen(PORT, r));
@@ -760,7 +760,7 @@ async function settle(cdp) {
   });
 }
 
-// ── Compare ──────────────────────────────────────────────────────
+// ── Compare ────────────────────────────────────────────────────
 
 function compare(base, now) {
   const diffs = [];

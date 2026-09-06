@@ -59,7 +59,7 @@ function applyLayout(layout) {
   });
 }
 
-// ── Customizer modal ──────────────────────────────────────────────
+// ── Customizer modal ───────────────────────────────────────────
 
 const customizerOverlay = document.getElementById("customizerOverlay");
 const customizerList    = document.getElementById("customizerList");

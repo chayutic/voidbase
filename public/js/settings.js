@@ -84,7 +84,7 @@ function initDisplayToggles() {
   });
 }
 
-// ── Markets widgets ──────────────────────────────────────────────
+// ── Markets widgets ────────────────────────────────────────────
 //  Bound here, not in markets.js, so they still work on the notes page.
 
 function initMarketsWidgets() {

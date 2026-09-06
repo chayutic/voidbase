@@ -33,7 +33,7 @@ function visibleNotes() {
   return results ?? notes;
 }
 
-// ── Match highlighting ───────────────────────────────────────────
+// ── Match highlighting ─────────────────────────────────────────
 
 /**
  * Text with every occurrence of `query` wrapped in <mark>, built as a
@@ -65,7 +65,7 @@ function highlighted(text, query) {
   return frag;
 }
 
-// ── Rendering ────────────────────────────────────────────────────
+// ── Rendering ──────────────────────────────────────────────────
 
 function buildRow(note, query) {
   const row = document.createElement("button");
@@ -153,7 +153,7 @@ export function updateRow(summary) {
   excerpt.textContent = note.excerpt || "Empty note";
 }
 
-// ── Selection ────────────────────────────────────────────────────
+// ── Selection ──────────────────────────────────────────────────
 
 function markActive() {
   listEl.querySelectorAll(".notes__row").forEach(row => {
@@ -168,7 +168,7 @@ export async function select(id) {
   await onSelect(id);
 }
 
-// ── Search ───────────────────────────────────────────────────────
+// ── Search ─────────────────────────────────────────────────────
 
 async function runSearch() {
   const query = searchEl.value.trim();
@@ -195,7 +195,7 @@ function clearSearch() {
   render();
 }
 
-// ── Mutations ────────────────────────────────────────────────────
+// ── Mutations ──────────────────────────────────────────────────
 
 export async function refresh({ keepSelection = true } = {}) {
   notes = await api.listNotes();
@@ -234,7 +234,7 @@ async function confirmDelete(note) {
   await onDelete(selectedId);
 }
 
-// ── Collapse ─────────────────────────────────────────────────────
+// ── Collapse ───────────────────────────────────────────────────
 
 // The sidebar collapses to a rail rather than to nothing, so this
 // button survives its own click and is the only way back.
@@ -247,7 +247,7 @@ function applyCollapsed(collapsed) {
   collapseBtn.title = label;
 }
 
-// ── Init ─────────────────────────────────────────────────────────
+// ── Init ───────────────────────────────────────────────────────
 
 export function initSidebar(handlers = {}) {
   onSelect = handlers.onSelect ?? onSelect;

@@ -8,7 +8,7 @@
 
 import { EditorSelection } from "../vendor/cm6.min.js";
 
-// ── Inline wrapping ──────────────────────────────────────────────
+// ── Inline wrapping ────────────────────────────────────────────
 
 /**
  * Toggle a marker pair around each selection: Ctrl+B on already-bold
@@ -61,7 +61,7 @@ function toggleWrap(marker) {
   };
 }
 
-// ── Lists ────────────────────────────────────────────────────────
+// ── Lists ──────────────────────────────────────────────────────
 
 // indent · marker · spacing · optional task box
 const LIST_RE = /^(\s*)([-*+]|\d+[.)])(\s+)(\[[ xX]\]\s+)?/;
@@ -158,7 +158,7 @@ function toggleList(makeMarker) {
   };
 }
 
-// ── Keymap ───────────────────────────────────────────────────────
+// ── Keymap ─────────────────────────────────────────────────────
 //
 //  Mod is Ctrl on Windows and Linux, Cmd on macOS.
 

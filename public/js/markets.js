@@ -22,7 +22,7 @@ let tickerCount    = store.int(KEYS.tickerCount, TICKER_MAX);
 let refreshTimer   = null;
 const chartInstances = new Map();
 
-// ── Stocks widget card factory ──────────────────────────────────────────────────────
+// ── Stocks widget card factory ─────────────────────────────────
 function createCard(symbol) {
   const card = document.createElement("div");
   card.className      = "stocks__card";
@@ -104,7 +104,7 @@ function createCard(symbol) {
   return card;
 }
 
-// ── Render grid from symbols array ───────────────────────────────────
+// ── Render grid from symbols array ─────────────────────────────
 // Diffs against the cards already in the DOM rather than rebuilding the
 // grid: a rebuild destroys every uPlot instance and the charts flash.
 function renderGrid() {
@@ -134,7 +134,7 @@ function renderGrid() {
   });
 }
 
-// ── Fetch and render a single card from cache if available ───────────────────────────────────
+// ── Fetch and render a single card from cache if available ─────
 async function fetchCard(card) {
   const symbol         = card.dataset.symbol;
   const chartContainer = card.querySelector(".stocks__chart");
@@ -184,7 +184,7 @@ function renderCardData(card, data, chartContainer, priceEl, deltaEl) {
   card._resizeObserver.observe(card);
 }
 
-// ── In-memory data cache: key = "SYMBOL:range" ───────────────────
+// ── In-memory data cache: key = "SYMBOL:range" ─────────────────
 const dataCache = new Map();
 
 async function fetchSymbol(symbol) {
@@ -217,7 +217,7 @@ async function fetchStocks() {
   for (const card of cards) await fetchCard(card);
 }
 
-// ── Chart factory ────────────────────────────────────────────────
+// ── Chart factory ──────────────────────────────────────────────
 function createChart(container, data) {
   const style         = getComputedStyle(document.body);
   const accentColor   = style.getPropertyValue('--accent').trim();
@@ -331,7 +331,7 @@ function createChart(container, data) {
   return new uPlot(options, data, container);
 }
 
-// ── Range selector ───────────────────────────────────────────────
+// ── Range selector ─────────────────────────────────────────────
 function initRangeButtons() {
   rangeButtons.forEach(btn => {
     btn.classList.toggle("active", btn.dataset.range === currentRange);
