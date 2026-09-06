@@ -86,8 +86,6 @@ const server = http.createServer((req, res) => {
 });
 
 // ── CDP plumbing ─────────────────────────────────────────────────
-// Raw WebSocket rather than puppeteer: Node has a global WebSocket, and
-// this project has no runtime dependencies worth adding one for.
 
 let msgId = 0;
 function connect(url) {
@@ -495,8 +493,9 @@ async function linkCanary(cdp, dpr, { layered }) {
 // are orthogonal and crossing them measures nothing extra. Themes sweep at
 // one width; widths sweep at one theme.
 //
-// Widths sit just below each real breakpoint so every block executes:
-// style.css has 650/500/425, settings.css 425, notes.css 700.
+// Widths sit just below 650/500/425 (style.css, settings.css 425) and
+// 700 (notes.css). style.css also has 584 and 1024 blocks; both execute
+// at a swept width but never in isolation — see TODO.md.
 //
 // DPR is likewise not a page-level axis — it changes rasterization, not
 // layout — so it lives on the glyph coverage probe instead.
