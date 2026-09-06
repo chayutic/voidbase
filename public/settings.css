@@ -4,18 +4,12 @@
    Shared by the dashboard and the notes page. Both render the same
    panel markup with the same ids, so settings.js and theme.js drive
    them unchanged.
-
-   Requires theme.css. Load order on each page:
-     theme.css -> settings.css -> page stylesheet
 ====================================================== */
 
-/* Everything in this file is component styling — see theme.css for the
-   layer order. Contents are not re-indented for the wrapper. */
 @layer components {
 
-/* The gear and the cross-page nav button are the only fixed furniture
-   on either page, and they read as a pair. Everything but their corner
-   is shared here so the two cannot drift apart. */
+/* The gear and the cross-page nav button read as a pair. Everything but
+   their corner is shared here so the two cannot drift apart. */
 .settings-trigger,
 .nav-trigger {
   position: fixed;
@@ -31,12 +25,9 @@
   color: var(--text-secondary);
   cursor: pointer;
 
-  /* One is a <button> and one is an <a>, so without this the gear alone
-     picks up the UA button defaults — 1px/6px padding, centred text,
-     appearance: auto and 13.33px Arial. None of it shows today (both
-     centre an 18px SVG in a fixed 42px flex box), but it means the pair
-     is only identical by luck. Normalised so neither depends on which
-     element it happens to be. */
+  /* One is a <button> and one is an <a>: without these the gear alone
+     picks up the UA button defaults, so the pair would be identical
+     only by luck. */
   appearance: none;
   padding: 0;
   font: inherit;
@@ -60,18 +51,14 @@
   background: var(--panel-bg-hover);
 }
 
-/* Gear rotates when panel is open */
 .settings-trigger.open {
   color: var(--accent-bright);
   border-color: var(--accent);
   transform: rotate(60deg);
 }
 
-/* One rule for both glyphs, for the same reason the circles share one:
-   they were two identical copies and only the gear's inherited the
-   transition, so the two icons crossfaded at different rates on hover.
-   Optical weight is the one thing that stays per-glyph — the gear is
-   all curves, the nav icons are all straight edges — and it lives on
+/* One rule for both glyphs, for the same reason the circles share one.
+   Optical weight is the one thing that stays per-glyph, and it lives on
    each svg's stroke-width, not here. */
 .settings-trigger svg,
 .nav-trigger svg {
@@ -86,17 +73,9 @@
    CROSS-PAGE NAV TRIGGER
    ======================================================
    The dashboard <-> notes journey, as one affordance used in both
-   directions: the same 42px circle in the same corner on both pages,
-   pointing at whichever document you are not currently in.
-
-   Everything but the corner is inherited from .settings-trigger above,
-   including the hover: the two are a pair and a second hover treatment
-   would only make them look like two unrelated controls that happen to
-   be the same size. The opposite corner, not the adjacent one —
-   corners are distinct slots, adjacency would read as a toolbar.
-
-   No tooltip. The gear doesn't carry one either, and the destination is
-   legible from the glyph; aria-label covers the rest. ------------- */
+   directions: the same 42px circle in the opposite corner on both
+   pages, pointing at whichever document you are not currently in.
+====================================================== */
 
 .nav-trigger {
   right: unset;
@@ -109,7 +88,7 @@
 
 .settings-panel {
   position: fixed;
-  bottom: 4.5rem;   /* sits just above the gear button */
+  bottom: 4.5rem;
   right: 1.5rem;
   z-index: 99;
 
@@ -136,7 +115,6 @@
   pointer-events: auto;
 }
 
-/* Panel header */
 .settings-panel__header {
   padding: 0.75rem 1rem 0.6rem;
   font-size: 0.9rem;
@@ -148,7 +126,6 @@
   border-bottom: 1px solid var(--border-color);
 }
 
-/* Each section */
 .settings__section {
   padding: 0.75rem 1rem;
 }
@@ -183,7 +160,7 @@
   pointer-events: none;
 }
 
-/* ── Placeholder rows for future controls ── */
+/* ── Placeholder rows ── */
 .placeholder-row {
   display: flex;
   align-items: center;
@@ -311,14 +288,13 @@
   transform: scale(1.15);
 }
 
-.theme__swatch[data-theme="violet"] { background: oklch(0.433 0.178 295); } /* default: Void Violet */
+.theme__swatch[data-theme="violet"] { background: oklch(0.433 0.178 295); }
 .theme__swatch[data-theme="blue"]   { background: oklch(0.5 0.1411 250); }
 .theme__swatch[data-theme="pink"]   { background: oklch(0.3412 0.1411 352); }
 .theme__swatch[data-theme="green"]  { background: oklch(0.5 0.1257 169.32); }
 .theme__swatch[data-theme="black"]  { background: oklch(0.12 0 0); }
 .theme__swatch[data-theme="white"]  { background: oklch(0.96 0 0); }
 
-/* Active swatch ring */
 .theme__swatch.active {
   border-color: var(--text-primary);
   transform: scale(1.2);
@@ -369,8 +345,6 @@
   }
 
   .settings-panel {
-    /* On small screens, panel anchors to bottom edge and stretches full width — feels like a bottom sheet,
-    4rem bottom padding to push elements above gear icon    */
     top: unset;
     right: 0;
     left: 0;

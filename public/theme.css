@@ -1,13 +1,9 @@
 /* ======================================================
    THEME — design tokens, theme variants, global reset
    ======================================================
-   Shared by every page. index.html loads this then style.css;
-   notes.html loads this then notes.css.
-
    Nothing page-specific belongs here. Typography lives with the
-   page that owns it, because the dashboard and the notes editor
-   want different line-heights — notes needs room for Thai vowel
-   and tone marks that the dashboard's line-height: 1 would clip.
+   page that owns it: notes needs room for Thai vowel and tone marks
+   that the dashboard's line-height: 1 would clip.
 ====================================================== */
 
 /* ======================================================
@@ -18,18 +14,10 @@
    style.css, notes.css — append to these; they do not reorder them.
 
    A rule in an earlier layer cannot beat one in a later layer no
-   matter how specific it is. That is the whole point: the reset can
-   no longer outrank a component. `a:visited { color: inherit }` at
-   (0,1,1) used to beat `.nav-trigger` at (0,1,0) and silently strip
-   the icon's colour once /notes was in history. Sitting in `reset`,
-   that rule now loses to every component regardless of specificity,
-   so the bug is not fixable-again — it is unrepresentable.
-
-   Note the one asymmetry: CSS that is in NO layer beats CSS that is
-   in any layer. uPlot's stylesheet and CodeMirror's runtime-injected
-   theme are both unlayered and therefore now outrank everything
-   here. That is deliberate and documented — see CLAUDE.md and the
-   uPlot entry in TODO.md.
+   matter how specific it is; the reset can no longer outrank a
+   component. The one asymmetry: CSS in NO layer beats CSS in any
+   layer, so uPlot's stylesheet and CodeMirror's runtime-injected
+   theme currently outrank everything here — see TODO.md.
 ====================================================== */
 
 @layer reset, tokens, components;
@@ -103,10 +91,8 @@ body {
   --text-secondary: oklch(0.71 0 var(--theme-hue));
 
   /* Dashboard header text. A token rather than a `[data-theme] .header`
-     rule in style.css, because that rule keyed a component off the theme
-     from the page stylesheet and scored (0,3,1) — higher than anything
-     else in the project. The light themes override this to the secondary
-     tone; everything else inherits the primary one. */
+     rule, so that no component keys off the theme directly. The light
+     themes override it; everything else inherits the primary tone. */
   --header-text:    var(--text-primary);
 
   /* Accent */
@@ -115,10 +101,9 @@ body {
   --accent-muted:   oklch(from var(--accent) calc(l - 0.10) calc(c - 0.05) h);
   --toggle-track-on: var(--accent);
 
-  /* Text selection. Derived from the accent, so it has to sit here
-     rather than in :root — --accent is not in scope up there. Must stay
-     readable against --text-primary, so the black and light themes
-     override it below. */
+  /* Text selection. Derived from --accent, so it has to sit here rather
+     than in :root, where --accent is not in scope. Must stay readable
+     against --text-primary — the black and light themes override it. */
   --selection-bg:      oklch(from var(--accent) calc(l + 0.12) c h / 0.55);
   --selection-bg-blur: oklch(from var(--accent) calc(l + 0.04) c h / 0.28);
 
@@ -140,11 +125,6 @@ body {
 
 /* ======================================================
    GLOBAL RESET
-   ======================================================
-   Everything here is in `reset`, the lowest layer, so none of it can
-   outrank a component rule however specific it gets. Contents are not
-   re-indented for the layer block — the wrapper is structural, and
-   indenting 200 lines would bury the change it is documenting.
 ====================================================== */
 
 @layer reset {
@@ -180,7 +160,6 @@ body {
   font-size: 0.875rem;
   font-weight: 400;
 
-  /* Static base: two accent blobs + dark linear gradient */
   background:
     radial-gradient(ellipse 55% 40% at 18% 25%, oklch(0.38 0.18 var(--theme-hue) / 0.22), transparent 65%),
     radial-gradient(ellipse 65% 55% at 80% 72%, oklch(0.44 0.21 var(--theme-hue) / 0.20), transparent 65%),
@@ -192,17 +171,14 @@ body {
 @layer tokens {
 
 /* ── Colour theme hue overrides ──
-   The attribute sits on <html>, not <body>, so the inline script in each
-   page's <head> can set it before <body> exists. Setting it on <body>
-   meant the deferred module ran after first paint, so every load flashed
-   the default violet before repainting to the saved theme. */
+   The attribute sits on <html> so the inline script in each page's <head>
+   can set it before <body> exists. On <body> it lands after first paint,
+   and every load flashes the default violet. */
 :root[data-theme="violet"] body { --theme-hue: 295; }
 :root[data-theme="blue"] body   { --theme-hue: 261; }
 :root[data-theme="pink"] body   { --theme-hue: 352; }
 :root[data-theme="green"] body  { --theme-hue: 170; }
 
-/* Single pseudo-element: static gradient, opacity-only pulse.
-   opacity is compositor-only — zero GPU rasterization cost.  */
 body::before {
   content: "";
   position: fixed;
@@ -333,23 +309,14 @@ body::before {
    redundant — `a` is author-origin, and author beats UA in both link
    states, so this one rule already kills the UA's visited colour — and
    it is actively harmful, because `a:visited` scores (0,1,1) and so
-   outranks every single-class rule in the project. Any
-   `.thing { color: … }` on a link held until the target entered
-   history, then silently reverted to inherit.
+   outranks every single-class rule outside a later layer. Any
+   `.thing { color: … }` on a link would hold until the target entered
+   history, then silently revert to inherit — `.nav-trigger` lost its
+   0.71 icon colour that way, visible only once /notes had been opened.
 
-   That is not hypothetical: `.nav-trigger` lost its 0.71 icon colour to
-   --text-primary this way, visible only once /notes had been opened
-   once, and `.utilities__card` still carries a `:link, :visited`
-   specificity bump from the first time it happened. Note that
-   getComputedStyle cannot see any of it — Chrome reports the unvisited
-   value for :visited on purpose, to block history sniffing — so this
-   class of bug has to be diagnosed from painted pixels, not the DOM.
-
-   Since v0.7.4 this sits in the `reset` layer, so even the `a:visited`
-   companion could not do the damage described above: a reset-layer rule
-   loses to every component rule whatever its specificity. The rule stays
-   absent anyway — it was always redundant — but the reasoning above is
-   now belt as well as braces. */
+   getComputedStyle cannot see any of this: Chrome reports the unvisited
+   value for :visited on purpose, to block history sniffing. Diagnose
+   from painted pixels, not the DOM. */
 @layer reset {
 
 a {
@@ -362,27 +329,17 @@ a {
 /* ======================================================
    VIEW TRANSITION — dashboard <-> notes
    ======================================================
-   Progressive enhancement. Cross-document view transitions shipped in
-   Chromium first; engines without support navigate instantly.
+   Progressive enhancement; engines without support navigate instantly.
 
-   A true crossfade, done the way that avoids a brightness artifact.
-
-   The naive version animates both snapshots' opacity in opposite
-   directions. Halfway through, both sit at 50% — and what happens next
-   depends entirely on the blend mode:
-
-     plus-lighter  the two halves ADD back to full brightness. This is
-                   why the UA stylesheet sets it, and why its default
-                   crossfade looks clean.
-     normal        the two halves composite over the transition
-                   backdrop instead, so it shows through the middle of
-                   every navigation as a bright flash.
-
-   Neither is what we want here, because plus-lighter also brightens
-   any colour difference between the pages. So: leave the incoming page
-   fully opaque underneath and fade only the outgoing one out on top of
-   it. Nothing is ever semi-transparent over the backdrop, so the blend
-   mode stops mattering and there is no flash in either direction.
+   Do not restore the naive crossfade that animates both snapshots'
+   opacity in opposite directions. Halfway through both sit at 50%, and
+   under mix-blend-mode: normal they composite over the transition
+   backdrop, which shows through as a bright flash. plus-lighter avoids
+   that but brightens any colour difference between the two pages.
+   Instead the incoming page stays fully opaque underneath and only the
+   outgoing one fades out on top of it, so nothing is ever
+   semi-transparent over the backdrop and the blend mode stops
+   mattering.
 ====================================================== */
 
 @view-transition { navigation: auto; }
@@ -393,12 +350,10 @@ a {
   animation: none;
 }
 
-/* Incoming page: fully opaque, underneath, not animated. */
 ::view-transition-new(root) {
   z-index: 0;
 }
 
-/* Outgoing page: sits on top and fades away, revealing the new one. */
 ::view-transition-old(root) {
   z-index: 1;
   animation: vt-fade-out 200ms ease both;
