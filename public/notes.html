@@ -24,10 +24,14 @@
 
 
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@700&family=Geist:wght@200;400;600;700&family=Noto+Sans+Thai:wght@400;600;700&display=swap">
+  <!-- Preloaded because self-hosting otherwise costs a three-hop chain:
+       HTML, then fonts.css, then the face. These are the latin subsets
+       every visible string uses; the rest stay demand-loaded. -->
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="js/vendor/fonts/v5_gyByhwUxId8gMEwcGFU.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="js/vendor/fonts/v34_Qw3PZQNVED7rKGKxtqIqX5E-AVSJrOCfjY46_N_XbMZhLw.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="js/vendor/fonts/v29_iJWQBXeUZi_OHPqn4wq6hQ2_hbJ1xyN9wd43SofNWcdfKI2hX2g.woff2">
+
+  <link rel="stylesheet" href="js/vendor/fonts.css">
 
   <!-- style.css is deliberately not loaded: this page has its own
        typography, and no dashboard component exists here. -->

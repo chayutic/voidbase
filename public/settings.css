@@ -304,7 +304,7 @@
   all: unset;
   cursor: pointer;
   font-family: var(--font-title);
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   font-weight: 600;
   letter-spacing: 0.1em;
   color: var(--text-secondary);
@@ -323,7 +323,7 @@
   padding: 1.25rem 1.25rem;
   border-top: 1px solid var(--border-color);
   font-family: var(--font-title);
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   font-weight: 200;
   letter-spacing: 0.12em;
   text-transform: uppercase;

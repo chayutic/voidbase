@@ -106,17 +106,18 @@ export const hideMarkers = ViewPlugin.fromClass(
 );
 
 /**
- * Visual weight for rendered markdown. Sizes are em-relative so they
- * track the editor's own font size, and every line-height stays >= 1.5
- * to leave room for Thai vowel and tone marks.
+ * Visual weight for rendered markdown. Sizes are fixed rem, matching the
+ * .markdown heading scale in notes.css exactly, so a heading looks the
+ * same while editing as it does in the rendered preview. Every
+ * line-height stays >= 1.5 to leave room for Thai vowel and tone marks.
  */
 export const markdownHighlight = HighlightStyle.define([
-  { tag: tags.heading1, fontSize: "1.5em",  fontWeight: "600", lineHeight: "1.6" },
-  { tag: tags.heading2, fontSize: "1.28em", fontWeight: "600", lineHeight: "1.6" },
-  { tag: tags.heading3, fontSize: "1.12em", fontWeight: "600", lineHeight: "1.6" },
-  { tag: tags.heading4, fontSize: "1em",    fontWeight: "600" },
-  { tag: tags.heading5, fontSize: "1em",    fontWeight: "600", color: "var(--text-secondary)" },
-  { tag: tags.heading6, fontSize: "1em",    fontWeight: "600", color: "var(--text-secondary)" },
+  { tag: tags.heading1, fontSize: "1.5rem",  fontWeight: "600", lineHeight: "1.5" },
+  { tag: tags.heading2, fontSize: "1.25rem", fontWeight: "600", lineHeight: "1.5" },
+  { tag: tags.heading3, fontSize: "1rem",    fontWeight: "600", lineHeight: "1.5" },
+  { tag: tags.heading4, fontSize: "0.9rem",  fontWeight: "600", lineHeight: "1.5" },
+  { tag: tags.heading5, fontSize: "0.9rem",  fontWeight: "600", lineHeight: "1.5", color: "var(--text-secondary)" },
+  { tag: tags.heading6, fontSize: "0.9rem",  fontWeight: "600", lineHeight: "1.5", color: "var(--text-secondary)" },
 
   { tag: tags.strong,        fontWeight: "600" },
   { tag: tags.emphasis,      fontStyle: "italic" },

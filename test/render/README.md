@@ -9,6 +9,13 @@ npm run test:render -- --update    # rewrite the baseline
 node test/render/matrix.js --only=notes-violet   # one config
 ```
 
+Two things about `--update`. **Bump `VERSION` in `public/js/config.js`
+first** — the footer renders it, so re-baselining before the bump leaves
+three `.footer` probes failing on the version string alone. And `--only=`
+is a *substring* match that combines badly with `--update`: it writes a
+baseline containing only the matched configs and silently discards the
+rest.
+
 ## Why pixels and not `getComputedStyle`
 
 `getComputedStyle` reports the **unvisited** colour for `:visited`, always,
@@ -94,8 +101,29 @@ trouble each caused:
   Jellyfin library and notes all change between runs. A plain static server
   would 404 them instead, which is stable but baselines the dashboard's
   *error* states rather than its real ones.
-- **Fonts and uPlot come from `vendor/`**, never the network. Font-swap
-  timing moves every text pixel.
+- **Fonts and uPlot are self-hosted under `public/`**, so the static host
+  serves them like any other asset and nothing reaches the network. Until
+  v0.7.8 this was done by intercepting `fonts.googleapis.com` and unpkg
+  instead, which looked equivalent and was not: Chrome fetched two of the
+  eleven woff2 files and no Geist face at all, so every text pixel in the
+  baseline was recorded in a fallback typeface. Font-swap timing moves
+  every text pixel, so verify with `document.fonts.check()`, never by
+  reading the stylesheet.
+- **Every declared face is loaded explicitly**, not merely awaited.
+  `document.fonts.ready` resolves once nothing is *pending*, which is true
+  before layout has demanded a face nobody has asked for yet — the Josefin
+  wordmark swapped in after the capture and moved `.header` between 1052
+  and 1056 device px. `ENSURE_FONTS` calls `document.fonts.load()` on all
+  eight. Its sample string has to cover every unicode-range in use: drop
+  the Thai character and Noto Sans Thai's thai subset stays unrequested,
+  which moves the notes list, rows and statusbar a few px per run.
+- **Geometry is polled until it stops changing**, twice. `settle()` waits
+  for `scrollHeight` plus five element heights to agree across four
+  consecutive frames, because CodeMirror measures itself over several async
+  cycles after mount and the notes pane keeps growing past `readyState`
+  complete. The `.utilities__card` probe polls its own rect after expanding
+  the drawer — the children lay out for the first time there, and came back
+  82, 86 and 88 CSS px across three runs of identical code.
 - **Every painting-relevant `localStorage` key is written explicitly**,
   before the inline anti-flash script runs, so the baseline records an
   intended state rather than whatever a fresh profile produced.

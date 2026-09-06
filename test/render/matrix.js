@@ -24,8 +24,14 @@
 //      Real prices, a real Jellyfin library and real notes all change
 //      between runs; worse, a plain static server 404s them and would
 //      baseline the dashboard's *error* states instead of its real ones.
-//    - Fonts and uPlot are served from test/render/vendor, never the
-//      network. Font-swap timing moves every text pixel in the capture.
+//    - Fonts and uPlot are self-hosted under public/, so the static host
+//      below serves them like any other asset and nothing reaches the
+//      network. This used to be done by intercepting fonts.googleapis.com
+//      and unpkg instead, which looked equivalent and was not: Chrome
+//      fetched two of the eleven woff2 files and no Geist face at all, so
+//      every baseline was recorded in a fallback typeface. Font-swap
+//      timing moves every text pixel in the capture, so verify with
+//      document.fonts.check(), not by reading the stylesheet.
 //    - Every painting-relevant localStorage key is written explicitly,
 //      before the page's inline anti-flash script runs, so the baseline
 //      records an intended state rather than whatever a fresh profile
@@ -44,7 +50,6 @@ const { spawn } = require("child_process");
 const HERE = __dirname;
 const PUBLIC = path.resolve(HERE, "../../public");
 const FIXTURES = path.join(HERE, "fixtures");
-const VENDOR = path.join(HERE, "vendor");
 const BASELINE = path.join(HERE, "baseline.json");
 const PORT = 3996;
 const CDP_PORT = 9336;
@@ -143,18 +148,6 @@ function oklabL(r, g, b) {
 function fixtureFor(url) {
   const u = new URL(url);
   const p = u.pathname;
-
-  if (u.host === "fonts.googleapis.com")
-    return { file: path.join(VENDOR, "fonts.css"), type: "text/css" };
-  if (u.host === "fonts.gstatic.com")
-    return { file: path.join(VENDOR, "fonts", path.basename(p)), type: "font/woff2" };
-  if (p.startsWith("/__fixture__/fonts/"))
-    return { file: path.join(VENDOR, "fonts", path.basename(p)), type: "font/woff2" };
-  if (u.host === "unpkg.com")
-    return {
-      file: path.join(VENDOR, path.basename(p)),
-      type: p.endsWith(".css") ? "text/css" : "text/javascript",
-    };
 
   const json = (n) => ({ file: path.join(FIXTURES, n), type: "application/json" });
 
@@ -518,9 +511,10 @@ async function linkCanary(cdp, dpr, { layered, targets }) {
 // are orthogonal and crossing them measures nothing extra. Themes sweep at
 // one width; widths sweep at one theme.
 //
-// Widths sit just below 650/500/425 (style.css, settings.css 425) and
-// 700 (notes.css). style.css also has 584 and 1024 blocks; both execute
-// at a swept width but never in isolation — see TODO.md.
+// Widths sit just below every breakpoint in the project: 650/500/425
+// (style.css), 425 (settings.css), 700 (notes.css). .container and
+// .search__form also cap at max-width 1024 and 584 — not breakpoints,
+// but the sweep straddles both, 1400/640 above and 480/400 below.
 //
 // DPR is likewise not a page-level axis — it changes rasterization, not
 // layout — so it lives on the glyph coverage probe instead.
@@ -601,7 +595,7 @@ async function run() {
     // Seed before the inline anti-flash script runs. Writing localStorage
     // after load and reloading would paint the default palette first.
     await cdp.send("Page.addScriptToEvaluateOnNewDocument", {
-      source: seedScript(cfg.theme, cfg.guest),
+      source: seedScript(cfg.theme, cfg.guest) + "; " + ENSURE_FONTS,
     });
 
     // Navigate directly. Never click between pages: @view-transition is
@@ -684,8 +678,26 @@ async function run() {
           expression: `(()=>{for(const a of document.getAnimations()){
             try{a.finish();}catch(e){}}})()`,
         });
+        // Then wait for the card's own box to stop moving. Finishing the
+        // animations is not enough: the drawer's children lay out for the
+        // first time here, and their height came back 82, 86 and 88 CSS px
+        // across three runs of identical code. Poll until two consecutive
+        // frames agree rather than sleeping longer and hoping.
         await cdp.send("Runtime.evaluate", {
-          expression: `new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))`,
+          expression: `(async () => {
+            await ensureFonts();
+            const el = document.querySelector(".utilities__card");
+            if (!el) return;
+            const frame = () => new Promise(r => requestAnimationFrame(r));
+            let prev = null;
+            for (let i = 0; i < 120; i++) {
+              await frame();
+              const r = el.getBoundingClientRect();
+              const now = r.width + "x" + r.height + "@" + r.x + "," + r.y;
+              if (now === prev) return;
+              prev = now;
+            }
+          })()`,
           awaitPromise: true,
         });
 
@@ -728,13 +740,35 @@ async function run() {
   return results;
 }
 
+// document.fonts.ready resolves once nothing is *pending* — which is true
+// before layout has demanded a face nobody has asked for yet. The Josefin
+// wordmark is the live case: awaiting readiness alone let it swap in after
+// the capture, moving .header between 1052 and 1056 device px run to run
+// while peak lightness and pixel count stayed identical. Requesting each
+// face explicitly makes the set deterministic instead of demand-ordered.
+const ENSURE_FONTS = `window.ensureFonts = async () => {
+  const faces = [
+    '200 16px Geist', '400 16px Geist', '600 16px Geist', '700 16px Geist',
+    '700 16px "Josefin Sans"',
+    '400 16px "Noto Sans Thai"', '600 16px "Noto Sans Thai"',
+    '700 16px "Noto Sans Thai"',
+  ];
+  // The sample text has to cover every unicode-range that will be used, or
+  // load() resolves having fetched only the subsets it happens to touch and
+  // the rest still arrive on demand. The Thai character is load-bearing:
+  // without it Noto Sans Thai's thai subset stayed unrequested and the
+  // notes list, rows and statusbar each moved a few px between runs.
+  await Promise.all(faces.map(f => document.fonts.load(f, "voidbase 0123 ก").catch(() => {})));
+  await document.fonts.ready;
+};`;
+
 // Wait for the page to stop moving: fonts loaded, data rendered, two
 // animation frames clear. Deferred modules apply body classes (guest mode)
 // after first paint, so a fixed sleep alone would race them.
 async function settle(cdp) {
   for (let i = 0; i < 60; i++) {
     const r = await cdp.send("Runtime.evaluate", {
-      expression: `(async()=>{ await document.fonts.ready;
+      expression: `(async()=>{ await ensureFonts();
         return document.readyState==="complete"; })()`,
       awaitPromise: true,
       returnByValue: true,
@@ -743,6 +777,10 @@ async function settle(cdp) {
     await sleep(100);
   }
   await sleep(1200); // data render + transitions
+  await cdp.send("Runtime.evaluate", {
+    expression: `ensureFonts()`,
+    awaitPromise: true,
+  });
 
   // Pin every running animation to a fixed point on its timeline. The
   // backdrop carries `ambientPulse 12s infinite alternate`, so without
@@ -752,6 +790,36 @@ async function settle(cdp) {
   await cdp.send("Runtime.evaluate", {
     expression: `(()=>{for(const a of document.getAnimations()){
       try{a.pause();a.currentTime=0;}catch(e){}}})()`,
+  });
+
+  // CodeMirror measures itself over several async cycles after mount, so
+  // the notes pane keeps growing for a while after readyState is complete
+  // and fonts are in. Wait for the page's own geometry to stop changing
+  // rather than for a duration that happened to be long enough once.
+  await cdp.send("Runtime.evaluate", {
+    expression: `(async () => {
+      const sig = () => {
+        const h = (s) => {
+          const el = document.querySelector(s);
+          return el ? Math.round(el.getBoundingClientRect().height) : -1;
+        };
+        return [
+          document.documentElement.scrollHeight,
+          h(".cm-content"), h(".notes__pane"), h(".notes__list"),
+          h(".markets"), h(".deals-section"),
+        ].join("/");
+      };
+      const frame = () => new Promise(r => requestAnimationFrame(r));
+      let prev = null, same = 0;
+      for (let i = 0; i < 180; i++) {
+        await frame();
+        const now = sig();
+        same = now === prev ? same + 1 : 0;
+        prev = now;
+        if (same >= 4) return;
+      }
+    })()`,
+    awaitPromise: true,
   });
 
   await cdp.send("Runtime.evaluate", {

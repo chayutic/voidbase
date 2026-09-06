@@ -16,11 +16,14 @@
    A rule in an earlier layer cannot beat one in a later layer no
    matter how specific it is; the reset can no longer outrank a
    component. The one asymmetry: CSS in NO layer beats CSS in any
-   layer, so uPlot's stylesheet and CodeMirror's runtime-injected
-   theme currently outrank everything here — see TODO.md.
+   layer. uPlot is in `vendor` for that reason (vendor.css, loaded
+   after this file). CodeMirror's theme is injected at runtime by
+   EditorView.theme() and cannot be wrapped from CSS, so it stays
+   unlayered and outranks everything here — which is why the
+   !importants in livepreview.js are correct.
 ====================================================== */
 
-@layer reset, tokens, components;
+@layer reset, vendor, tokens, components;
 
 /* ======================================================
    THEME VARIABLES

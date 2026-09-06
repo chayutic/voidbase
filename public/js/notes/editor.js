@@ -12,7 +12,7 @@
 
 import * as api from "./api.js";
 import { formatEdited } from "./format.js";
-import { renderPreviewNow } from "./preview.js";
+import { renderPreview, renderPreviewNow } from "./preview.js";
 
 const paneEl     = document.querySelector(".notes__pane");
 const mountEl    = document.getElementById("noteEditor");
@@ -59,9 +59,9 @@ function setValue(text) {
       changes: { from: 0, to: view.state.doc.length, insert: text },
       selection: { anchor: 0 },
     });
-    return;
+  } else if (mode === "fallback") {
+    fallbackEl.value = text;
   }
-  if (mode === "fallback") fallbackEl.value = text;
   renderPreviewNow(text);
 }
 
@@ -143,7 +143,10 @@ async function mountCodeMirror(initialText) {
         ...livePreviewExtensions,
         hideMarkers,
         cm.EditorView.updateListener.of((update) => {
-          if (update.docChanged) onEdit();
+          if (update.docChanged) {
+            onEdit();
+            renderPreview(update.state.doc.toString());
+          }
         }),
         cm.EditorView.domEventHandlers({
           blur: () => { flush(); },

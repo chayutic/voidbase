@@ -24,18 +24,18 @@
 
 
 
-  <!-- Font preconnects — must precede the font stylesheet to be useful -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- Preloaded because self-hosting otherwise costs a three-hop chain:
+       HTML, then fonts.css, then the face. These are the latin subsets
+       every visible string uses; the rest stay demand-loaded. -->
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="js/vendor/fonts/v5_gyByhwUxId8gMEwcGFU.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="js/vendor/fonts/v34_Qw3PZQNVED7rKGKxtqIqX5E-AVSJrOCfjY46_N_XbMZhLw.woff2">
 
-  <!-- Loaded here rather than via @import in style.css, so the fonts
-       download in parallel with the stylesheet instead of after it. -->
-  <link rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@700&family=Geist:wght@200;400;600;700&display=swap">
+  <link rel="stylesheet" href="js/vendor/fonts.css">
 
-  <!-- Order matters: style.css resolves var() against theme.css's
-       tokens. -->
+  <!-- vendor.css must follow theme.css, which declares the layer order.
+       Loading it first would create `vendor` ahead of `reset`. -->
   <link rel="stylesheet" href="theme.css" />
+  <link rel="stylesheet" href="vendor.css" />
   <link rel="stylesheet" href="settings.css" />
   <link rel="stylesheet" href="style.css" />
 
@@ -46,10 +46,7 @@
        survives. -->
   <link rel="prefetch" as="script" href="/js/vendor/cm6.min.js">
 
-  <!-- uPlot — version-pinned; the unversioned unpkg path silently follows
-       upstream releases and would break Markets without warning. -->
-  <link rel="stylesheet" href="https://unpkg.com/uplot@1.6.32/dist/uPlot.min.css">
-  <script src="https://unpkg.com/uplot@1.6.32/dist/uPlot.iife.min.js"></script>
+  <script src="/js/vendor/uPlot.iife.min.js"></script>
 </head>
 
 <body id="top">
