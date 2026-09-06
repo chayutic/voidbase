@@ -35,12 +35,43 @@ declaration, and the two match mutually exclusively. Injecting
 history required. That substitution is what actually proved the v0.7.2 root
 cause, and it is what `linkCanary()` runs every time.
 
-The canary currently reports `.nav-trigger` as **vulnerable**: at `(0,1,0)`
-it is still outranked by any bare `a:link`/`a:visited` rule. v0.7.2 deleted
-the offending rule, which fixed the instance but not the class. Lane A's
-cascade layers are what flip this to `protected`; `.utilities__card` is
-already protected, by the `:link, :visited` specificity bump that Lane B is
-weighing.
+It runs against `.nav-trigger` and, in the expanded pass, `.utilities__card`.
+Both report **vulnerable** to an unlayered rule and **protected** against a
+layered one, at identical values — 0.709 to 0.9702. At `(0,1,0)` and
+`(0,2,0)` respectively, neither outranks a bare `a:link`, and v0.7.2's
+deletion fixed the instance rather than the class; what flips them to
+protected is the cascade layer, not their specificity.
+
+`.utilities__card` reported `protected` in both variants until v0.7.7,
+which was a probe artifact and not a property of the CSS — see *Hidden
+elements* below.
+
+## Hidden elements
+
+`measure()` refuses to sample an element that is not painting, and reports
+`{hidden: true}` instead. Three ways to be invisible, only one of which is a
+zero-sized box:
+
+- `display: none` or `visibility: hidden`, anywhere up the tree
+- zero effective opacity, anywhere up the tree
+- clipped to nothing by an `overflow`-clipping ancestor
+
+The first two are `checkVisibility({opacityProperty, visibilityProperty})`;
+the third intersects the element's rect with each clipping ancestor's.
+
+This matters because the missing cases leave the layout box intact. Until
+v0.7.7 the probe screenshotted `.utilities__card` inside a
+`max-height: 0; opacity: 0` container and hashed the backdrop behind it —
+peak L 0.1354 against the card's real 0.709 — reporting `protected` and
+`{paints: false}` with total confidence. Capture geometry is deliberately
+unchanged by this: a partially clipped element still hashes over its whole
+box, so nothing that was already looking at its target moved.
+
+The utilities grid is the only collapsed-by-default section on either page,
+so it gets an `expanded` pass at the end of `index-violet-w1400` rather than
+a general mechanism. It runs last because `body`'s gradient paints over the
+whole scrollable canvas: growing the page restretches it and shifts every
+element's backdrop.
 
 ## Determinism
 

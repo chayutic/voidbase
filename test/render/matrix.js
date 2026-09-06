@@ -312,7 +312,6 @@ const HOVER = {
     ".dock__item",
     ".search__input-row",
     ".card",
-    ".utilities__card",
     ".arrivals__card",
     ".stocks__card",
     ".footer__top",
@@ -331,7 +330,7 @@ const HOVER = {
 // proud of; the axis exists so that whichever way that decision goes, the
 // diff says so.
 const FOCUS = {
-  index: [".search__input", ".card", ".utilities__card", ".settings-trigger", ".nav-trigger"],
+  index: [".search__input", ".card", ".settings-trigger", ".nav-trigger"],
   notes: [".notes__search", ".notes__row", ".nav-trigger"],
 };
 
@@ -340,13 +339,40 @@ const FOCUS = {
 // means a layout shift somewhere else on the page cannot smear across
 // every region's digest, and it reaches elements below the fold without
 // scrolling. captureBeyondViewport does the rest.
+//
+// A zero-sized box is not the only way to be invisible, and the two ways
+// that are missed both leave the layout box intact — so the clip lands on
+// the page background and the probe reports a confident measurement of
+// something else. `.utilities__content` is the live case: `max-height: 0;
+// overflow: hidden; opacity: 0` at rest, with full-sized children inside
+// it. Every `.utilities__card` entry in the baseline read peak L 0.1354,
+// the backdrop, against the card's real 0.709.
+//
+// So an element counts as hidden here if it fails checkVisibility —
+// display, visibility, or zero effective opacity anywhere up the tree —
+// or if an overflow-clipping ancestor leaves nothing of its rect. The
+// capture geometry is deliberately left alone: a partially clipped
+// element still hashes over its whole box, so this cannot shift a probe
+// that was already looking at its target.
 
 async function measure(cdp, selector, dpr) {
   const boxRes = await cdp.send("Runtime.evaluate", {
     expression: `JSON.stringify((()=>{const el=document.querySelector(${JSON.stringify(
       selector
-    )});if(!el)return null;const r=el.getBoundingClientRect();
+    )});if(!el)return null;
+      if(!el.checkVisibility({opacityProperty:true,visibilityProperty:true,
+        contentVisibilityAuto:true}))return {empty:true};
+      const r=el.getBoundingClientRect();
       if(!r.width||!r.height)return {empty:true};
+      let t=r.top,l=r.left,rt=r.right,b=r.bottom;
+      for(let a=el.parentElement;a;a=a.parentElement){
+        const cs=getComputedStyle(a);
+        if(cs.overflowX==="visible"&&cs.overflowY==="visible")continue;
+        const ar=a.getBoundingClientRect();
+        if(cs.overflowX!=="visible"){l=Math.max(l,ar.left);rt=Math.min(rt,ar.right);}
+        if(cs.overflowY!=="visible"){t=Math.max(t,ar.top);b=Math.min(b,ar.bottom);}
+        if(rt<=l||b<=t)return {empty:true};
+      }
       return {x:r.x+scrollX,y:r.y+scrollY,w:r.width,h:r.height};})())`,
     returnByValue: true,
   });
@@ -450,8 +476,7 @@ async function forceState(cdp, selector, states) {
 // stable VULNERABLE line costs nothing and a change in either direction
 // shows up in the diff.
 
-async function linkCanary(cdp, dpr, { layered }) {
-  const targets = [".nav-trigger", ".utilities__card"];
+async function linkCanary(cdp, dpr, { layered, targets }) {
   const before = {};
   for (const s of targets) before[s] = await measure(cdp, s, dpr);
 
@@ -620,8 +645,11 @@ async function run() {
           await forceState(cdp, sel, []);
         }
       }
-      bucket["canary a:link layered"] = await linkCanary(cdp, dpr, { layered: true });
-      bucket["canary a:link unlayered"] = await linkCanary(cdp, dpr, { layered: false });
+      const canaryTargets = [".nav-trigger"];
+      bucket["canary a:link layered"] =
+        await linkCanary(cdp, dpr, { layered: true, targets: canaryTargets });
+      bucket["canary a:link unlayered"] =
+        await linkCanary(cdp, dpr, { layered: false, targets: canaryTargets });
 
       // The two stroke-width comment blocks assert pixel-coverage counts
       // at DPR 1. Without this pass they cannot be checked at all.
@@ -634,6 +662,61 @@ async function run() {
       await cdp.send("Emulation.setDeviceMetricsOverride", {
         width: cfg.width, height: 900, deviceScaleFactor: 2, mobile: false,
       });
+
+      // The utilities grid is the only collapsed-by-default section on
+      // either page, so this is one fixture rather than a pattern. Open
+      // it and probe the card in the state a user actually sees.
+      //
+      // This runs LAST in the config, and has to. body's gradient paints
+      // over the whole scrollable canvas, so growing the page restretches
+      // it and every element's backdrop shifts — identical in peak
+      // lightness, different in every digest. Expanding before the hover
+      // sweep moved 20 unrelated probes.
+      if (cfg.page === "index") {
+        await cdp.send("Runtime.evaluate", {
+          expression: `{document.querySelector(".utilities__content")?.classList.add("expanded");
+            document.querySelector(".utilities__toggle")?.classList.add("expanded");}`,
+        });
+        await sleep(400); // max-height/opacity are var(--transition-normal)
+        // settle() pinned the animations that existed at load; expanding
+        // starts fresh transitions that need the same treatment.
+        await cdp.send("Runtime.evaluate", {
+          expression: `(()=>{for(const a of document.getAnimations()){
+            try{a.finish();}catch(e){}}})()`,
+        });
+        await cdp.send("Runtime.evaluate", {
+          expression: `new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))`,
+          awaitPromise: true,
+        });
+
+        const sel = ".utilities__card";
+        bucket[`expanded ${sel}`] = await measure(cdp, sel, dpr);
+        if (await forceState(cdp, sel, ["hover"])) {
+          await sleep(400);
+          bucket[`expanded hover ${sel}`] = await measure(cdp, sel, dpr);
+          await forceState(cdp, sel, []);
+          await sleep(400); // let the hover fill transition back out
+        }
+        // Reuse the pre-hover measurement rather than taking a fresh one:
+        // sampled here it catches the hover fill still transitioning out,
+        // and restL lands somewhere between 0.709 and 0.9702 run to run.
+        const rest = bucket[`expanded ${sel}`];
+        if (await forceState(cdp, sel, ["focus", "focus-visible"])) {
+          await sleep(400);
+          const focused = await measure(cdp, sel, dpr);
+          bucket[`expanded focus ${sel}`] = {
+            paints: rest.digest !== focused.digest,
+            restL: rest.peakL,
+            focusL: focused.peakL,
+            focusDigest: focused.digest,
+          };
+          await forceState(cdp, sel, []);
+        }
+        bucket["expanded canary a:link layered"] =
+          await linkCanary(cdp, dpr, { layered: true, targets: [sel] });
+        bucket["expanded canary a:link unlayered"] =
+          await linkCanary(cdp, dpr, { layered: false, targets: [sel] });
+      }
     }
 
     results[cfg.name] = bucket;
@@ -717,17 +800,21 @@ function compare(base, now) {
   // Canary status, reported every run. Not an assertion — see linkCanary.
   // `unlayered` reporting VULNERABLE is the expected, correct result.
   for (const [cfg, bucket] of Object.entries(now)) {
-    for (const variant of ["layered", "unlayered"]) {
-      const c = bucket[`canary a:link ${variant}`];
+    for (const variant of ["layered", "unlayered", "expanded layered",
+                           "expanded unlayered"]) {
+      const key = variant.startsWith("expanded ")
+        ? `expanded canary a:link ${variant.slice(9)}`
+        : `canary a:link ${variant}`;
+      const c = bucket[key];
       if (!c) continue;
       for (const [sel, r] of Object.entries(c)) {
         if (r.absent) continue;
         const state = r.vulnerable
           ? `VULNERABLE  L ${r.beforeL} -> ${r.afterL}`
           : `protected`;
-        const note = r.vulnerable && variant === "unlayered" ? "  (expected)" : "";
+        const note = r.vulnerable && variant.endsWith("unlayered") ? "  (expected)" : "";
         console.log(
-          `  canary ${variant.padEnd(9)} ${cfg} ${sel.padEnd(18)} ${state}${note}`
+          `  canary ${variant.padEnd(18)} ${cfg} ${sel.padEnd(18)} ${state}${note}`
         );
       }
     }

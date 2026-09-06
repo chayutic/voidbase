@@ -94,13 +94,6 @@
       "peakL": 0.9702,
       "atPeak": 4569
     },
-    "hover .utilities__card": {
-      "w": 504,
-      "h": 164,
-      "digest": "5d7966c9",
-      "peakL": 0.1354,
-      "atPeak": 23402
-    },
     "hover .arrivals__card": {
       "w": 480,
       "h": 900,
@@ -148,12 +141,6 @@
       "focusL": 1,
       "focusDigest": "7dffb5b3"
     },
-    "focus .utilities__card": {
-      "paints": false,
-      "restL": 0.1354,
-      "focusL": 0.1354,
-      "focusDigest": "5d7966c9"
-    },
     "focus .settings-trigger": {
       "paints": true,
       "restL": 0.709,
@@ -171,11 +158,6 @@
         "vulnerable": false,
         "beforeL": 0.709,
         "afterL": 0.709
-      },
-      ".utilities__card": {
-        "vulnerable": false,
-        "beforeL": 0.1354,
-        "afterL": 0.1354
       }
     },
     "canary a:link unlayered": {
@@ -183,11 +165,6 @@
         "vulnerable": true,
         "beforeL": 0.709,
         "afterL": 0.9702
-      },
-      ".utilities__card": {
-        "vulnerable": false,
-        "beforeL": 0.1354,
-        "afterL": 0.1354
       }
     },
     "dpr1 .nav-trigger": {
@@ -203,6 +180,40 @@
       "digest": "a8ed22dd",
       "peakL": 0.709,
       "atPeak": 16
+    },
+    "expanded .utilities__card": {
+      "w": 504,
+      "h": 164,
+      "digest": "b1e686c4",
+      "peakL": 0.709,
+      "atPeak": 549
+    },
+    "expanded hover .utilities__card": {
+      "w": 504,
+      "h": 164,
+      "digest": "12bdf2f8",
+      "peakL": 0.9702,
+      "atPeak": 549
+    },
+    "expanded focus .utilities__card": {
+      "paints": true,
+      "restL": 0.709,
+      "focusL": 1,
+      "focusDigest": "1a8ec5b5"
+    },
+    "expanded canary a:link layered": {
+      ".utilities__card": {
+        "vulnerable": false,
+        "beforeL": 0.709,
+        "afterL": 0.709
+      }
+    },
+    "expanded canary a:link unlayered": {
+      ".utilities__card": {
+        "vulnerable": true,
+        "beforeL": 0.709,
+        "afterL": 0.9702
+      }
     }
   },
   "index-blue-w1400": {
@@ -820,9 +831,6 @@
         "vulnerable": false,
         "beforeL": 0.709,
         "afterL": 0.709
-      },
-      ".utilities__card": {
-        "absent": true
       }
     },
     "canary a:link unlayered": {
@@ -830,9 +838,6 @@
         "vulnerable": true,
         "beforeL": 0.709,
         "afterL": 0.9702
-      },
-      ".utilities__card": {
-        "absent": true
       }
     },
     "dpr1 .nav-trigger": {
