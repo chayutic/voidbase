@@ -12,10 +12,7 @@
 //     a heading looks like a heading and strong text is bold.
 //  2. The hide plugin — replaces syntax markers (#, **, ~~, backticks,
 //     link brackets) with nothing, except on active lines.
-//
-//  This is why a <textarea> could never do it: hiding a range while
-//  keeping it in the document requires a document model with
-//  decorations, which is CodeMirror's whole reason for existing.
+
 
 import {
   Decoration, ViewPlugin, EditorView,

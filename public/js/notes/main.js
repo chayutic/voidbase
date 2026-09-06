@@ -2,10 +2,9 @@
 //  NOTES — entry point
 // ═══════════════════════════════════════════════════════════════
 //
-//  Reuses theme.js and store.js from the dashboard. Same origin, so the
-//  theme picked in the Control Panel is already in localStorage and
-//  applies here with no extra work. There are no swatches on this page,
-//  which initTheme() handles fine.
+//  Reuses theme.js and store.js from the dashboard — same origin, so
+//  the Control Panel's theme is already in localStorage. This page has
+//  no swatches, which initTheme() handles fine.
 
 import { initTheme }    from "../theme.js";
 import { initSettings } from "../settings.js";
@@ -14,9 +13,8 @@ import * as editor     from "./editor.js";
 
 initTheme();
 
-// Same Control Panel as the dashboard. Its Markets widgets are inert
-// here in the sense that nothing repaints, but they still write the
-// preference — which is the point.
+// The Control Panel's Markets widgets repaint nothing here, but they
+// still write the preference — which is the point.
 initSettings();
 
 sidebar.initSidebar({
@@ -37,8 +35,6 @@ async function start() {
     const [firstId] = await Promise.all([
       sidebar.refresh({ keepSelection: false }),
       editor.initEditor({
-        // Keep the sidebar row in step with the title and excerpt
-        // derived from whatever was just written.
         onSaved: (summary) => sidebar.updateRow(summary),
       }),
     ]);

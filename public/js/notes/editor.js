@@ -6,15 +6,9 @@
 //  stop; switching notes, blurring, or leaving the page flushes any
 //  pending write immediately so nothing is lost in the debounce window.
 //
-//  LOADING
-//  CodeMirror is ~100kb gzipped and prefetched from the dashboard, so
-//  it is usually already cached. On a cold cache — typing /notes
-//  directly — the note is rendered read-only with marked first, which
-//  is already loaded and instant, then the editor replaces it.
-//
-//  If the import fails outright the plain textarea takes over. It is a
-//  worse editor but it is still an editor, and losing formatting beats
-//  losing the ability to write.
+//  On a cold cache the note is rendered read-only with marked first,
+//  then the editor replaces it. If the import fails outright the plain
+//  textarea takes over — a worse editor, but still an editor.
 
 import * as api from "./api.js";
 import { formatEdited } from "./format.js";
@@ -147,9 +141,6 @@ async function mountCodeMirror(initialText) {
         // entry; .extension is what wires its parser into the editor.
         cm.markdownLanguage.extension,
         ...livePreviewExtensions,
-        // Unconditional. This was a Compartment behind a header toggle;
-        // there is no reason to read raw markdown in a notes app whose
-        // whole point is that formatting happens in place.
         hideMarkers,
         cm.EditorView.updateListener.of((update) => {
           if (update.docChanged) onEdit();

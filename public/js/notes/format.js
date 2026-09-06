@@ -7,9 +7,8 @@ const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov
 /**
  * Note ids encode creation time as Bangkok wall-clock components
  * (YYYYMMDD-HHmmss). Reconstructing a local Date from those components
- * renders correctly for a browser in the same zone, and if you are
- * travelling it keeps showing the time you actually wrote the note —
- * which is the more useful reading.
+ * keeps showing the time you actually wrote the note, even from another
+ * timezone. Do not convert.
  */
 export function idToDate(id) {
   const m = id.match(/^(\d{4})(\d{2})(\d{2})-(\d{2})(\d{2})(\d{2})/);

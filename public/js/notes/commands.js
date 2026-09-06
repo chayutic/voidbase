@@ -11,12 +11,9 @@ import { EditorSelection } from "../vendor/cm6.min.js";
 // ── Inline wrapping ──────────────────────────────────────────────
 
 /**
- * Toggle a marker pair around each selection.
- *
- * Wrapping is a toggle rather than an insert: pressing Ctrl+B on
- * already-bold text unwraps it, which is what every other editor does.
- * With no selection the markers are inserted and the caret is parked
- * between them so you can just keep typing.
+ * Toggle a marker pair around each selection: Ctrl+B on already-bold
+ * text unwraps it. With no selection the markers are inserted and the
+ * caret is parked between them.
  */
 function toggleWrap(marker) {
   return (view) => {
@@ -74,8 +71,7 @@ const LIST_RE = /^(\s*)([-*+]|\d+[.)])(\s+)(\[[ xX]\]\s+)?/;
  *
  * On an item that has content, the next line gets the same indent and
  * marker (numbered markers increment, task boxes reset to unchecked).
- * On an empty item, the marker is removed instead — that is how you
- * leave a list without reaching for backspace.
+ * On an empty item, the marker is removed instead.
  *
  * Returns false when the cursor is not in a list so the default Enter
  * handler takes over.

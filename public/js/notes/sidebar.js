@@ -3,13 +3,7 @@
 // ═══════════════════════════════════════════════════════════════
 //
 //  Rows are built with DOM methods, never innerHTML: titles, excerpts
-//  and search snippets all come straight out of note bodies. The
-//  dashboard's preset list avoids string interpolation for the same
-//  reason.
-//
-//  Search filters the list rather than highlighting in place — with a
-//  few hundred notes, filtering is the more scannable of the two — and
-//  marks the matched substring inside each result.
+//  and search snippets all come straight out of note bodies.
 //
 //  Autosave updates a row in place rather than reloading the list.
 //  Re-sorting on every keystroke would make the row you are editing

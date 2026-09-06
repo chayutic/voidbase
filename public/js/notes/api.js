@@ -2,10 +2,9 @@
 //  NOTES API — thin wrappers over /notes/api
 // ═══════════════════════════════════════════════════════════════
 //
-//  Every call throws on a non-2xx so callers can handle failure in one
-//  place. Once Cloudflare Access is in front of /notes, an expired
-//  session shows up here as a redirect to the login page, which fetch
-//  reports as an opaque failure — hence the explicit ok check.
+//  Every call throws on a non-2xx so callers handle failure in one
+//  place. An expired auth session arrives as a redirect or a 401, not
+//  as a network error, which is why the ok check has to be explicit.
 
 const BASE = "/notes/api";
 

@@ -2,10 +2,9 @@
 //  PREVIEW — rendered pane beside the editor
 // ═══════════════════════════════════════════════════════════════
 //
-//  Rendering is coalesced with requestAnimationFrame rather than
-//  debounced: parsing a scratch note costs well under a frame, so
-//  there is no reason to make the preview lag behind the caret. The
-//  frame guard just stops a fast typist queueing redundant parses.
+//  Rendering is coalesced with requestAnimationFrame, not debounced,
+//  so the preview never lags the caret. The frame guard stops a fast
+//  typist queueing redundant parses.
 
 import { toHtml } from "./markdown.js";
 
