@@ -2,16 +2,9 @@
 //  SETTINGS — Control Panel shell and display preferences
 // ═══════════════════════════════════════════════════════════════
 //
-//  Owns the panel and every preference in it, including the two that
-//  only affect Markets. Those are bound here rather than in markets.js
-//  so the panel behaves identically on the notes page, where Markets is
-//  not loaded at all — the preference still persists, and the dashboard
-//  picks it up. Markets listens for SETTINGS_CHANGE to repaint live.
-//
 //  Guest Mode is a presentation filter, not a security boundary: it
-//  toggles a body class that hides the homelab sections in CSS. The
-//  markup, the URLs and every proxy route remain reachable to anyone
-//  who opens devtools. Do not put private data behind it.
+//  toggles a body class and nothing more. Markup, URLs and every proxy
+//  route stay reachable. Do not put private data behind it.
 
 import * as store              from "./store.js";
 import { KEYS }                from "./store.js";
@@ -44,14 +37,12 @@ function initPanel() {
     settingsTrigger.setAttribute("aria-expanded", String(isOpen));
   });
 
-  // Close on outside click
   document.addEventListener("click", (e) => {
     if (!settingsPanel.contains(e.target) && e.target !== settingsTrigger) {
       closeSettingsPanel();
     }
   });
 
-  // Close on Escape
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") closeSettingsPanel();
   });
@@ -94,9 +85,7 @@ function initDisplayToggles() {
 }
 
 // ── Markets widgets ──────────────────────────────────────────────
-//
-//  Bound here, not in markets.js, so they still work on pages that
-//  never load Markets.
+//  Bound here, not in markets.js, so they still work on the notes page.
 
 function initMarketsWidgets() {
   const expanded = document.getElementById("expandedChartsToggle");

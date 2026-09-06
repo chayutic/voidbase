@@ -2,10 +2,6 @@
 //  MAIN — entry point
 // ═══════════════════════════════════════════════════════════════
 //
-//  Loaded as <script type="module">, so it runs after the document is
-//  parsed. Every module can query the DOM at import time; none of them
-//  need a DOMContentLoaded guard.
-//
 //  Order matters in two places:
 //    · theme first, so the palette is on <body> before anything paints
 //    · customizer next, so section order and visibility are settled

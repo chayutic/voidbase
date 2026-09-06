@@ -1,15 +1,6 @@
 // ═══════════════════════════════════════════════════════════════
 //  THEME — colour scheme selection and persistence
 // ═══════════════════════════════════════════════════════════════
-//
-//  Themes are applied by setting data-theme on <html>; style.css does the
-//  rest. Four themes derive their palette from a single --theme-hue;
-//  black, white and beige override the full token set.
-//
-//  Anything that needs to repaint on a theme change (uPlot draws its
-//  line colour into a canvas, so CSS alone can't update it) listens for
-//  the THEME_CHANGE event rather than being called from here — this
-//  module stays a leaf with no feature dependencies.
 
 import * as store from "./store.js";
 import { KEYS }   from "./store.js";
@@ -21,7 +12,6 @@ export const THEME_CHANGE = "voidbase:themechange";
 // If you change this, change that too.
 const DEFAULT_THEME = "violet";
 
-// Change display names here
 const themeNames = {
   violet: "Voidbase Violet",
   blue:   "Arctic Blue",

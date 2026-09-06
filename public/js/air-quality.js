@@ -2,7 +2,7 @@
 //  AIR QUALITY — header AQI / PM2.5 readout
 // ═══════════════════════════════════════════════════════════════
 //
-//  Reads GET /api/air. The WAQI token lives in .env and is applied
+//  Reads GET /air/current. The WAQI token lives in .env and is applied
 //  server-side; it is never sent to the browser.
 
 const aqInfoEl = document.getElementById("aqInfo");

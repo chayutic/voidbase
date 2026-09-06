@@ -2,15 +2,8 @@
 //  STORE — typed localStorage access
 // ═══════════════════════════════════════════════════════════════
 //
-//  Every persisted preference goes through here. Two reasons:
-//
-//  1. The raw API is stringly-typed, so reads were scattered as
-//     `getItem(k) === "true"` (default false) and `getItem(k) !== "false"`
-//     (default true). Those look almost identical and mean the opposite
-//     thing — easy to get backwards. `bool()` takes the default explicitly.
-//
-//  2. KEYS is the single registry of what this app persists. Grep one
-//     object instead of the whole codebase.
+//  Every persisted preference goes through here, and KEYS is the
+//  registry of everything this app persists.
 
 export const KEYS = {
   // Display
@@ -40,7 +33,8 @@ export const KEYS = {
   turboActive:    "turboActivePreset",
 };
 
-/** Read a boolean. `fallback` is used when the key was never written. */
+/** Read a boolean. `fallback` is always explicit — left implicit, a
+ *  default-true and a default-false reader look identical. */
 export function bool(key, fallback = false) {
   const raw = localStorage.getItem(key);
   if (raw === null) return fallback;
