@@ -22,6 +22,13 @@ let tickerCount    = store.int(KEYS.tickerCount, TICKER_MAX);
 let refreshTimer   = null;
 const chartInstances = new Map();
 
+// ── Chart height, read back from CSS ───────────────────────────
+
+function chartHeight() {
+  const token = expandedCharts ? "--chart-h-lg" : "--chart-h";
+  return parseFloat(getComputedStyle(document.body).getPropertyValue(token));
+}
+
 // ── Stocks widget card factory ─────────────────────────────────
 function createCard(symbol) {
   const card = document.createElement("div");
@@ -179,7 +186,7 @@ function renderCardData(card, data, chartContainer, priceEl, deltaEl) {
 
   card._resizeObserver = new ResizeObserver(entries => {
     const w = entries[0].contentRect.width;
-    if (w > 0) uplot.setSize({ width: w, height: expandedCharts ? 180 : 100 });
+    if (w > 0) uplot.setSize({ width: w, height: chartHeight() });
   });
   card._resizeObserver.observe(card);
 }
@@ -308,7 +315,7 @@ function createChart(container, data) {
     },
   ] : [{ show: false }, { show: false }];
 
-  const CHART_H = expandedCharts ? 180 : 100;
+  const CHART_H = chartHeight();
 
   const options = {
     width:   container.clientWidth,

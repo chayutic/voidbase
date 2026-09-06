@@ -205,7 +205,7 @@ function buildReviewIcon(desc, count) {
 
   if (d.includes("mixed")) {
     return `<span class="deals__review-icon" title="${desc}${count != null ? ` · ${count.toLocaleString()} reviews` : ''}" style="color:${color}">
-      <span style="font-size:0.85rem">Mixed</span>${countStr ? `<span style="font-size:0.85rem">${countStr}</span>` : ""}
+      <span class="deals__review-count">Mixed</span>${countStr ? `<span class="deals__review-count">${countStr}</span>` : ""}
     </span>`;
   }
 
@@ -227,7 +227,7 @@ function buildReviewIcon(desc, count) {
   }
 
   return `<span class="deals__review-icon" title="${desc}${count != null ? ` · ${count.toLocaleString()} reviews` : ''}" style="color:${color}">
-    ${thumbSVG}${modifier}${countStr ? `<span style="font-size:0.85rem">${countStr}</span>` : ""}
+    ${thumbSVG}${modifier}${countStr ? `<span class="deals__review-count">${countStr}</span>` : ""}
   </span>`;
 }
 

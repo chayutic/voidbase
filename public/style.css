@@ -9,8 +9,8 @@
 h1 {  
   font-family: var(--font-header);
   font-weight: 700;
-  font-size: 3.6rem;
-  letter-spacing: 0.05em;
+  font-size: var(--text-display);
+  letter-spacing: var(--track-normal);
 }
 
 h2 {
@@ -18,7 +18,7 @@ h2 {
   font-weight: 200;
   font-size: 1.25rem;
   line-height: 1;
-  letter-spacing: 0.08em;
+  letter-spacing: var(--track-wide);
   margin: 0 0 calc(var(--gap) * 0.75);
   text-transform: uppercase;
   color: var(--text-secondary);
@@ -28,8 +28,8 @@ h2 {
 h3 {
   font-family: var(--font-title);
   font-weight: 600;
-  font-size: 0.9rem;
-  letter-spacing: 0.03em;
+  font-size: 0.875rem;
+  letter-spacing: var(--track-normal);
   margin: 0 0 0.1rem;
 }
 
@@ -42,6 +42,17 @@ h4 {
 }
 
 } /* @layer reset */
+
+@layer tokens {
+
+:root {
+  /* Markets sparkline heights. markets.js reads these back through
+     getComputedStyle -- a canvas needs a number, not a var(). */
+  --chart-h:    100px;
+  --chart-h-lg: 180px;
+}
+
+} /* @layer tokens */
 
 @layer components {
 
@@ -92,7 +103,7 @@ h4 {
 
 .card:hover {
   border-color: var(--accent);
-  box-shadow: 0 0 12px color-mix(in oklch, var(--accent) 20%, transparent);
+  box-shadow: var(--bloom);
 }
 
 .card:active {
@@ -150,7 +161,7 @@ h4 {
   gap: 0.35rem;
   font-size: 1.25rem;
   font-weight: 200;
-  letter-spacing: 0.08em;
+  letter-spacing: var(--track-wide);
   text-transform: uppercase;
 }
 
@@ -160,7 +171,7 @@ h4 {
   align-items: center;
   gap: 0.35rem;
   font-weight: 400;
-  font-size: 0.9rem;
+  font-size: 0.875rem;
   color: var(--text-secondary);
 }
 
@@ -173,7 +184,7 @@ h4 {
 }
 
 .header__location {
-  font-size: 0.9rem;
+  font-size: 0.875rem;
   font-weight: 400;
   color: var(--text-secondary);
 }
@@ -247,9 +258,9 @@ h4 {
   transform: translateX(-50%) translateY(3px);
   margin-top: 0.6rem;
   font-size: 0.8rem;
-  font-weight: 500;
+  font-weight: 400;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: var(--track-wider);
   color: var(--text-secondary);
   opacity: 0;
   pointer-events: none;
@@ -289,7 +300,7 @@ h4 {
   padding: 0 0.5rem;
   height: 46px;
   border: 1px solid var(--search-border);
-  border-radius: 24px;
+  border-radius: var(--radius-pill);
   background-color: var(--search-bg);
   transition: var(--transition-normal);
 }
@@ -297,7 +308,7 @@ h4 {
 .search__input-row:hover,
 .search__input-row:focus-within {
   border-color: var(--accent);
-  box-shadow: 0 0 12px color-mix(in oklch, var(--accent) 20%, transparent);
+  box-shadow: var(--bloom);
 }
 
 .search__input {
@@ -370,7 +381,7 @@ h4 {
   position: absolute;
   inset: 0;
   cursor: pointer;
-  border-radius: 20px;
+  border-radius: var(--radius-pill);
   background-color: var(--toggle-track-off);
   transition: background-color var(--transition-normal);
 }
@@ -435,7 +446,7 @@ input:checked + .search__toggle-track::before {
   font-size: 0.8rem;
   font-family: var(--font-title);
   font-weight: 400;
-  letter-spacing: 0.1em;
+  letter-spacing: var(--track-wide);
   text-transform: uppercase;
   color: var(--text-secondary);
 }
@@ -554,7 +565,7 @@ input:checked + .search__toggle-track::before {
 .search__preset-input {
   all: unset;
   font-family: var(--font-title);
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   flex: 1;
   min-width: 0;
   border-bottom: 1px solid var(--accent);
@@ -625,19 +636,19 @@ input:checked + .search__toggle-track::before {
   min-width: 8rem;
   flex: 1.25;
   font-family: var(--font-body);
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   line-height: 1;
   color: var(--text-primary);
   background: var(--surface-glass);
   border: 1px solid var(--border-color);
-  border-radius: 20px;
+  border-radius: var(--radius-pill);
   padding: 0 0.8rem;
   transition: border-color var(--transition-normal);
 }
 
 .deals__search-input:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 12px color-mix(in oklch, var(--accent) 20%, transparent);
+  box-shadow: var(--bloom);
   outline: none;
 }
 
@@ -647,17 +658,16 @@ input:checked + .search__toggle-track::before {
   box-sizing: border-box;
   display: flex;
   align-items: center;
-  height: 2.2rem;
+  height: 2rem;
   cursor: pointer;
   font-family: var(--font-title);
-  font-size: 0.8rem;
+  font-size: 0.72rem;
   font-weight: 600;
   text-transform: uppercase;
-  vertical-align: middle;
   line-height: 1;
-  letter-spacing: 0.04em;
+  letter-spacing: var(--track-wider);
   padding: 0 0.8rem;
-  border-radius: 20px;
+  border-radius: var(--radius-pill);
   border: 1px solid var(--border-color);
   color: var(--text-secondary);
   background: var(--surface-glass);
@@ -686,7 +696,7 @@ input:checked + .search__toggle-track::before {
 
 .deals__result-item {
   padding: 0.45rem 0.75rem;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   color: var(--text-secondary);
   cursor: pointer;
   transition: background var(--transition-fast), color var(--transition-fast);
@@ -718,7 +728,7 @@ input:checked + .search__toggle-track::before {
   font-family: var(--font-title);
   font-size: 0.72rem;
   font-weight: 600;
-  letter-spacing: 0.06em;
+  letter-spacing: var(--track-wide);
   text-transform: uppercase;
   color: var(--text-secondary);
 }
@@ -741,7 +751,7 @@ input:checked + .search__toggle-track::before {
 }
 
 .deals__empty {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   color: var(--text-secondary);
   padding: 0.2rem 0;
 }
@@ -762,7 +772,7 @@ input:checked + .search__toggle-track::before {
 }
 
 .deals__price {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-family: var(--font-title);
   color: var(--text-primary);
   white-space: nowrap;
@@ -773,7 +783,7 @@ input:checked + .search__toggle-track::before {
 }
 
 .deals__discount {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-family: var(--font-title);
   color: var(--text-secondary);
   white-space: nowrap;
@@ -782,7 +792,7 @@ input:checked + .search__toggle-track::before {
 .deals__discount--off { color: var(--green-highlights); }
 
 .deals__low {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-family: var(--font-title);
   color: var(--text-secondary);
   white-space: nowrap;
@@ -799,7 +809,7 @@ input:checked + .search__toggle-track::before {
 
 .deals__fire-placeholder {
   display: inline-block;
-  width: 0.85rem;
+  width: 0.8rem;
   flex-shrink: 0;
 }
 
@@ -807,7 +817,7 @@ input:checked + .search__toggle-track::before {
 
 /* ── Review cell ── */
 .deals__col-review {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-family: var(--font-title);
   white-space: nowrap;
   overflow: hidden;
@@ -815,6 +825,8 @@ input:checked + .search__toggle-track::before {
 }
 
 .deals__review-text { display: inline; }
+
+.deals__review-count { font-size: 0.8rem; }
 
 .deals__review-icon {
   display: none;
@@ -825,8 +837,8 @@ input:checked + .search__toggle-track::before {
 }
 
 .deals__review-icon svg {
-  width: 0.85rem;
-  height: 0.85rem;
+  width: 0.8rem;
+  height: 0.8rem;
   flex-shrink: 0;
 }
 
@@ -834,7 +846,6 @@ input:checked + .search__toggle-track::before {
   font-size: 0.72rem;
   font-weight: 700;
   line-height: 1;
-  letter-spacing: -0.02em;
   display: inline-flex;
   align-items: center;
   gap: 0.05rem;
@@ -853,7 +864,7 @@ input:checked + .search__toggle-track::before {
   transform: translateX(-50%);
   background: var(--tooltip-bg);
   border: 1px solid var(--border-color);
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
   padding: 0.2rem 0.45rem;
   font-size: 0.8rem;
   white-space: nowrap;
@@ -913,7 +924,7 @@ input:checked + .search__toggle-track::before {
 
 .arrivals__card:hover {
   border-color: var(--accent);
-  box-shadow: 0 0 12px color-mix(in oklch, var(--accent) 20%, transparent);
+  box-shadow: var(--bloom);
 }
 
 .arrivals__card:active {
@@ -960,7 +971,7 @@ input:checked + .search__toggle-track::before {
   color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
-  letter-spacing: 0.01em;
+  letter-spacing: var(--track-normal);
   mask-image: linear-gradient(to right, black 60%, transparent 100%);
 }
 
@@ -970,7 +981,7 @@ input:checked + .search__toggle-track::before {
   color: var(--text-secondary);
   white-space: nowrap;
   overflow: hidden;
-  letter-spacing: 0.02em;
+  letter-spacing: var(--track-normal);
   mask-image: linear-gradient(to right, black 60%, transparent 100%);
 }
 
@@ -1032,12 +1043,12 @@ input:checked + .search__toggle-track::before {
   font-size: 0.72rem;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: var(--track-wide);
   text-align: center;
 }
 
 .arrivals__error {
-  font-size: 0.85rem;
+  font-size: 0.875rem;
   color: var(--text-secondary);
   opacity: 0.5;
   padding: 0.2rem 0;
@@ -1082,7 +1093,7 @@ input:checked + .search__toggle-track::before {
   font-size: 0.72rem;
   font-family: var(--font-title);
   font-weight: 700;
-  letter-spacing: 0.04rem;
+  letter-spacing: var(--track-normal);
   cursor: pointer;
   color: var(--text-secondary);
   transition: color var(--transition-normal);
@@ -1122,7 +1133,7 @@ input:checked + .search__toggle-track::before {
 
 .stocks__chart {
   display: block;
-  height: 100px;
+  height: var(--chart-h);
 }
 
 /* uPlot overrides */
@@ -1161,7 +1172,7 @@ input:checked + .search__toggle-track::before {
 .stocks__symbol {
   font-family: var(--font-title);
   font-weight: 700;
-  letter-spacing: 0.04em;
+  letter-spacing: var(--track-normal);
   margin-bottom: 0.1rem;
 }
 
@@ -1169,14 +1180,14 @@ input:checked + .search__toggle-track::before {
   font-family: var(--font-title);
   font-size: 0.8rem;
   color: var(--text-primary);
-  letter-spacing: 0.04em;
+  letter-spacing: var(--track-normal);
 }
 
 .stocks__delta {
   font-family: var(--font-title);
   font-size: 0.8rem;
   font-weight: 500;
-  letter-spacing: 0.04em;
+  letter-spacing: var(--track-normal);
 }
 
 .stocks__delta[data-sign="up"]   { color: var(--green-highlights); }
@@ -1223,7 +1234,7 @@ input:checked + .search__toggle-track::before {
   all: unset;
   font-family: var(--font-title);
   font-weight: 700;
-  font-size: 0.85rem;
+  font-size: 0.875rem;
   width: 6ch;
   border-bottom: 1px solid var(--accent);
   color: var(--text-primary);
@@ -1233,7 +1244,7 @@ input:checked + .search__toggle-track::before {
 
 /* ── Expanded chart cards ── */
 .stocks__grid.expanded-charts .stocks__chart {
-  height: 180px;
+  height: var(--chart-h-lg);
 }
 
 /* ======================================================
@@ -1314,7 +1325,7 @@ input:checked + .search__toggle-track::before {
   border: 1px solid var(--border-color);
   color: var(--text-secondary);
   font-family: var(--font-title);
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-weight: 500;
   transition:
     border-color var(--transition-normal),
@@ -1359,10 +1370,10 @@ input:checked + .search__toggle-track::before {
 }
 
 .footer__tagline {
-  font-size: 0.8rem;
+  font-size: 0.875rem;
   font-style: italic;
   font-weight: 400;
-  letter-spacing: 0.04em;
+  letter-spacing: var(--track-normal);
   color: var(--text-secondary);
 }
 
@@ -1372,7 +1383,7 @@ input:checked + .search__toggle-track::before {
   gap: 0.4rem;
   font-size: 0.8rem;
   font-weight: 400;
-  letter-spacing: 0.08em;
+  letter-spacing: var(--track-wider);
   text-transform: uppercase;
   color: var(--text-secondary);
 }
@@ -1437,9 +1448,9 @@ input:checked + .search__toggle-track::before {
 
 .customizer__title {
   font-family: var(--font-title);
-  font-size: 0.9rem;
+  font-size: 1rem;
   font-weight: 200;
-  letter-spacing: 0.1em;
+  letter-spacing: var(--track-wider);
   text-transform: uppercase;
   color: var(--text-secondary);
 }
@@ -1489,7 +1500,7 @@ input:checked + .search__toggle-track::before {
 .customizer__label {
   flex: 1;
   font-size: 0.875rem;
-  letter-spacing: 0.02em;
+  letter-spacing: var(--track-normal);
 }
 
 .customizer__eye {
@@ -1531,7 +1542,7 @@ input:checked + .search__toggle-track::before {
   font-family: var(--font-title);
   font-size: 0.8rem;
   font-weight: 600;
-  letter-spacing: 0.08em;
+  letter-spacing: var(--track-wider);
   text-transform: uppercase;
   padding: 0.35rem 0.25rem;
   color: var(--text-secondary);
@@ -1550,9 +1561,9 @@ input:checked + .search__toggle-track::before {
   font-family: var(--font-title);
   font-size: 0.8rem;
   font-weight: 600;
-  letter-spacing: 0.08em;
+  letter-spacing: var(--track-wider);
   text-transform: uppercase;
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
   padding: 0.35rem 0.85rem;
   transition: color var(--transition-normal), border-color var(--transition-normal), background var(--transition-normal);
 }
@@ -1584,7 +1595,7 @@ input:checked + .search__toggle-track::before {
   inset: 0;
   width: 0;
   background: var(--surface-glass-hover);
-  transition: width 0.5s ease-out;
+  transition: width var(--transition-normal);
   z-index: -1;
 }
 
@@ -1607,6 +1618,10 @@ input:checked + .search__toggle-track::before {
    RESPONSIVE
 ====================================================== */
 @media (max-width: 425px) {
+  :root {
+  --text-display: 3rem;
+}
+
   .container {
   padding: 1.5rem 1rem;
   }
@@ -1622,10 +1637,6 @@ input:checked + .search__toggle-track::before {
   /* ── Header ── */
 .header {
   padding: 3rem 0 1rem;
-}
-
-.header h1 {
-  font-size: 3rem;
 }
 
 .header__separator {

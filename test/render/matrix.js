@@ -284,6 +284,7 @@ const PROBES = {
     ".markets",
     '[data-section-id="media-automation"]',
     ".utilities__grid",
+    ".deals__row .deals__col-review",
     ".nav-trigger",
     ".settings-trigger",
     ".footer",
@@ -326,6 +327,74 @@ const FOCUS = {
   index: [".search__input", ".card", ".settings-trigger", ".nav-trigger"],
   notes: [".notes__search", ".notes__row", ".nav-trigger"],
 };
+
+// Closed, collapsed or empty at rest — invisible to every probe above.
+// [label, open, close, targets]. Toggling the same classes the app's own
+// JS toggles, so what gets measured is the real painted state and not a
+// forced approximation of one.
+const REVEALED = {
+  index: [
+    ["panel",
+     `document.getElementById("settingsPanel")?.classList.add("open")`,
+     `document.getElementById("settingsPanel")?.classList.remove("open")`,
+     [".settings-panel", ".settings-panel__header", ".settings__section-label",
+      ".settings__open-btn", ".settings__version"]],
+    // Clicked rather than class-toggled, unlike the others: the overlay's
+    // .open class only reveals it, and customizerList is populated by
+    // openCustomizer(). Toggling the class alone left .customizer__label
+    // MISSING — an empty panel that probed clean.
+    ["customizer",
+     `document.getElementById("customizerOpen")?.click()`,
+     `document.getElementById("customizerCancel")?.click()`,
+     [".customizer", ".customizer__title", ".customizer__label",
+      ".customizer__reset", ".customizer__save"]],
+    // The tooltip's text is set from the dock item's aria-label by dock.js
+    // on hover; an empty div has no box, so measure() would refuse it.
+    ["dock-tooltip",
+     `{const t=document.getElementById("dockTooltip");
+       if(t){t.textContent=document.querySelector(".dock__item")?.getAttribute("aria-label")??"NOTES";
+       t.classList.add("dock__tooltip--visible");}}`,
+     `{const t=document.getElementById("dockTooltip");
+       if(t){t.classList.remove("dock__tooltip--visible");t.textContent="";}}`,
+     [".dock__tooltip"]],
+    // Grows the page, so it closes again like everything else here. The
+    // add-row carries the only .deals__search-btn / .deals__cancel-btn
+    // pair reachable without running a search — the class names outlived
+    // the section they were named for.
+    ["turbo",
+     `{document.getElementById("searchTurbo")?.classList.add("visible");
+       document.getElementById("turboAddRow")?.classList.add("visible");}`,
+     `{document.getElementById("searchTurbo")?.classList.remove("visible");
+       document.getElementById("turboAddRow")?.classList.remove("visible");}`,
+     [".search__turbo", ".search__turbo-label", ".search__turbo-empty",
+      ".deals__search-btn", ".deals__cancel-btn"]],
+  ],
+};
+
+// Finish transitions, then wait for two consecutive frames to agree.
+// Same contract as the utilities block's poll: sleeping longer and hoping
+// is what produced 82, 86 and 88 CSS px across three identical runs.
+async function settleFrames(cdp) {
+  await cdp.send("Runtime.evaluate", {
+    expression: `(()=>{for(const a of document.getAnimations()){
+      try{a.finish();}catch(e){}}})()`,
+  });
+  await cdp.send("Runtime.evaluate", {
+    expression: `(async () => {
+      await ensureFonts();
+      const frame = () => new Promise(r => requestAnimationFrame(r));
+      let prev = null;
+      for (let i = 0; i < 120; i++) {
+        await frame();
+        const now = document.documentElement.scrollHeight + "x" +
+          [...document.querySelectorAll("[id]")].length;
+        if (now === prev) return;
+        prev = now;
+      }
+    })()`,
+    awaitPromise: true,
+  });
+}
 
 // ── Measurement ────────────────────────────────────────────────
 // One clipped screenshot per element. Clipping to the element's own box
@@ -639,6 +708,26 @@ async function run() {
           await forceState(cdp, sel, []);
         }
       }
+      // Components that are closed, collapsed or empty at rest. Each is
+      // one class toggle away, and every one of them carried a token or a
+      // tracking rule no probe could see — six tracking changes and two
+      // size changes landed unverified before this existed.
+      //
+      // Every entry closes what it opened before the next runs. The
+      // utilities block below documents why that matters: anything that
+      // grows the page restretches body's gradient and shifts every
+      // digest after it. The turbo panel is inline and does exactly that,
+      // so leaving it open would smear the sweeps that follow.
+      for (const [label, open, close, targets] of REVEALED[cfg.page] ?? []) {
+        await cdp.send("Runtime.evaluate", { expression: open });
+        await settleFrames(cdp);
+        for (const sel of targets) {
+          bucket[`${label} ${sel}`] = await measure(cdp, sel, dpr);
+        }
+        await cdp.send("Runtime.evaluate", { expression: close });
+        await settleFrames(cdp);
+      }
+
       const canaryTargets = [".nav-trigger"];
       bucket["canary a:link layered"] =
         await linkCanary(cdp, dpr, { layered: true, targets: canaryTargets });
@@ -913,12 +1002,15 @@ function compare(base, now) {
   for (const d of diffs) {
     console.error(`  ${d.cfg}  ${d.probe}  [${d.kind}]`);
     if (d.was) {
-      console.error(
-        `      was  L=${d.was.peakL} atPeak=${d.was.atPeak} ${d.was.w}x${d.was.h} ${d.was.digest}`
-      );
-      console.error(
-        `      now  L=${d.now.peakL} atPeak=${d.now.atPeak} ${d.now.w}x${d.now.h} ${d.now.digest}`
-      );
+      // Not every probe is a box measurement. `expanded focus` records
+      // {paints, restL, focusL, focusDigest}; formatted as one, every
+      // field reads `undefined` and a real change becomes unreadable.
+      const fmt = r =>
+        r && r.digest !== undefined
+          ? `L=${r.peakL} atPeak=${r.atPeak} ${r.w}x${r.h} ${r.digest}`
+          : JSON.stringify(r);
+      console.error(`      was  ${fmt(d.was)}`);
+      console.error(`      now  ${fmt(d.now)}`);
     }
   }
   console.error("\nIf the change is intended: node test/render/matrix.js --update\n");

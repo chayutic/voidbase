@@ -68,8 +68,24 @@
   --font-title:         'Geist', sans-serif;
   --font-body:          'Geist', sans-serif;
 
+  /* ── Type scale ── */
+  --text-display:       3.6rem;
+  --text-title:         1.5rem;
+  --text-headline:      1.25rem;
+  --text-subhead:       1rem;
+  --text-body:          0.875rem;
+  --text-label:         0.8rem;
+  --text-micro:         0.72rem;
+
+  /* ── Tracking ── */
+  --track-normal:       0.04em;
+  --track-wide:         0.08em;
+  --track-wider:        0.1em;
+
   /* ── Layout ── */
-  --radius:             10px;
+  --radius:             8px;
+  --radius-xs:          4px;
+  --radius-pill:        999px;
   --gap:                0.8rem;
 
   /* ── Shadows & tints ── */
@@ -103,6 +119,12 @@ body {
   --accent-bright:  oklch(from var(--accent) calc(l + 0.08) c h);
   --accent-muted:   oklch(from var(--accent) calc(l - 0.10) calc(c - 0.05) h);
   --toggle-track-on: var(--accent);
+
+  /* Hover and focus glow. Declared here, not in :root, for the same
+     reason --selection-bg is: --accent is out of scope there, and a
+     var() inside a custom property resolves where it is declared, so
+     the token would compute to nothing and no glow would paint. */
+  --bloom: 0 0 12px color-mix(in oklch, var(--accent) 20%, transparent);
 
   /* Text selection. Derived from --accent, so it has to sit here rather
      than in :root, where --accent is not in scope. Must stay readable
@@ -160,7 +182,7 @@ body {
   overflow-x: hidden;
   color: var(--text-primary);
   font-family: var(--font-body);
-  font-size: 0.875rem;
+  font-size: var(--text-body);
   font-weight: 400;
 
   background:
@@ -359,7 +381,7 @@ a {
 
 ::view-transition-old(root) {
   z-index: 1;
-  animation: vt-fade-out 200ms ease both;
+  animation: vt-fade-out var(--transition-normal) both;
 }
 
 @keyframes vt-fade-out {

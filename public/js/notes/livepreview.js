@@ -106,18 +106,18 @@ export const hideMarkers = ViewPlugin.fromClass(
 );
 
 /**
- * Visual weight for rendered markdown. Sizes are fixed rem, matching the
- * .markdown heading scale in notes.css exactly, so a heading looks the
- * same while editing as it does in the rendered preview. Every
+ * Visual weight for rendered markdown. Heading sizes come from the
+ * --text-* ramp in theme.css, the same tokens the .markdown rules use,
+ * so a heading looks identical while editing and once rendered. Every
  * line-height stays >= 1.5 to leave room for Thai vowel and tone marks.
  */
 export const markdownHighlight = HighlightStyle.define([
-  { tag: tags.heading1, fontSize: "1.5rem",  fontWeight: "600", lineHeight: "1.5" },
-  { tag: tags.heading2, fontSize: "1.25rem", fontWeight: "600", lineHeight: "1.5" },
-  { tag: tags.heading3, fontSize: "1rem",    fontWeight: "600", lineHeight: "1.5" },
-  { tag: tags.heading4, fontSize: "0.9rem",  fontWeight: "600", lineHeight: "1.5" },
-  { tag: tags.heading5, fontSize: "0.9rem",  fontWeight: "600", lineHeight: "1.5", color: "var(--text-secondary)" },
-  { tag: tags.heading6, fontSize: "0.9rem",  fontWeight: "600", lineHeight: "1.5", color: "var(--text-secondary)" },
+  { tag: tags.heading1, fontSize: "var(--text-title)", fontWeight: "600", lineHeight: "1.5" },
+  { tag: tags.heading2, fontSize: "var(--text-headline)", fontWeight: "600", lineHeight: "1.5" },
+  { tag: tags.heading3, fontSize: "var(--text-subhead)", fontWeight: "600", lineHeight: "1.5" },
+  { tag: tags.heading4, fontSize: "var(--text-body)", fontWeight: "600", fontStyle: "italic", lineHeight: "1.5" },
+  { tag: tags.heading5, fontSize: "var(--text-body)", fontWeight: "600", fontStyle: "italic", lineHeight: "1.5", color: "var(--text-secondary)" },
+  { tag: tags.heading6, fontSize: "var(--text-body)", fontWeight: "600", fontStyle: "italic", lineHeight: "1.5", color: "var(--text-secondary)" },
 
   { tag: tags.strong,        fontWeight: "600" },
   { tag: tags.emphasis,      fontStyle: "italic" },
@@ -141,7 +141,7 @@ export const markdownHighlight = HighlightStyle.define([
 export const editorTheme = EditorView.theme({
   "&": {
     height: "100%",
-    fontSize: "0.9rem",
+    fontSize: "var(--text-body)",
     color: "var(--text-primary)",
     backgroundColor: "transparent",
   },
