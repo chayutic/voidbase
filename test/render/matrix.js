@@ -163,7 +163,9 @@ function fixtureFor(url) {
       file: path.join(FIXTURES, `poster_${p.split("/").pop()}.png`),
       type: "image/png",
     };
+  if (p === "/itad/search") return json("itad_search.json");
   if (p === "/notes/api/list") return json("notes_list.json");
+  if (p === "/notes/api/search") return json("notes_search.json");
   if (p.startsWith("/notes/api/note/"))
     return json(`notes_note_${p.split("/").pop()}.json`);
   if (p.startsWith("/api/")) {
@@ -333,9 +335,14 @@ const FOCUS = {
 };
 
 // Closed, collapsed or empty at rest — invisible to every probe above.
-// [label, open, close, targets]. Toggling the same classes the app's own
-// JS toggles, so what gets measured is the real painted state and not a
-// forced approximation of one.
+// [label, open, close, targets, hover?]. Toggling the same classes the
+// app's own JS toggles, so what gets measured is the real painted state
+// and not a forced approximation of one. `open` and `close` are awaited,
+// so anything that has to wait for its own effect — a debounce, a fetch,
+// a chart rebuild — polls for it rather than trusting settleFrames to be
+// long enough. `hover` is forced for the duration of the probes, for
+// controls that live inside a revealed component and are themselves
+// opacity: 0 until their row is hovered.
 const REVEALED = {
   index: [
     ["panel",
@@ -372,6 +379,110 @@ const REVEALED = {
        document.getElementById("turboAddRow")?.classList.remove("visible");}`,
      [".search__turbo", ".search__turbo-label", ".search__turbo-empty",
       ".deals__search-btn", ".deals__cancel-btn"]],
+    // A saved preset, added and removed through the app's own handlers.
+    // Seeding turboPresets instead would cost the empty state above,
+    // which is the one the panel shows by default. The row's edit and
+    // remove controls are opacity: 0 until the item is hovered — the
+    // remove one draws the shared close cross, so an icons.js edit lands
+    // here as well as in the two places .deals__row already covers.
+    ["turbo-preset",
+     `(async () => {
+        document.getElementById("searchTurbo")?.classList.add("visible");
+        document.getElementById("turboPresetsAdd")?.click();
+        const input = document.getElementById("turboPresetInput");
+        if (input) input.value = "site:reddit.com";
+        document.getElementById("turboPresetSave")?.click();
+        for (let i = 0; i < 120; i++) {
+          if (document.querySelector(".search__preset-item")) return;
+          await new Promise(r => requestAnimationFrame(r));
+        }
+      })()`,
+     `(async () => {
+        document.querySelector(".search__preset-remove")?.click();
+        document.getElementById("searchTurbo")?.classList.remove("visible");
+        document.getElementById("turboAddRow")?.classList.remove("visible");
+        for (let i = 0; i < 120; i++) {
+          if (!document.querySelector(".search__preset-item")) return;
+          await new Promise(r => requestAnimationFrame(r));
+        }
+      })()`,
+     [".search__preset-item", ".search__preset-radio", ".search__preset-label",
+      ".search__preset-edit", ".search__preset-remove"],
+     ".search__preset-item"],
+    // Expanded Charts is off by default and no config turns it on, so
+    // --chart-h-lg had never been read. Clicked rather than written to
+    // localStorage: the toggle is what dispatches SETTINGS_CHANGE, and
+    // Markets repainting is half of what this measures. The poll waits
+    // for the 180px branch to actually be in the layout.
+    ["expanded-charts",
+     `(async () => {
+        document.getElementById("expandedChartsToggle")?.click();
+        for (let i = 0; i < 240; i++) {
+          const c = document.querySelector(".stocks__chart");
+          if (c && Math.round(c.getBoundingClientRect().height) === 180) return;
+          await new Promise(r => requestAnimationFrame(r));
+        }
+      })()`,
+     `(async () => {
+        document.getElementById("expandedChartsToggle")?.click();
+        for (let i = 0; i < 240; i++) {
+          const c = document.querySelector(".stocks__chart");
+          if (c && Math.round(c.getBoundingClientRect().height) === 100) return;
+          await new Promise(r => requestAnimationFrame(r));
+        }
+      })()`,
+     [".stocks__grid", ".stocks__card", ".stocks__chart"]],
+    // The deals search row and its results. Probed by id, deliberately:
+    // .deals__search-btn and .deals__cancel-btn each match twice in this
+    // document — the Turbo preset row carries the same two class names
+    // and comes first, so every querySelector for them has been landing
+    // on the preset row, never on the section they are named for.
+    ["deals-search",
+     `(async () => {
+        document.getElementById("dealsAdd")?.click();
+        const input = document.getElementById("dealsSearchInput");
+        if (input) input.value = "hollow";
+        document.getElementById("dealsSearchBtn")?.click();
+        for (let i = 0; i < 240; i++) {
+          if (document.querySelector(".deals__result-item[data-id]")) return;
+          await new Promise(r => requestAnimationFrame(r));
+        }
+      })()`,
+     `(async () => {
+        document.getElementById("dealsCancelBtn")?.click();
+        for (let i = 0; i < 120; i++) {
+          if (!document.querySelector(".deals__result-item")) return;
+          await new Promise(r => requestAnimationFrame(r));
+        }
+      })()`,
+     [".deals__add-row", "#dealsSearchBtn", "#dealsCancelBtn",
+      ".deals__search-results", ".deals__result-item"]],
+  ],
+  notes: [
+    // The search-hit <mark> paints only while a query has results, so
+    // its radius went in reasoned rather than measured in v0.7.9.
+    ["search",
+     `(async () => {
+        const s = document.getElementById("notesSearch");
+        if (!s) return;
+        s.value = "server";
+        s.dispatchEvent(new Event("input", { bubbles: true }));
+        for (let i = 0; i < 240; i++) {
+          if (document.querySelector(".notes__list mark")) return;
+          await new Promise(r => requestAnimationFrame(r));
+        }
+      })()`,
+     `(async () => {
+        const s = document.getElementById("notesSearch");
+        if (!s) return;
+        s.value = "";
+        s.dispatchEvent(new Event("input", { bubbles: true }));
+        for (let i = 0; i < 240; i++) {
+          if (!document.querySelector(".notes__list mark")) return;
+          await new Promise(r => requestAnimationFrame(r));
+        }
+      })()`,
+     [".notes__list", ".notes__row", ".notes__list mark"]],
   ],
 };
 
@@ -439,7 +550,18 @@ async function measure(cdp, selector, dpr) {
         if(cs.overflowY!=="visible"){t=Math.max(t,ar.top);b=Math.min(b,ar.bottom);}
         if(rt<=l||b<=t)return {empty:true};
       }
-      return {x:r.x+scrollX,y:r.y+scrollY,w:r.width,h:r.height};})())`,
+      const x=r.x+scrollX, y=r.y+scrollY;
+      // captureBeyondViewport composites the page into a surface the size
+      // of the document, and scrollHeight is an integer: a box whose
+      // bottom sits at 1302.296875 in a document that reports 1302 gets a
+      // final scanline that was never painted, and an unpainted pixel
+      // reads pure white — a lightness this palette does not contain.
+      // Whether it happens is decided by which way the fraction rounds,
+      // which is why the guest footer had it permanently and the w640
+      // footer had it one run in six.
+      return {x, y,
+              w:Math.min(r.width,  document.documentElement.scrollWidth  - x),
+              h:Math.min(r.height, document.documentElement.scrollHeight - y)};})())`,
     returnByValue: true,
   });
   const box = JSON.parse(boxRes.result.value);
@@ -575,6 +697,55 @@ async function linkCanary(cdp, dpr, { layered, targets }) {
   });
   await sleep(200);
   return out;
+}
+
+// ── The view transition ────────────────────────────────────────
+// theme.css animates ::view-transition-old(root) with
+// `vt-fade-out var(--transition-normal) both`. If that var did not
+// resolve inside the pseudo tree the shorthand would be invalid at
+// computed-value time, animation-duration would fall back to 0s, and
+// the outgoing page would cut instead of fading — silently, and no
+// capture can see it, because this harness navigates directly and never
+// clicks between pages.
+//
+// A same-document startViewTransition() builds the same pseudo elements
+// against the same rule, so the resolved timing is readable without a
+// navigation. What this records is therefore the transition's *timing*,
+// not the cross-document navigation itself — that was checked out of
+// band by clicking .nav-trigger both ways with a document-start script
+// recording document.getAnimations(), and both directions run
+// vt-fade-out at 250ms. A resolved duration of 0, or an empty list, is
+// the failure this exists to catch.
+async function viewTransitionTiming(cdp) {
+  const r = await cdp.send("Runtime.evaluate", {
+    expression: `(async () => {
+      if (!document.startViewTransition) return JSON.stringify({ unsupported: true });
+      try {
+        const t = document.startViewTransition(() => {});
+        await t.ready;
+        const anims = document.getAnimations()
+          .filter(a => (a.effect?.pseudoElement || "").includes("view-transition-old"))
+          .map(a => ({
+            pseudo: a.effect.pseudoElement,
+            name: a.animationName,
+            duration: a.effect.getTiming().duration,
+            // A CSS animation carries its timing function on the
+            // keyframes. getTiming().easing is "linear" whatever the
+            // token says, so reading that would have covered the
+            // duration half of --transition-normal and reported success
+            // for the easing half.
+            easing: a.effect.getKeyframes().map(k => k.easing),
+          }));
+        await t.finished;
+        return JSON.stringify(anims);
+      } catch (e) {
+        return JSON.stringify({ failed: String(e) });
+      }
+    })()`,
+    awaitPromise: true,
+    returnByValue: true,
+  });
+  return JSON.parse(r.result.value);
 }
 
 // ── Configurations ─────────────────────────────────────────────
@@ -722,15 +893,22 @@ async function run() {
       // grows the page restretches body's gradient and shifts every
       // digest after it. The turbo panel is inline and does exactly that,
       // so leaving it open would smear the sweeps that follow.
-      for (const [label, open, close, targets] of REVEALED[cfg.page] ?? []) {
-        await cdp.send("Runtime.evaluate", { expression: open });
+      for (const [label, open, close, targets, hover] of REVEALED[cfg.page] ?? []) {
+        await cdp.send("Runtime.evaluate", { expression: open, awaitPromise: true });
         await settleFrames(cdp);
+        if (hover) {
+          await forceState(cdp, hover, ["hover"]);
+          await sleep(400); // transitions are var(--transition-normal)
+        }
         for (const sel of targets) {
           bucket[`${label} ${sel}`] = await measure(cdp, sel, dpr);
         }
-        await cdp.send("Runtime.evaluate", { expression: close });
+        if (hover) await forceState(cdp, hover, []);
+        await cdp.send("Runtime.evaluate", { expression: close, awaitPromise: true });
         await settleFrames(cdp);
       }
+
+      bucket["view-transition"] = await viewTransitionTiming(cdp);
 
       const canaryTargets = [".nav-trigger"];
       bucket["canary a:link layered"] =

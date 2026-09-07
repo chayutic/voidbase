@@ -279,6 +279,108 @@
       "peakL": 0.709,
       "atPeak": 1905
     },
+    "turbo-preset .search__preset-item": {
+      "w": 2200,
+      "h": 104,
+      "digest": "deee5b90",
+      "peakL": 0.709,
+      "atPeak": 4545
+    },
+    "turbo-preset .search__preset-radio": {
+      "w": 64,
+      "h": 64,
+      "digest": "9af48179",
+      "peakL": 0.709,
+      "atPeak": 568
+    },
+    "turbo-preset .search__preset-label": {
+      "w": 1912,
+      "h": 72,
+      "digest": "91b570d6",
+      "peakL": 0.709,
+      "atPeak": 2972
+    },
+    "turbo-preset .search__preset-edit": {
+      "w": 52,
+      "h": 52,
+      "digest": "514aee12",
+      "peakL": 0.709,
+      "atPeak": 704
+    },
+    "turbo-preset .search__preset-remove": {
+      "w": 52,
+      "h": 52,
+      "digest": "f12b0b05",
+      "peakL": 0.709,
+      "atPeak": 301
+    },
+    "expanded-charts .stocks__grid": {
+      "w": 3840,
+      "h": 1504,
+      "digest": "c2a559c8",
+      "peakL": 0.9702,
+      "atPeak": 22779
+    },
+    "expanded-charts .stocks__card": {
+      "w": 1244,
+      "h": 728,
+      "digest": "1556a327",
+      "peakL": 0.9702,
+      "atPeak": 3371
+    },
+    "expanded-charts .stocks__chart": {
+      "w": 1236,
+      "h": 720,
+      "digest": "365d36ed",
+      "peakL": 0.9702,
+      "atPeak": 3371
+    },
+    "deals-search .deals__add-row": {
+      "w": 3840,
+      "h": 140,
+      "digest": "00881def",
+      "peakL": 0.9702,
+      "atPeak": 1123
+    },
+    "deals-search #dealsSearchBtn": {
+      "w": 324,
+      "h": 128,
+      "digest": "475ea97b",
+      "peakL": 0.709,
+      "atPeak": 2093
+    },
+    "deals-search #dealsCancelBtn": {
+      "w": 320,
+      "h": 128,
+      "digest": "c28e2fb5",
+      "peakL": 0.709,
+      "atPeak": 1905
+    },
+    "deals-search .deals__search-results": {
+      "w": 3840,
+      "h": 256,
+      "digest": "17a7c24c",
+      "peakL": 0.709,
+      "atPeak": 5896
+    },
+    "deals-search .deals__result-item": {
+      "w": 3832,
+      "h": 124,
+      "digest": "99bc3227",
+      "peakL": 0.709,
+      "atPeak": 3951
+    },
+    "view-transition": [
+      {
+        "pseudo": "::view-transition-old(root)",
+        "name": "vt-fade-out",
+        "duration": 250,
+        "easing": [
+          "cubic-bezier(0.4, 0, 0.2, 1)",
+          "cubic-bezier(0.4, 0, 0.2, 1)"
+        ]
+      }
+    ],
     "canary a:link layered": {
       ".nav-trigger": {
         "vulnerable": false,
@@ -742,8 +844,8 @@
     },
     "rest .footer": {
       "w": 1920,
-      "h": 596,
-      "digest": "19aa605e",
+      "h": 592,
+      "digest": "ad40e6b8",
       "peakL": 0.709,
       "atPeak": 9310
     }
@@ -898,10 +1000,10 @@
     },
     "rest .footer": {
       "w": 5600,
-      "h": 596,
-      "digest": "fb74d8f3",
-      "peakL": 1,
-      "atPeak": 5600
+      "h": 592,
+      "digest": "4eddedc9",
+      "peakL": 0.709,
+      "atPeak": 9310
     }
   },
   "notes-violet-w1400": {
@@ -993,6 +1095,38 @@
       "focusL": 1,
       "focusDigest": "fdcc83b2"
     },
+    "search .notes__list": {
+      "w": 1084,
+      "h": 592,
+      "digest": "5699589c",
+      "peakL": 0.9702,
+      "atPeak": 8598
+    },
+    "search .notes__row": {
+      "w": 1020,
+      "h": 260,
+      "digest": "472b6784",
+      "peakL": 0.9702,
+      "atPeak": 4497
+    },
+    "search .notes__list mark": {
+      "w": 184,
+      "h": 72,
+      "digest": "7d6335bd",
+      "peakL": 0.9702,
+      "atPeak": 2094
+    },
+    "view-transition": [
+      {
+        "pseudo": "::view-transition-old(root)",
+        "name": "vt-fade-out",
+        "duration": 250,
+        "easing": [
+          "cubic-bezier(0.4, 0, 0.2, 1)",
+          "cubic-bezier(0.4, 0, 0.2, 1)"
+        ]
+      }
+    ],
     "canary a:link layered": {
       ".nav-trigger": {
         "vulnerable": false,

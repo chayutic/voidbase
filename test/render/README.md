@@ -124,12 +124,71 @@ trouble each caused:
   complete. The `.utilities__card` probe polls its own rect after expanding
   the drawer — the children lay out for the first time there, and came back
   82, 86 and 88 CSS px across three runs of identical code.
+- **The capture is clamped to the painted surface.**
+  `captureBeyondViewport` composites the document into a surface
+  `scrollHeight` tall, and `scrollHeight` is an integer: a footer whose
+  bottom sits at 1302.296875 in a document reporting 1302 gets a final
+  scanline nobody painted, and an unpainted pixel decodes as pure white —
+  a lightness this palette does not contain anywhere. Whether it happens
+  is decided by which way the fraction rounds, so guest mode had it
+  permanently (`L=1`, `atPeak` exactly the box width, against `L=0.709`
+  at all seven of its structural twins) while w640 sat near the boundary
+  and flipped about one run in six. `measure()` clamps the clip to
+  `scrollWidth`/`scrollHeight`, which is inert everywhere the box already
+  ended inside the surface.
 - **Every painting-relevant `localStorage` key is written explicitly**,
   before the inline anti-flash script runs, so the baseline records an
   intended state rather than whatever a fresh profile produced.
 
 A missing fixture fails the run loudly rather than 404ing, because a
 silently empty section looks exactly like a passing capture.
+
+## Revealed states
+
+Anything closed, collapsed or empty at rest is invisible to the rest
+pass, so `REVEALED` opens each one with the class or the click its own JS
+uses, probes it, and closes it again before the next. Each entry may name
+a `hover` selector, forced for the duration of its probes: the Turbo
+preset row's edit and remove controls are `opacity: 0` until the row is
+hovered, and the remove one draws the shared close cross from `icons.js`.
+
+`open` and `close` are awaited, so an entry that has to wait for its own
+effect polls for it rather than trusting `settleFrames` to be long
+enough — the notes search waits for a `<mark>` to exist, Expanded Charts
+waits for the 180px branch to be in the layout, and the deals search
+waits for a result row.
+
+Two of these are probed by id rather than by class, deliberately.
+`.deals__search-btn` and `.deals__cancel-btn` each match twice in
+`index.html` — the Turbo preset row carries the same two class names and
+comes first in document order — so every `querySelector` for them had
+been landing on the preset row and never on the section they are named
+for. The pair is distinguishable in the baseline: `Save` is 244 device px
+wide, `Search` is 324.
+
+## The view transition
+
+`theme.css` animates `::view-transition-old(root)` with
+`vt-fade-out var(--transition-normal) both`. If that `var()` failed to
+resolve inside the pseudo tree the shorthand would be invalid at
+computed-value time, `animation-duration` would fall back to `0s`, and
+the outgoing page would cut instead of fading — silently, and no capture
+can see it, because this harness navigates directly and never clicks
+between pages.
+
+`viewTransitionTiming()` starts a *same-document* transition, which
+builds the same pseudo elements against the same rule, and records the
+resolved duration and easing. Both come from the token, and both are
+read: a CSS animation carries its timing function on the keyframes, so
+`getTiming().easing` reports `linear` no matter what the token says and
+would have covered half the token while reporting success for the other
+half. Breaking the token on purpose collapses the record to `[]`.
+
+What that still cannot answer is whether Chrome runs a transition on a
+real navigation. Checked once, out of band, by clicking `.nav-trigger` in
+both directions with a document-start script recording
+`document.getAnimations()`: both directions run `vt-fade-out` at duration
+250, live from ~20ms to ~300ms after the incoming document starts.
 
 ## What the matrix covers, and what it deliberately does not
 
