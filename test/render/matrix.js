@@ -308,6 +308,10 @@ const HOVER = {
     ".card",
     ".arrivals__card",
     ".stocks__card",
+    // .deals__remove is opacity:0 until its row is hovered, and it draws
+    // the shared CLOSE icon — one of three components that icons.js now
+    // feeds. Without this, an edit there is visible to no probe at all.
+    ".deals__row",
     ".footer__top",
     ".settings-trigger",
     ".nav-trigger",

@@ -13,6 +13,7 @@ import * as api   from "./api.js";
 import * as store from "../store.js";
 import { KEYS }   from "../store.js";
 import { displayTitle, isUntitled, formatCreated } from "./format.js";
+import { CLOSE } from "../icons.js";
 
 const listEl     = document.getElementById("notesList");
 const newBtn     = document.getElementById("noteNew");
@@ -92,7 +93,7 @@ function buildRow(note, query) {
   remove.className = "notes__row-remove";
   remove.setAttribute("role", "button");
   remove.setAttribute("aria-label", `Delete ${displayTitle(note)}`);
-  remove.innerHTML = `<svg style="transform:rotate(45deg)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`;
+  remove.innerHTML = CLOSE;
   remove.addEventListener("click", (e) => {
     e.stopPropagation();
     confirmDelete(note);

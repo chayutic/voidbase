@@ -3,5 +3,5 @@
   "title": "บันทึกการประชุม",
   "excerpt": "สรุปการประชุมเมื่อวานนี้ เรื่องการตั้งค่าเซิร์ฟเวอร์",
   "mtime": "2026-09-03T06:53:28.812Z",
-  "body": "# บันทึกการประชุม\n\nสรุปการประชุมเมื่อวานนี้ เรื่องการตั้งค่าเซิร์ฟเวอร์\n\n## Decisions\n\n- **Bold** and *italic* and ~~struck~~ and `code`\n- [ ] an unchecked task\n- [x] a checked task\n\n1. first\n2. second\n\n> A quote, for the blockquote treatment.\n\n#### h4, bold italic\n\n##### h5, bold italic and grey\n\n```js\nconst KEYS = [\"up\", \"down\"];\nexport const pick = k => KEYS[k];\n```\n\n| Column | Value |\n| --- | --- |\n| one | 1 |\n\nA [link](https://example.com) and a rule:\n\n---\n"
+  "body": "# บันทึกการประชุม\n\nสรุปการประชุมเมื่อวานนี้ เรื่องการตั้งค่าเซิร์ฟเวอร์\n\n## Decisions\n\n- **Bold** and *italic* and ~~struck~~ and `code`\n- [ ] an unchecked task\n- [x] a checked task\n\n1. first\n2. second\n\n> A quote, for the blockquote treatment.\n\n#### h4, bold italic\n\n##### h5, bold italic and grey\n\n```js\nconst KEYS = [\"up\", \"down\"];\nexport const pick = (k, fallback) => KEYS[k] ?? fallback ?? KEYS[KEYS.length - 1] ?? null;\n```\n\n| Column | Value |\n| --- | --- |\n| one | 1 |\n\nA [link](https://example.com) and a rule:\n\n---\n"
 }

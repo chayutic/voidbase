@@ -76,9 +76,9 @@
     "rest .footer": {
       "w": 5600,
       "h": 596,
-      "digest": "330e3414",
+      "digest": "db8867d1",
       "peakL": 0.709,
-      "atPeak": 9215
+      "atPeak": 9188
     },
     "hover .dock__item": {
       "w": 224,
@@ -115,12 +115,19 @@
       "peakL": 0.9702,
       "atPeak": 3371
     },
+    "hover .deals__row": {
+      "w": 3840,
+      "h": 112,
+      "digest": "13311af8",
+      "peakL": 0.9702,
+      "atPeak": 5282
+    },
     "hover .footer__top": {
       "w": 436,
       "h": 68,
-      "digest": "f29d1298",
+      "digest": "2a76cbd0",
       "peakL": 0.9702,
-      "atPeak": 2599
+      "atPeak": 2589
     },
     "hover .settings-trigger": {
       "w": 168,
@@ -163,7 +170,7 @@
     "panel .settings-panel": {
       "w": 1360,
       "h": 2004,
-      "digest": "1d0c82f2",
+      "digest": "27047ce9",
       "peakL": 1,
       "atPeak": 6801
     },
@@ -191,9 +198,9 @@
     "panel .settings__version": {
       "w": 1352,
       "h": 232,
-      "digest": "8f834292",
+      "digest": "e21a4979",
       "peakL": 0.709,
-      "atPeak": 3217
+      "atPeak": 3207
     },
     "customizer .customizer": {
       "w": 1440,
@@ -412,9 +419,9 @@
     "rest .footer": {
       "w": 5600,
       "h": 596,
-      "digest": "f4128dce",
+      "digest": "82d4cb11",
       "peakL": 0.709,
-      "atPeak": 9215
+      "atPeak": 9188
     }
   },
   "index-pink-w1400": {
@@ -494,9 +501,9 @@
     "rest .footer": {
       "w": 5600,
       "h": 596,
-      "digest": "6ae1205c",
+      "digest": "31741bc2",
       "peakL": 0.709,
-      "atPeak": 9215
+      "atPeak": 9188
     }
   },
   "index-green-w1400": {
@@ -576,9 +583,9 @@
     "rest .footer": {
       "w": 5600,
       "h": 596,
-      "digest": "662dc2a9",
+      "digest": "6fad8c56",
       "peakL": 0.709,
-      "atPeak": 9215
+      "atPeak": 9188
     }
   },
   "index-violet-w640": {
@@ -658,9 +665,9 @@
     "rest .footer": {
       "w": 2560,
       "h": 596,
-      "digest": "a925d424",
+      "digest": "8349a670",
       "peakL": 0.709,
-      "atPeak": 9215
+      "atPeak": 9188
     }
   },
   "index-violet-w480": {
@@ -736,9 +743,9 @@
     "rest .footer": {
       "w": 1920,
       "h": 596,
-      "digest": "e0b49af0",
+      "digest": "512b3e46",
       "peakL": 0.709,
-      "atPeak": 9215
+      "atPeak": 9188
     }
   },
   "index-violet-w400": {
@@ -814,9 +821,9 @@
     "rest .footer": {
       "w": 1600,
       "h": 596,
-      "digest": "e244cf4e",
+      "digest": "af9f49cd",
       "peakL": 0.709,
-      "atPeak": 9215
+      "atPeak": 9188
     }
   },
   "index-violet-w1400-guest": {
@@ -892,7 +899,7 @@
     "rest .footer": {
       "w": 5600,
       "h": 596,
-      "digest": "32e00eeb",
+      "digest": "a13eee63",
       "peakL": 1,
       "atPeak": 5600
     }
@@ -922,9 +929,9 @@
     "rest .notes__pane": {
       "w": 4512,
       "h": 3376,
-      "digest": "3ffbfb2e",
+      "digest": "0f3e9cac",
       "peakL": 0.9702,
-      "atPeak": 68632
+      "atPeak": 76375
     },
     "rest .notes__statusbar": {
       "w": 4512,
@@ -1040,9 +1047,9 @@
     "rest .notes__pane": {
       "w": 4512,
       "h": 3376,
-      "digest": "658806a9",
+      "digest": "f54bbd50",
       "peakL": 0.9702,
-      "atPeak": 68632
+      "atPeak": 76375
     },
     "rest .notes__statusbar": {
       "w": 4512,
@@ -1084,9 +1091,9 @@
     "rest .notes__pane": {
       "w": 4512,
       "h": 3376,
-      "digest": "b7b85bb3",
+      "digest": "56e4d4b4",
       "peakL": 0.9702,
-      "atPeak": 68632
+      "atPeak": 76375
     },
     "rest .notes__statusbar": {
       "w": 4512,
@@ -1128,9 +1135,9 @@
     "rest .notes__pane": {
       "w": 4512,
       "h": 3376,
-      "digest": "f8f2f3f5",
+      "digest": "fc3a1f6b",
       "peakL": 0.9702,
-      "atPeak": 68632
+      "atPeak": 76375
     },
     "rest .notes__statusbar": {
       "w": 4512,
@@ -1172,7 +1179,7 @@
     "rest .notes__pane": {
       "w": 2400,
       "h": 2008,
-      "digest": "7f2418fa",
+      "digest": "4ee64ca5",
       "peakL": 0.9702,
       "atPeak": 46552
     },

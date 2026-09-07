@@ -20,6 +20,26 @@ const AQ_CITY  = process.env.AQ_CITY || "Bangkok";
 const JELLYFIN_URL = process.env.JELLYFIN_URL; // e.g. http://192.168.1.41:8096
 const JELLYFIN_KEY = process.env.JELLYFIN_KEY; // API key: Jellyfin Dashboard → API Keys
 
+// ── Upstream fetching ──────────────────────────────────────────
+
+// Yahoo and Steam both answer differently, or not at all, to a default
+// Node user agent. One string for all three upstreams; there is no
+// reason for them to disagree.
+const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
+
+// Without a deadline an upstream that accepts the connection and then
+// says nothing holds the request until Node's own timeout — minutes,
+// during which the browser tile just sits empty.
+const UPSTREAM_TIMEOUT_MS = 10000;
+
+function fetchUpstream(url, options = {}) {
+  return fetch(url, {
+    ...options,
+    headers: { "Accept": "application/json", "User-Agent": UA, ...options.headers },
+    signal:  AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
+  });
+}
+
 // ── Notes auth ─────────────────────────────────────────────────
 // The only gated surface — the rest of the site stays public. A single
 // shared password is not a substitute for real auth.
@@ -75,8 +95,8 @@ app.get("/air/current", async (req, res) => {
   if (!AQ_TOKEN) return res.status(503).json({ error: "Air quality not configured" });
 
   try {
-    const url  = `https://api.waqi.info/feed/${encodeURIComponent(AQ_CITY)}/?token=${AQ_TOKEN}`;
-    const resp = await fetch(url, { headers: { "Accept": "application/json" } });
+    const url  = `https://api.waqi.info/feed/${encodeURIComponent(AQ_CITY)}/?token=${encodeURIComponent(AQ_TOKEN)}`;
+    const resp = await fetchUpstream(url);
     const data = await resp.json();
 
     if (data.status !== "ok") return res.status(502).json({ error: "Upstream error" });
@@ -105,17 +125,13 @@ app.get("/api/:symbol", async (req, res) => {
   const { symbol } = req.params;
   const range    = RANGE_MAP[req.query.range] ? req.query.range : "1mo";
   const interval = RANGE_MAP[range];
-  const url      = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=${range}&interval=${interval}&includePrePost=false`;
+  // Encoded: the symbol is whatever the client typed into the ticker
+  // edit field, and it is being spliced into an upstream URL path.
+  const url      = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?range=${range}&interval=${interval}&includePrePost=false`;
 
   try {
-    const response = await fetch(url, {
-      headers: {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        "Accept":     "application/json",
-      }
-    });
-
-    const data = await response.json();
+    const response = await fetchUpstream(url);
+    const data     = await response.json();
     res.json(data);
   } catch (err) {
     console.error(`Fetch failed for ${symbol}:`, err.message);
@@ -126,19 +142,19 @@ app.get("/api/:symbol", async (req, res) => {
 // ── ITAD: search games by title ────────────────────────────────
 // Returns up to 6 results: [{ id, title, appid }, ...]
 app.get("/itad/search", async (req, res) => {
+  if (!ITAD_KEY) return res.status(503).json({ error: "Game deals not configured" });
+
   const q = req.query.q;
   if (!q) return res.status(400).json({ error: "Missing query" });
 
   try {
-    const itadUrl  = `https://api.isthereanydeal.com/games/search/v1?key=${ITAD_KEY}&title=${encodeURIComponent(q)}&results=6`;
-    const itadResp = await fetch(itadUrl, { headers: { "Accept": "application/json" } });
+    const itadUrl  = `https://api.isthereanydeal.com/games/search/v1?key=${encodeURIComponent(ITAD_KEY)}&title=${encodeURIComponent(q)}&results=6`;
+    const itadResp = await fetchUpstream(itadUrl);
     const itadData = await itadResp.json();
     const games    = Array.isArray(itadData) ? itadData.slice(0, 6) : [];
 
     const steamUrl  = `https://store.steampowered.com/api/storesearch/?term=${encodeURIComponent(q)}&l=english&cc=TH`;
-    const steamResp = await fetch(steamUrl, {
-      headers: { "User-Agent": "Mozilla/5.0", "Accept": "application/json" }
-    });
+    const steamResp = await fetchUpstream(steamUrl);
     const steamData = await steamResp.json();
 
     const steamMap = new Map();
@@ -170,14 +186,16 @@ app.get("/itad/search", async (req, res) => {
 // Expects POST body: { ids: ["id1", "id2", ...] }
 // Returns: [{ id, discount, low90discount }, ...]
 app.post("/itad/prices", async (req, res) => {
+  if (!ITAD_KEY) return res.status(503).json({ error: "Game deals not configured" });
+
   const ids = req.body?.ids;
   if (!Array.isArray(ids) || !ids.length) return res.status(400).json({ error: "Missing ids" });
 
   try {
-    const url = `https://api.isthereanydeal.com/games/prices/v3?key=${ITAD_KEY}&country=US&shops=61`;
-    const response = await fetch(url, {
+    const url = `https://api.isthereanydeal.com/games/prices/v3?key=${encodeURIComponent(ITAD_KEY)}&country=US&shops=61`;
+    const response = await fetchUpstream(url, {
       method:  "POST",
-      headers: { "Content-Type": "application/json", "Accept": "application/json" },
+      headers: { "Content-Type": "application/json" },
       body:    JSON.stringify(ids),
     });
     const data = await response.json();
@@ -208,21 +226,12 @@ app.post("/itad/prices", async (req, res) => {
 // Returns: { appid, price, currency, reviewDesc, reviewCount }
 app.get("/steam/price/:appid", async (req, res) => {
   const { appid } = req.params;
+  const id = encodeURIComponent(appid);
 
   try {
     const [detailsResp, reviewsResp] = await Promise.all([
-      fetch(`https://store.steampowered.com/api/appdetails?appids=${appid}&cc=th&filters=price_overview`, {
-        headers: {
-          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-          "Accept": "application/json",
-        }
-      }),
-      fetch(`https://store.steampowered.com/appreviews/${appid}?json=1&language=all&purchase_type=all&num_per_page=0`, {
-        headers: {
-          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-          "Accept": "application/json",
-        }
-      }),
+      fetchUpstream(`https://store.steampowered.com/api/appdetails?appids=${id}&cc=th&filters=price_overview`),
+      fetchUpstream(`https://store.steampowered.com/appreviews/${id}?json=1&language=all&purchase_type=all&num_per_page=0`),
     ]);
 
     const detailsData = await detailsResp.json();
@@ -287,8 +296,8 @@ app.get("/jellyfin/recent", async (req, res) => {
     });
 
     const [moviesResp, episodesResp] = await Promise.all([
-      fetch(moviesUrl,   { headers: { "Accept": "application/json" } }),
-      fetch(episodesUrl, { headers: { "Accept": "application/json" } }),
+      fetchUpstream(moviesUrl),
+      fetchUpstream(episodesUrl),
     ]);
 
     const moviesData   = await moviesResp.json();
@@ -342,13 +351,21 @@ app.get("/jellyfin/poster/:seriesId", async (req, res) => {
   }
 
   try {
-    const url  = `${JELLYFIN_URL}/Items/${req.params.seriesId}?` + new URLSearchParams({
-      Fields: "ImageTags",
-      apikey: JELLYFIN_KEY,
+    // The /Items collection filtered by id, not /Items/{id}. The latter
+    // answers 400 "Error processing request." on this server for every
+    // id, valid or not, so every episode missing its own artwork fell
+    // through arrivals.js's catch to a placeholder rather than the
+    // series poster this route exists to supply.
+    const url  = `${JELLYFIN_URL}/Items?` + new URLSearchParams({
+      ids:              req.params.seriesId,
+      Fields:           "ImageTags",
+      ImageTypeLimit:   "1",
+      EnableImageTypes: "Primary",
+      apikey:           JELLYFIN_KEY,
     });
-    const resp = await fetch(url, { headers: { "Accept": "application/json" } });
+    const resp = await fetchUpstream(url);
     const data = await resp.json();
-    res.json({ imageTag: data.ImageTags?.Primary ?? null });
+    res.json({ imageTag: data.Items?.[0]?.ImageTags?.Primary ?? null });
   } catch (err) {
     console.error("Jellyfin poster error:", err.message);
     res.status(500).json({ imageTag: null });
@@ -368,8 +385,16 @@ app.get("/jellyfin/image/:itemId", async (req, res) => {
   if (!tag) return res.status(400).end();
 
   try {
-    const url      = `${JELLYFIN_URL}/Items/${itemId}/Images/Primary?tag=${tag}&maxHeight=400&quality=90&apikey=${JELLYFIN_KEY}`;
-    const response = await fetch(url);
+    // Both segments are encoded. This route is public and unauthenticated
+    // while the key it carries is not, so an unescaped `/` or `&` here
+    // would reach Jellyfin endpoints this proxy never meant to expose.
+    const url      = `${JELLYFIN_URL}/Items/${encodeURIComponent(itemId)}/Images/Primary?` + new URLSearchParams({
+      tag:       tag,
+      maxHeight: "400",
+      quality:   "90",
+      apikey:    JELLYFIN_KEY,
+    });
+    const response = await fetchUpstream(url, { headers: { "Accept": "image/*" } });
 
     if (!response.ok) return res.status(response.status).end();
 

@@ -9,6 +9,8 @@ import { KEYS }             from "./store.js";
 import { THEME_CHANGE }     from "./theme.js";
 import { SETTINGS_CHANGE }  from "./settings.js";
 import { TICKER_MAX }       from "./config.js";
+import { EDIT }             from "./icons.js";
+import { beginInlineEdit }  from "./inline-edit.js";
 
 const rangeButtons    = document.querySelectorAll(".stocks__range");
 const stocksGrid      = document.getElementById("stocksGrid");
@@ -21,6 +23,19 @@ let expandedCharts = store.bool(KEYS.expandedCharts, false);
 let tickerCount    = store.int(KEYS.tickerCount, TICKER_MAX);
 let refreshTimer   = null;
 const chartInstances = new Map();
+
+// ── Chart teardown ─────────────────────────────────────────────
+//  A card owns a uPlot instance and a ResizeObserver watching it; both
+//  outlive the element unless released together.
+
+function teardownChart(card) {
+  const chart = chartInstances.get(card);
+  if (chart) {
+    chart.destroy();
+    chartInstances.delete(card);
+  }
+  if (card._resizeObserver) card._resizeObserver.disconnect();
+}
 
 // ── Chart height, read back from CSS ───────────────────────────
 
@@ -39,11 +54,7 @@ function createCard(symbol) {
     <div class="stocks__overlay">
       <div class="stocks__overlay-top">
         <span class="stocks__symbol"></span>
-        <button class="stocks__edit" aria-label="Edit symbol">
-          <svg width="800px" height="800px" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-          <path d="M15.4998 5.50067L18.3282 8.3291M13 21H21M3 21.0004L3.04745 20.6683C3.21536 19.4929 3.29932 18.9052 3.49029 18.3565C3.65975 17.8697 3.89124 17.4067 4.17906 16.979C4.50341 16.497 4.92319 16.0772 5.76274 15.2377L17.4107 3.58969C18.1918 2.80865 19.4581 2.80864 20.2392 3.58969C21.0202 4.37074 21.0202 5.63707 20.2392 6.41812L8.37744 18.2798C7.61579 19.0415 7.23497 19.4223 6.8012 19.7252C6.41618 19.994 6.00093 20.2167 5.56398 20.3887C5.07171 20.5824 4.54375 20.6889 3.48793 20.902L3 21.0004Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </button>
+        <button class="stocks__edit" aria-label="Edit symbol">${EDIT}</button>
       </div>
       <div class="stocks__overlay-bottom">
         <span class="stocks__price">—</span>
@@ -62,22 +73,15 @@ function createCard(symbol) {
     // Always query live — symbolEl is replaced on each edit
     const symbolEl = card.querySelector(".stocks__symbol");
     if (!symbolEl) return;
-    const input    = document.createElement("input");
-    input.type      = "text";
-    input.value     = card.dataset.symbol;
-    input.className = "stocks__symbol-input";
-    input.maxLength = 10;
-    symbolEl.replaceWith(input);
-    editBtn.style.display = "none";
-    input.focus();
-    input.select();
 
-    let committed = false;
-    function commit() {
-      if (committed) return;
-      committed = true;
-      const newSymbol = input.value.trim().toUpperCase();
-      if (newSymbol && newSymbol !== card.dataset.symbol) {
+    beginInlineEdit({
+      target:    symbolEl,
+      value:     card.dataset.symbol,
+      className: "stocks__symbol-input",
+      maxLength: 10,
+      hideWhileEditing: editBtn,
+      transform: (v) => v.trim().toUpperCase(),
+      onCommit: (newSymbol) => {
         const idx = symbols.indexOf(card.dataset.symbol);
         if (idx !== -1) symbols[idx] = newSymbol;
         store.set(KEYS.stocksSymbols, symbols);
@@ -85,27 +89,14 @@ function createCard(symbol) {
         card.querySelector(".stocks__price").textContent = "—";
         card.querySelector(".stocks__delta").textContent = "";
         fetchCard(card);
-      }
-      const span       = document.createElement("span");
-      span.className   = "stocks__symbol";
-      span.textContent = card.dataset.symbol;
-      input.replaceWith(span);
-      editBtn.style.display = "";
-    }
-
-    input.addEventListener("keydown", (e) => {
-      if (e.key === "Enter")  commit();
-      if (e.key === "Escape") {
-        committed = true; // skip commit on blur
+      },
+      restore: (input) => {
         const span       = document.createElement("span");
         span.className   = "stocks__symbol";
         span.textContent = card.dataset.symbol;
         input.replaceWith(span);
-        editBtn.style.display = "";
-      }
+      },
     });
-    // Delay blur so edit button click can fire first before commit tears down the input
-    input.addEventListener("blur", () => setTimeout(commit, 150));
   });
 
   return card;
@@ -114,30 +105,28 @@ function createCard(symbol) {
 // ── Render grid from symbols array ─────────────────────────────
 // Diffs against the cards already in the DOM rather than rebuilding the
 // grid: a rebuild destroys every uPlot instance and the charts flash.
+// Symbols come from localStorage and hold whatever the edit field
+// accepted, so cards are matched as data rather than interpolated into
+// a selector — one quote in a symbol would throw and take the grid down.
 function renderGrid() {
   stocksGrid.classList.toggle("expanded-charts", expandedCharts);
 
   const targetSymbols = symbols.slice(0, tickerCount);
 
-  const existingCards = Array.from(stocksGrid.querySelectorAll(".stocks__card"));
-  existingCards.forEach(card => {
-    if (!targetSymbols.includes(card.dataset.symbol)) {
-      if (chartInstances.has(card)) { chartInstances.get(card).destroy(); chartInstances.delete(card); }
-      if (card._resizeObserver) card._resizeObserver.disconnect();
+  const surviving = new Map();
+  for (const card of stocksGrid.querySelectorAll(".stocks__card")) {
+    if (targetSymbols.includes(card.dataset.symbol)) {
+      surviving.set(card.dataset.symbol, card);
+    } else {
+      teardownChart(card);
       card.remove();
     }
-  });
+  }
 
-  const existingSymbols = Array.from(stocksGrid.querySelectorAll(".stocks__card")).map(c => c.dataset.symbol);
+  // appendChild moves a card that is already in the DOM, so this one
+  // pass both adds the missing cards and puts them all in target order.
   targetSymbols.forEach(sym => {
-    if (!existingSymbols.includes(sym)) {
-      stocksGrid.appendChild(createCard(sym));
-    }
-  });
-
-  targetSymbols.forEach(sym => {
-    const card = stocksGrid.querySelector(`.stocks__card[data-symbol="${sym}"]`);
-    if (card) stocksGrid.appendChild(card); // appendChild moves if already in DOM
+    stocksGrid.appendChild(surviving.get(sym) ?? createCard(sym));
   });
 }
 
@@ -174,11 +163,7 @@ function renderCardData(card, data, chartContainer, priceEl, deltaEl) {
   deltaEl.textContent  = `${sign}${delta.toFixed(2)}%`;
   deltaEl.dataset.sign = delta >= 0 ? "up" : "down";
 
-  if (chartInstances.has(card)) {
-    chartInstances.get(card).destroy();
-    chartInstances.delete(card);
-  }
-  if (card._resizeObserver) card._resizeObserver.disconnect();
+  teardownChart(card);
 
   chartContainer.innerHTML = "";
   const uplot = createChart(chartContainer, data);

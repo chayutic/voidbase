@@ -10,8 +10,9 @@
 //  Titles are ITAD-supplied and always go in via textContent/dataset,
 //  never innerHTML. buildReviewIcon/Text are the one exception.
 
-import * as store from "./store.js";
-import { KEYS }   from "./store.js";
+import * as store              from "./store.js";
+import { KEYS }                from "./store.js";
+import { PLUS, MINUS, CLOSE }  from "./icons.js";
 
 // Fire icon appears when the current discount is within this many
 // percentage points of the 90-day low. Widened for already-deep lows.
@@ -173,8 +174,16 @@ const THUMB_UP_PATH   = `<path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 
 const THUMB_DOWN_PATH = `<path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z"/>
   <path d="M17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/>`;
 
-const PLUS_SVG  = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`;
-const MINUS_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>`;
+/**
+ * Steam's review vocabulary is fixed in practice, but it is still
+ * upstream text landing in markup. Escaped rather than trusted — the
+ * cost of the assumption breaking is script in the page.
+ */
+function esc(text) {
+  return String(text).replace(/[&<>"']/g, c => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
+  }[c]));
+}
 
 function fmtReviewCount(n) {
   if (n == null) return "";
@@ -201,10 +210,11 @@ function buildReviewIcon(desc, count) {
   const colorVar = reviewSentimentVar(desc);
   const color    = colorVar ? `var(${colorVar})` : "inherit";
   const countStr = count != null ? `(${fmtReviewCount(count)})` : "";
+  const title    = esc(desc + (count != null ? ` · ${count.toLocaleString()} reviews` : ""));
   const d        = desc.toLowerCase();
 
   if (d.includes("mixed")) {
-    return `<span class="deals__review-icon" title="${desc}${count != null ? ` · ${count.toLocaleString()} reviews` : ''}" style="color:${color}">
+    return `<span class="deals__review-icon" title="${title}" style="color:${color}">
       <span class="deals__review-count">Mixed</span>${countStr ? `<span class="deals__review-count">${countStr}</span>` : ""}
     </span>`;
   }
@@ -216,17 +226,17 @@ function buildReviewIcon(desc, count) {
   let modifier = "";
   if (d.startsWith("overwhelmingly")) {
     modifier = isPositive
-      ? `<span class="deals__review-modifier">${PLUS_SVG}${PLUS_SVG}</span>`
-      : `<span class="deals__review-modifier">${MINUS_SVG}${MINUS_SVG}</span>`;
+      ? `<span class="deals__review-modifier">${PLUS}${PLUS}</span>`
+      : `<span class="deals__review-modifier">${MINUS}${MINUS}</span>`;
   } else if (d.startsWith("very")) {
     modifier = isPositive
-      ? `<span class="deals__review-modifier">${PLUS_SVG}</span>`
-      : `<span class="deals__review-modifier">${MINUS_SVG}</span>`;
+      ? `<span class="deals__review-modifier">${PLUS}</span>`
+      : `<span class="deals__review-modifier">${MINUS}</span>`;
   } else if (d.startsWith("mostly negative") || d.startsWith("negative")) {
-    modifier = `<span class="deals__review-modifier">${MINUS_SVG}</span>`;
+    modifier = `<span class="deals__review-modifier">${MINUS}</span>`;
   }
 
-  return `<span class="deals__review-icon" title="${desc}${count != null ? ` · ${count.toLocaleString()} reviews` : ''}" style="color:${color}">
+  return `<span class="deals__review-icon" title="${title}" style="color:${color}">
     ${thumbSVG}${modifier}${countStr ? `<span class="deals__review-count">${countStr}</span>` : ""}
   </span>`;
 }
@@ -236,7 +246,7 @@ function buildReviewText(desc, count) {
   const colorVar = reviewSentimentVar(desc);
   const color    = colorVar ? `var(${colorVar})` : "inherit";
   const countStr = count != null ? ` (${fmtReviewCount(count)})` : "";
-  return `<span class="deals__review-text" style="color:${color}">${desc}${countStr}</span>`;
+  return `<span class="deals__review-text" style="color:${color}">${esc(desc)}${countStr}</span>`;
 }
 function renderDeals() {
   if (!pinnedGames.length) {
@@ -315,7 +325,7 @@ function renderDeals() {
     removeBtn.className = "deals__remove";
     removeBtn.dataset.id = game.id;
     removeBtn.setAttribute("aria-label", `Remove ${game.title}`);
-    removeBtn.innerHTML = `<svg style="transform:rotate(45deg)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`;
+    removeBtn.innerHTML = CLOSE;
     removeBtn.addEventListener("click", () => unpinGame(removeBtn.dataset.id));
     removeCol.appendChild(removeBtn);
 

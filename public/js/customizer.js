@@ -49,10 +49,18 @@ function loadLayout() {
   return getDefaultLayout();
 }
 
+// Ids come from localStorage, so sections are looked up in a map rather
+// than by interpolating one into a selector — a stray quote in a saved
+// layout would throw and leave the page with no sections at all.
 function applyLayout(layout) {
   const container = document.querySelector(".container");
+  const sections  = new Map(
+    Array.from(document.querySelectorAll(".section[data-section-id]"))
+      .map(el => [el.dataset.sectionId, el])
+  );
+
   layout.forEach(({ id, visible }) => {
-    const el = document.querySelector(`.section[data-section-id="${id}"]`);
+    const el = sections.get(id);
     if (!el) return;
     el.style.display = visible ? "" : "none";
     container.appendChild(el); // move to end in order
