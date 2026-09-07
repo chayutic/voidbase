@@ -76,9 +76,9 @@
     "rest .footer": {
       "w": 5600,
       "h": 596,
-      "digest": "db8867d1",
+      "digest": "f957266d",
       "peakL": 0.709,
-      "atPeak": 9188
+      "atPeak": 9310
     },
     "hover .dock__item": {
       "w": 224,
@@ -125,9 +125,9 @@
     "hover .footer__top": {
       "w": 436,
       "h": 68,
-      "digest": "2a76cbd0",
+      "digest": "ad940c60",
       "peakL": 0.9702,
-      "atPeak": 2589
+      "atPeak": 2595
     },
     "hover .settings-trigger": {
       "w": 168,
@@ -170,7 +170,7 @@
     "panel .settings-panel": {
       "w": 1360,
       "h": 2004,
-      "digest": "27047ce9",
+      "digest": "87b4df43",
       "peakL": 1,
       "atPeak": 6801
     },
@@ -198,9 +198,9 @@
     "panel .settings__version": {
       "w": 1352,
       "h": 232,
-      "digest": "e21a4979",
+      "digest": "0d3cc6af",
       "peakL": 0.709,
-      "atPeak": 3207
+      "atPeak": 3309
     },
     "customizer .customizer": {
       "w": 1440,
@@ -419,9 +419,9 @@
     "rest .footer": {
       "w": 5600,
       "h": 596,
-      "digest": "82d4cb11",
+      "digest": "704b6845",
       "peakL": 0.709,
-      "atPeak": 9188
+      "atPeak": 9310
     }
   },
   "index-pink-w1400": {
@@ -501,9 +501,9 @@
     "rest .footer": {
       "w": 5600,
       "h": 596,
-      "digest": "31741bc2",
+      "digest": "3d92f67c",
       "peakL": 0.709,
-      "atPeak": 9188
+      "atPeak": 9310
     }
   },
   "index-green-w1400": {
@@ -583,9 +583,9 @@
     "rest .footer": {
       "w": 5600,
       "h": 596,
-      "digest": "6fad8c56",
+      "digest": "1620e0ca",
       "peakL": 0.709,
-      "atPeak": 9188
+      "atPeak": 9310
     }
   },
   "index-violet-w640": {
@@ -665,9 +665,9 @@
     "rest .footer": {
       "w": 2560,
       "h": 596,
-      "digest": "8349a670",
+      "digest": "c3219b26",
       "peakL": 0.709,
-      "atPeak": 9188
+      "atPeak": 9310
     }
   },
   "index-violet-w480": {
@@ -743,9 +743,9 @@
     "rest .footer": {
       "w": 1920,
       "h": 596,
-      "digest": "512b3e46",
+      "digest": "19aa605e",
       "peakL": 0.709,
-      "atPeak": 9188
+      "atPeak": 9310
     }
   },
   "index-violet-w400": {
@@ -821,9 +821,9 @@
     "rest .footer": {
       "w": 1600,
       "h": 596,
-      "digest": "af9f49cd",
+      "digest": "be460c77",
       "peakL": 0.709,
-      "atPeak": 9188
+      "atPeak": 9310
     }
   },
   "index-violet-w1400-guest": {
@@ -899,7 +899,7 @@
     "rest .footer": {
       "w": 5600,
       "h": 596,
-      "digest": "a13eee63",
+      "digest": "fb74d8f3",
       "peakL": 1,
       "atPeak": 5600
     }
@@ -929,9 +929,9 @@
     "rest .notes__pane": {
       "w": 4512,
       "h": 3376,
-      "digest": "0f3e9cac",
+      "digest": "b5cf0584",
       "peakL": 0.9702,
-      "atPeak": 76375
+      "atPeak": 84663
     },
     "rest .notes__statusbar": {
       "w": 4512,
@@ -1017,7 +1017,7 @@
     "dpr1 .settings-trigger": {
       "w": 42,
       "h": 42,
-      "digest": "ec37b7e3",
+      "digest": "1bc559ab",
       "peakL": 0.709,
       "atPeak": 16
     }
@@ -1047,9 +1047,9 @@
     "rest .notes__pane": {
       "w": 4512,
       "h": 3376,
-      "digest": "f54bbd50",
+      "digest": "e267100c",
       "peakL": 0.9702,
-      "atPeak": 76375
+      "atPeak": 84663
     },
     "rest .notes__statusbar": {
       "w": 4512,
@@ -1091,9 +1091,9 @@
     "rest .notes__pane": {
       "w": 4512,
       "h": 3376,
-      "digest": "56e4d4b4",
+      "digest": "2f3f392f",
       "peakL": 0.9702,
-      "atPeak": 76375
+      "atPeak": 84663
     },
     "rest .notes__statusbar": {
       "w": 4512,
@@ -1135,9 +1135,9 @@
     "rest .notes__pane": {
       "w": 4512,
       "h": 3376,
-      "digest": "fc3a1f6b",
+      "digest": "f4e0fba0",
       "peakL": 0.9702,
-      "atPeak": 76375
+      "atPeak": 84663
     },
     "rest .notes__statusbar": {
       "w": 4512,
@@ -1179,21 +1179,21 @@
     "rest .notes__pane": {
       "w": 2400,
       "h": 2008,
-      "digest": "4ee64ca5",
+      "digest": "cbc208ca",
       "peakL": 0.9702,
       "atPeak": 46552
     },
     "rest .notes__statusbar": {
       "w": 2400,
       "h": 128,
-      "digest": "72cb85ae",
+      "digest": "296743d7",
       "peakL": 0.7214,
       "atPeak": 906
     },
     "rest .nav-trigger": {
       "w": 168,
       "h": 168,
-      "digest": "368b010b",
+      "digest": "87595c41",
       "peakL": 0.709,
       "atPeak": 1889
     }

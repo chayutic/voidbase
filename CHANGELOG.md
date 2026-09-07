@@ -1,5 +1,15 @@
 # Changelog — Voidbase
 
+## v0.7.10 — 2026-09-07
+*The space a marker leaves behind*
+
+### Fixed
+- **Every heading and blockquote kept the space its marker left behind.** `livepreview.js` replaced exactly the marker node's range, and in `@lezer/markdown` `HeaderMark` and `QuoteMark` are the punctuation *only* — the space separating a marker from its text belongs to no node at all. So `## Decisions` rendered as ` Decisions`, one character right of the left edge, at every heading level and on every quote line the cursor was not sitting on. The replacement widens across that whitespace now, and the four cases differ: a *run* after an opening `#`, since `###   spaced` is legal and all three spaces go; the space *before* the closing `#` of `# Title #`, which is the same problem at the other end; exactly one space after a `>`, never a run, because CommonMark gives the quote marker a single optional space and everything past it is the content's own indentation — `>     code` is an indented code block inside the quote, and eating it would flatten one; and nothing at all for a setext underline, which is a `HeaderMark` sitting alone on its line. `#  #` needs the two marks not to claim the same two spaces twice, so each replacement is floored at the end of the last one
+- **`TODO.md` said no probe covered this, and that was wrong.** The note fixture already carries `## Decisions`, `#### h4`, `##### h5` and a blockquote, and the cursor lands on line 1, so all of them are decorated in every capture: the fix moved `rest .notes__pane` in all four themes at w1400, atPeak 76375 → 76411, dimensions identical, and nothing else in the matrix. `notes-violet-w600` correctly stayed put — below 700px the editor is not the surface on screen
+
+### Changed
+- **The fixture carries `###   spaced and closed   ###`**, so the multi-space case is guarded by pixels rather than by argument. The closing-`#` half cannot be: it removes *trailing* whitespace, which paints nothing either way. That half was verified in a real browser by reading back the text CodeMirror renders per line and the x of each line's first glyph — 300px for a paragraph, 303.5 to 317.5 for the seven heading and quote lines before the fix, 300 for all of them after, with the indented code block inside a quote correctly keeping four of its five spaces
+
 ## v0.7.9 — 2026-09-07
 *Two shared modules, and an axis that had been fixed on the other one*
 

@@ -45,6 +45,49 @@ const hide = Decoration.replace({});
  */
 const ruleLine = Decoration.line({ class: "cm-md-rule" });
 
+const isSpace = ch => ch === " " || ch === "\t";
+
+/**
+ * The range to replace for one syntax marker.
+ *
+ * For most markers that is the node itself. HeaderMark and QuoteMark are
+ * scoped to the punctuation alone — the space separating a marker from
+ * its text belongs to no node at all — so replacing exactly
+ * node.from..node.to leaves that space behind and every heading and
+ * blockquote renders one column right of the left edge.
+ *
+ * `floor` is the end of the previous replacement, which decides `#  #`:
+ * the opening mark takes both spaces and the closing one must not claim
+ * them a second time.
+ */
+function hideRange(node, line, floor) {
+  const at = pos => line.text[pos - line.from];
+
+  // One space, never a run. CommonMark gives the quote marker a single
+  // optional space; past it is the content's own indentation, and
+  // `>     code` is an indented code block inside the quote.
+  if (node.name === "QuoteMark")
+    return { from: node.from, to: node.to + (at(node.to) === " " ? 1 : 0) };
+
+  if (node.name !== "HeaderMark") return { from: node.from, to: node.to };
+
+  // The closing # of `# Title #` owns the space before it; every other
+  // HeaderMark owns what follows. A setext underline takes this branch
+  // too and absorbs nothing, which is correct — it starts its own line.
+  if (node.from > node.node.parent.from) {
+    const limit = Math.max(floor, line.from);
+    let from = node.from;
+    while (from > limit && isSpace(at(from - 1))) from -= 1;
+    return { from, to: node.to };
+  }
+
+  // A run, not a character: `###   spaced` is legal and all three go.
+  // Stopping at line.to leaves the newline alone.
+  let to = node.to;
+  while (to < line.to && isSpace(at(to))) to += 1;
+  return { from: node.from, to };
+}
+
 /** Line numbers touched by any cursor or selection. */
 function activeLines(state) {
   const lines = new Set();
@@ -60,6 +103,7 @@ function buildDecorations(view) {
   const { state } = view;
   const active = activeLines(state);
   const ranges = [];
+  let hiddenTo = 0;
 
   for (const { from, to } of view.visibleRanges) {
     syntaxTree(state).iterate({
@@ -77,7 +121,10 @@ function buildDecorations(view) {
 
         if (!SYNTAX_NODES.has(node.name)) return;
         if (node.from === node.to) return;
-        ranges.push(hide.range(node.from, node.to));
+
+        const r = hideRange(node, line, hiddenTo);
+        ranges.push(hide.range(r.from, r.to));
+        hiddenTo = r.to;
       },
     });
   }
