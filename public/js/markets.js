@@ -37,6 +37,10 @@ function teardownChart(card) {
   if (card._resizeObserver) card._resizeObserver.disconnect();
 }
 
+function teardownAllCharts() {
+  for (const card of stocksGrid.querySelectorAll(".stocks__card")) teardownChart(card);
+}
+
 // ── Chart height, read back from CSS ───────────────────────────
 
 function chartHeight() {
@@ -163,7 +167,11 @@ function renderCardData(card, data, chartContainer, priceEl, deltaEl) {
   deltaEl.textContent  = `${sign}${delta.toFixed(2)}%`;
   deltaEl.dataset.sign = delta >= 0 ? "up" : "down";
 
-  teardownChart(card);
+  const existing = chartInstances.get(card);
+  if (existing) {
+    existing.setData(data);
+    return;
+  }
 
   chartContainer.innerHTML = "";
   const uplot = createChart(chartContainer, data);
@@ -204,9 +212,9 @@ async function fetchSymbol(symbol) {
 }
 
 
-async function fetchStocks() {
-  const cards = stocksGrid.querySelectorAll(".stocks__card");
-  for (const card of cards) await fetchCard(card);
+function fetchStocks() {
+  const cards = [...stocksGrid.querySelectorAll(".stocks__card")];
+  return Promise.all(cards.map(fetchCard));
 }
 
 // ── Chart factory ──────────────────────────────────────────────
@@ -353,12 +361,18 @@ export function initMarkets() {
     expandedCharts = store.bool(KEYS.expandedCharts, false);
     tickerCount    = store.int(KEYS.tickerCount, TICKER_MAX);
     renderGrid();
+    // Expanded Charts changes chartHeight(), which is read once at
+    // construction; surviving cards have to rebuild, not refresh.
+    teardownAllCharts();
     fetchStocks();
   });
 
   // uPlot rasterizes the accent colour into a canvas, so a CSS-only
-  // theme swap leaves stale lines behind. Redraw on theme change.
-  document.addEventListener(THEME_CHANGE, () => fetchStocks());
+  // theme swap leaves stale lines behind. Rebuild, don't refresh.
+  document.addEventListener(THEME_CHANGE, () => {
+    teardownAllCharts();
+    fetchStocks();
+  });
 
   renderGrid();
   fetchStocks();

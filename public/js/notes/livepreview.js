@@ -173,7 +173,7 @@ export const markdownHighlight = HighlightStyle.define([
   { tag: tags.link,    color: "var(--accent-bright)", textDecoration: "underline", textUnderlineOffset: "2px" },
   { tag: tags.url,     color: "var(--text-secondary)" },
   { tag: tags.monospace, fontFamily: "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
-                         fontSize: "0.9em", background: "var(--surface-glass-hover)", borderRadius: "3px" },
+                         fontSize: "0.9em", background: "var(--surface-glass-hover)", borderRadius: "var(--radius-xs)" },
   { tag: tags.quote,   color: "var(--text-secondary)", fontStyle: "italic" },
   // No colour for tags.list. That tag covers the whole list item, not
   // just the marker, so colouring it tinted every line of every list.

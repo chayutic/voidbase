@@ -2,7 +2,7 @@
 //  CONFIG — cross-cutting constants
 // ═══════════════════════════════════════════════════════════════
 
-export const VERSION = "v0.7.10";
+export const VERSION = "v0.7.11";
 
 /**
  * Jellyfin base URL for browser-facing links. A LAN address, so these

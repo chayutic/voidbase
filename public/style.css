@@ -592,6 +592,11 @@ input:checked + .search__toggle-track::before {
    GAME DEALS
 ====================================================== */
 
+/* The @container steps in RESPONSIVE resolve against this. */
+.deals-section {
+  container-type: inline-size;
+}
+
 .deals__header {
   line-height: 1;
   margin-bottom: calc(var(--gap) * 0.75);
@@ -1634,6 +1639,11 @@ input:checked + .search__toggle-track::before {
   grid-template-columns: repeat(1, 1fr);
 }
 
+  /* ── Game Deals ── */
+.deals__cancel-btn {
+  display: none;
+}
+
   /* ── Header ── */
 .header {
   padding: 3rem 0 1rem;
@@ -1689,8 +1699,8 @@ input:checked + .search__toggle-track::before {
 }
 
 
-/* ── 500–650px: switch reviews column to icon view ── */
-@media (max-width: 650px) {
+/* ── Deals table: the section's width decides, not the viewport's ── */
+@container (max-width: 590px) {
   .deals__table-header,
   .deals__row {
     grid-template-columns: 1fr max-content minmax(4rem, max-content) minmax(3rem, max-content) minmax(3.5rem, max-content) 1.2rem;
@@ -1700,8 +1710,7 @@ input:checked + .search__toggle-track::before {
   .deals__review-icon { display: inline-flex; }
 }
 
-/* ── <500px: remove reviews column entirely ── */
-@media (max-width: 500px) {
+@container (max-width: 440px) {
   .deals__table-header,
   .deals__row {
     grid-template-columns: 1fr minmax(4rem, max-content) minmax(3rem, max-content) minmax(3.5rem, max-content) 1.2rem;
@@ -1710,18 +1719,13 @@ input:checked + .search__toggle-track::before {
   .deals__col-review { display: none; }
 }
 
-/* ── 90D Low column: hide on small screens unless forced ── */
-@media (max-width: 425px) {
+@container (max-width: 400px) {
   .deals__table-header,
   .deals__row {
     grid-template-columns: 1fr minmax(3rem, max-content) minmax(3.5rem, max-content) 1.2rem;
   }
 
   .deals__col-low {
-    display: none;
-  }
-
-  .deals__cancel-btn {
     display: none;
   }
 }
@@ -1731,7 +1735,7 @@ body.force-90d .deals__col-low {
 }
 
 /* Five columns, not six: the reviews column is already gone at this width. */
-@media (max-width: 425px) {
+@container (max-width: 400px) {
   body.force-90d .deals__table-header,
   body.force-90d .deals__row {
     grid-template-columns: 1fr minmax(4rem, max-content) minmax(3rem, max-content) minmax(3.5rem, max-content) 1.2rem;
