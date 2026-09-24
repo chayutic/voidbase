@@ -162,7 +162,7 @@ function markActive() {
   });
 }
 
-export async function select(id) {
+async function select(id) {
   if (id === selectedId) return;
   selectedId = id;
   markActive();

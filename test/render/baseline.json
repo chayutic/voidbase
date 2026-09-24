@@ -31,14 +31,14 @@
     "rest .arrivals-section": {
       "w": 3840,
       "h": 1052,
-      "digest": "2ba5e3e0",
+      "digest": "27344681",
       "peakL": 0.9702,
-      "atPeak": 14016
+      "atPeak": 14720
     },
     "rest .markets": {
       "w": 3840,
       "h": 524,
-      "digest": "0f55c2dd",
+      "digest": "aed110f8",
       "peakL": 0.9702,
       "atPeak": 23566
     },
@@ -76,9 +76,9 @@
     "rest .footer": {
       "w": 5600,
       "h": 596,
-      "digest": "2b663d71",
+      "digest": "9978fe6c",
       "peakL": 0.709,
-      "atPeak": 9147
+      "atPeak": 9289
     },
     "hover .dock__item": {
       "w": 224,
@@ -104,9 +104,9 @@
     "hover .arrivals__card": {
       "w": 480,
       "h": 920,
-      "digest": "3bb019bf",
+      "digest": "23ee80a8",
       "peakL": 0.9702,
-      "atPeak": 2293
+      "atPeak": 2475
     },
     "hover .stocks__card": {
       "w": 596,
@@ -125,9 +125,9 @@
     "hover .footer__top": {
       "w": 436,
       "h": 68,
-      "digest": "d6a67ccd",
+      "digest": "70d36e6a",
       "peakL": 0.9702,
-      "atPeak": 2586
+      "atPeak": 2599
     },
     "hover .settings-trigger": {
       "w": 168,
@@ -170,7 +170,7 @@
     "panel .settings-panel": {
       "w": 1360,
       "h": 2004,
-      "digest": "cd4bf379",
+      "digest": "ceac768f",
       "peakL": 1,
       "atPeak": 6801
     },
@@ -198,9 +198,9 @@
     "panel .settings__version": {
       "w": 1352,
       "h": 232,
-      "digest": "7f742ead",
+      "digest": "195c8483",
       "peakL": 0.709,
-      "atPeak": 3168
+      "atPeak": 3284
     },
     "customizer .customizer": {
       "w": 1440,
@@ -476,14 +476,14 @@
     "rest .arrivals-section": {
       "w": 3840,
       "h": 1052,
-      "digest": "3930d691",
+      "digest": "2b02fcab",
       "peakL": 0.9702,
-      "atPeak": 14016
+      "atPeak": 14720
     },
     "rest .markets": {
       "w": 3840,
       "h": 524,
-      "digest": "763dcfe4",
+      "digest": "7e466c80",
       "peakL": 0.9702,
       "atPeak": 23566
     },
@@ -521,9 +521,9 @@
     "rest .footer": {
       "w": 5600,
       "h": 596,
-      "digest": "99750fe9",
+      "digest": "05efb1d2",
       "peakL": 0.709,
-      "atPeak": 9147
+      "atPeak": 9289
     }
   },
   "index-pink-w1400": {
@@ -558,14 +558,14 @@
     "rest .arrivals-section": {
       "w": 3840,
       "h": 1052,
-      "digest": "1c0b37d0",
+      "digest": "8fbee538",
       "peakL": 0.9702,
-      "atPeak": 14016
+      "atPeak": 14720
     },
     "rest .markets": {
       "w": 3840,
       "h": 524,
-      "digest": "a7d4431f",
+      "digest": "7031afea",
       "peakL": 0.9702,
       "atPeak": 23566
     },
@@ -603,9 +603,9 @@
     "rest .footer": {
       "w": 5600,
       "h": 596,
-      "digest": "016bc556",
+      "digest": "5a668049",
       "peakL": 0.709,
-      "atPeak": 9147
+      "atPeak": 9289
     }
   },
   "index-green-w1400": {
@@ -640,14 +640,14 @@
     "rest .arrivals-section": {
       "w": 3840,
       "h": 1052,
-      "digest": "12fa1a92",
+      "digest": "224a0ba1",
       "peakL": 0.9702,
-      "atPeak": 14016
+      "atPeak": 14720
     },
     "rest .markets": {
       "w": 3840,
       "h": 524,
-      "digest": "4917f826",
+      "digest": "8acd0b98",
       "peakL": 0.9702,
       "atPeak": 23566
     },
@@ -685,9 +685,9 @@
     "rest .footer": {
       "w": 5600,
       "h": 596,
-      "digest": "0ff805a8",
+      "digest": "701368f2",
       "peakL": 0.709,
-      "atPeak": 9147
+      "atPeak": 9289
     }
   },
   "index-violet-w640": {
@@ -722,14 +722,14 @@
     "rest .arrivals-section": {
       "w": 2304,
       "h": 1052,
-      "digest": "f378b258",
+      "digest": "2a2843ab",
       "peakL": 0.9702,
-      "atPeak": 10478
+      "atPeak": 11087
     },
     "rest .markets": {
       "w": 2304,
       "h": 984,
-      "digest": "a983253d",
+      "digest": "f49042d2",
       "peakL": 0.9702,
       "atPeak": 23596
     },
@@ -767,9 +767,9 @@
     "rest .footer": {
       "w": 2560,
       "h": 596,
-      "digest": "141911e8",
+      "digest": "79ab6037",
       "peakL": 0.709,
-      "atPeak": 9147
+      "atPeak": 9289
     }
   },
   "index-violet-w480": {
@@ -804,14 +804,14 @@
     "rest .arrivals-section": {
       "w": 1664,
       "h": 1052,
-      "digest": "ffd7eb9a",
+      "digest": "0a8fd409",
       "peakL": 0.9702,
-      "atPeak": 6969
+      "atPeak": 7271
     },
     "rest .markets": {
       "w": 1664,
       "h": 1444,
-      "digest": "fc15c8eb",
+      "digest": "c37bb75f",
       "peakL": 0.9702,
       "atPeak": 23580
     },
@@ -845,9 +845,9 @@
     "rest .footer": {
       "w": 1920,
       "h": 592,
-      "digest": "d699463b",
+      "digest": "7f6f7a19",
       "peakL": 0.709,
-      "atPeak": 9147
+      "atPeak": 9289
     }
   },
   "index-violet-w400": {
@@ -882,14 +882,14 @@
     "rest .arrivals-section": {
       "w": 1472,
       "h": 1052,
-      "digest": "ebdff2da",
+      "digest": "61185f6c",
       "peakL": 0.9702,
-      "atPeak": 6704
+      "atPeak": 7006
     },
     "rest .markets": {
       "w": 1472,
       "h": 1444,
-      "digest": "4ea81fc9",
+      "digest": "47b6747e",
       "peakL": 0.9702,
       "atPeak": 23580
     },
@@ -923,9 +923,9 @@
     "rest .footer": {
       "w": 1600,
       "h": 596,
-      "digest": "930c38da",
+      "digest": "258667c1",
       "peakL": 0.709,
-      "atPeak": 9147
+      "atPeak": 9289
     }
   },
   "index-violet-w1400-guest": {
@@ -960,14 +960,14 @@
     "rest .arrivals-section": {
       "w": 3840,
       "h": 1052,
-      "digest": "06c1edbb",
+      "digest": "897c8a96",
       "peakL": 0.9702,
-      "atPeak": 14016
+      "atPeak": 14720
     },
     "rest .markets": {
       "w": 3840,
       "h": 524,
-      "digest": "9c4caf5d",
+      "digest": "0feb0cb4",
       "peakL": 0.9702,
       "atPeak": 23566
     },
@@ -1001,9 +1001,9 @@
     "rest .footer": {
       "w": 5600,
       "h": 592,
-      "digest": "d270865f",
+      "digest": "d7798ba6",
       "peakL": 0.709,
-      "atPeak": 9147
+      "atPeak": 9289
     }
   },
   "notes-violet-w1400": {

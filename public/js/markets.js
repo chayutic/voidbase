@@ -337,7 +337,7 @@ function createChart(container, data) {
   return new uPlot(options, data, container);
 }
 
-// ── Expand toggle ───────────────────────────────────────────────
+// ── Expand toggle ──────────────────────────────────────────────
 //  Same preference as the Control Panel's Expanded Charts checkbox — this
 //  button just gives it a one-click home next to the range it affects.
 function paintExpandToggle() {

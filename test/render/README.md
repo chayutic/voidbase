@@ -197,8 +197,8 @@ Not a full cross product. Verified precondition: **no stylesheet contains a
 are orthogonal and crossing them measures nothing extra. Themes sweep at one
 width, widths sweep at one theme — 13 configs rather than 384.
 
-- **Themes:** violet, blue, pink, green. Black, white and beige are out of
-  scope while the light themes are WIP.
+- **Themes:** violet, blue, pink, green. Black and white are out of
+  scope while the light theme is WIP.
 - **Widths:** 1400 / 640 / 480 / 400 on the dashboard, one just below each
   of `style.css`'s 650, 500 and 425 breakpoints. Notes has a single
   breakpoint at 700, so it runs 1400 and 600.

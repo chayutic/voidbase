@@ -158,7 +158,7 @@ export const hideMarkers = ViewPlugin.fromClass(
  * so a heading looks identical while editing and once rendered. Every
  * line-height stays >= 1.5 to leave room for Thai vowel and tone marks.
  */
-export const markdownHighlight = HighlightStyle.define([
+const markdownHighlight = HighlightStyle.define([
   { tag: tags.heading1, fontSize: "var(--text-title)", fontWeight: "600", lineHeight: "1.5" },
   { tag: tags.heading2, fontSize: "var(--text-headline)", fontWeight: "600", lineHeight: "1.5" },
   { tag: tags.heading3, fontSize: "var(--text-subhead)", fontWeight: "600", lineHeight: "1.5" },
@@ -185,7 +185,7 @@ export const markdownHighlight = HighlightStyle.define([
 ]);
 
 /** Editor chrome. Colours all resolve against theme.css tokens. */
-export const editorTheme = EditorView.theme({
+const editorTheme = EditorView.theme({
   "&": {
     height: "100%",
     fontSize: "var(--text-body)",

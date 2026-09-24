@@ -19,12 +19,11 @@ const themeNames = {
   green:  "Jade Dragon",
   black:  "Obsidian Black",
   white:  "Spirit White",
-  beige:  "Parchment Beige",
 };
 
 const swatches = document.querySelectorAll(".theme__swatch[data-theme]");
 
-export function applyTheme(theme, notify = false) {
+function applyTheme(theme, notify = false) {
   document.documentElement.dataset.theme = theme;
   swatches.forEach(s => s.classList.toggle("active", s.dataset.theme === theme));
   store.set(KEYS.theme, theme);

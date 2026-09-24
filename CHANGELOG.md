@@ -1,5 +1,21 @@
 # Changelog — Voidbase
 
+## v0.7.13 — 2026-09-25
+*The rules, as a script, and one theme fewer*
+
+### Added
+- **`npm run lint:conventions`.** Every rule in `CLAUDE.md` that grep can answer, as a check that prints `file:line` and exits 1: no `localStorage` outside `store.js` (the inline `<head>` script excepted, and only while it reads `KEYS.theme`); `KEYS` matched against actual use in both directions; no `data-theme` selector outside `theme.css`; no hard-coded colour outside it; no `prefers-reduced-motion`; no `-webkit-` twin; the three banner formats; every theme present in `theme.css`, on both swatch rows and in `settings.css`, with the swatch hue matching `--theme-hue`; no export that nothing imports. Each check was made to fail on a planted copy of the tree before its pass was trusted, and three of them were blind the first time
+
+### Removed
+- **The beige theme.** Unloved and no longer being worked on. Its swatch had never been given a colour anyway, so it painted the browser's default button grey and looked exactly like White. A saved `beige` falls back to the default palette until another swatch is clicked. The Light-Theme Debt Rule now covers White alone
+
+### Fixed
+- **Green's swatch hue was 169.32; the theme's is 170.** Swatch lightness and chroma are tuned by eye on purpose, the hue is not. The lint holds it now
+- **`@lezer/markdown` was never declared.** The CodeMirror build imports it, and it only resolved because `@codemirror/lang-markdown` — the package the build deliberately avoids, and imports nothing from — pulled it in. Swapped one for the other. `cm6.min.js` rebuilds byte-identical, and `lang-html`, `lang-css` and `lang-javascript` are out of `node_modules`
+- **`npm audit` is clean.** Express 4.22.1 → 4.22.3 clears `path-to-regexp`, `body-parser` and `qs`. None was reachable — no route has two params, both body limits are valid, nothing calls `qs.stringify` — but that depended on it staying so
+- **Six exports nothing imported** lost the keyword: `applyTheme`, `select`, `continueList`, `idToDate`, `markdownHighlight`, `editorTheme`. Each was only ever called from its own file
+- **The render baseline had not been updated since v0.7.11.** v0.7.12's version string, range-row button and `.arrivals__title` letter-spacing accounted for 27 of 28 probe diffs, each checked against a clean checkout of v0.7.12 before re-baselining; the 28th is the swatch row above
+
 ## v0.7.12 — 2026-09-08
 *A second way into Expanded Charts*
 

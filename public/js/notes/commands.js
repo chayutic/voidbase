@@ -76,7 +76,7 @@ const LIST_RE = /^(\s*)([-*+]|\d+[.)])(\s+)(\[[ xX]\]\s+)?/;
  * Returns false when the cursor is not in a list so the default Enter
  * handler takes over.
  */
-export function continueList(view) {
+function continueList(view) {
   const { state } = view;
   const range = state.selection.main;
   if (!range.empty) return false;

@@ -283,41 +283,6 @@ body::before {
     radial-gradient(ellipse 50% 45% at 25% 80%, oklch(0.72 0 0 / 0.20), transparent 60%);
 }
 
-/* ── Beige theme (WIP) ── */
-:root[data-theme="beige"] body {
-  --theme-hue:      0;
-  --bg-primary:     oklch(0.96 0.04 100);
-  --bg-secondary:   oklch(0.91 0.04 100);
-  --text-primary:   oklch(0.20 0.04 125);
-  --text-secondary: oklch(0.50 0.04 125);
-  /* Primary is near-black here; the header reads better one step down. */
-  --header-text:    var(--text-secondary);
-  --accent:         oklch(0.50 0.04 125);
-  --accent-bright:  oklch(0.30 0.04 125);
-  --accent-muted:   oklch(0.60 0.04 100);
-  --surface-glass:      oklch(0 0 0 / 0.04);
-  --surface-glass-hover:oklch(0 0 0 / 0.07);
-  --border-color:       oklch(0 0 0 / 0.10);
-  --border-hover:       oklch(0 0 0 / 0.30);
-  /* Light theme: selection sits behind dark text. */
-  --selection-bg:      oklch(0.80 0.05 95 / 0.8);
-  --selection-bg-blur: oklch(0.80 0.05 95 / 0.45);
-  --panel-bg:       oklch(0.90 0.04 100);
-  --panel-bg-hover: oklch(0.86 0.04 100);
-  --trigger-bg:     oklch(0.89 0.04 100);
-  --tooltip-bg:     oklch(0.88 0.04 100);
-  background:
-    radial-gradient(ellipse 55% 40% at 18% 25%, oklch(0.80 0.04 100 / 0.40), transparent 65%),
-    radial-gradient(ellipse 65% 55% at 80% 72%, oklch(0.78 0.04 100 / 0.35), transparent 65%),
-    linear-gradient(150deg, oklch(0.97 0 0) 0%, oklch(0.92 0.04 100 ) 100%);
-}
-
-:root[data-theme="beige"] body::before {
-  background:
-    radial-gradient(ellipse 70% 60% at 75% 20%, oklch(0.75 0.04 100 / 0.25), transparent 60%),
-    radial-gradient(ellipse 50% 45% at 25% 80%, oklch(0.72 0.04 100 / 0.20), transparent 60%);
-}
-
 } /* @layer tokens */
 
 /* Keyframes stay unlayered. Layers order declarations, and @keyframes
