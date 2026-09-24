@@ -95,6 +95,12 @@ function initMarketsWidgets() {
       store.set(KEYS.expandedCharts, expanded.checked);
       announce(KEYS.expandedCharts);
     });
+    // markets.js's inline chart toggle writes the same key directly.
+    document.addEventListener(SETTINGS_CHANGE, (e) => {
+      if (e.detail?.key === KEYS.expandedCharts) {
+        expanded.checked = store.bool(KEYS.expandedCharts, false);
+      }
+    });
   }
 
   const countEl = document.getElementById("tickerCount");

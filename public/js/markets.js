@@ -13,7 +13,13 @@ import { EDIT }             from "./icons.js";
 import { beginInlineEdit }  from "./inline-edit.js";
 
 const rangeButtons    = document.querySelectorAll(".stocks__range");
+const expandToggleBtn = document.getElementById("chartsExpandToggle");
 const stocksGrid      = document.getElementById("stocksGrid");
+
+// Material "fullscreen" / "fullscreen_exit". The button shows the icon for
+// the current state — collapse glyph while expanded, expand glyph while not.
+const EXPAND_ICON   = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>`;
+const COLLAPSE_ICON  = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/></svg>`;
 const DEFAULT_SYMBOLS  = ["AAPL", "NVDA", "QQQ", "BTC-USD", "GLD", "^DJI"];
 const REFRESH_MS       = 60000;
 
@@ -331,6 +337,26 @@ function createChart(container, data) {
   return new uPlot(options, data, container);
 }
 
+// ── Expand toggle ───────────────────────────────────────────────
+//  Same preference as the Control Panel's Expanded Charts checkbox — this
+//  button just gives it a one-click home next to the range it affects.
+function paintExpandToggle() {
+  if (!expandToggleBtn) return;
+  expandToggleBtn.innerHTML = expandedCharts ? COLLAPSE_ICON : EXPAND_ICON;
+  const label = expandedCharts ? "Collapse charts" : "Expand charts";
+  expandToggleBtn.setAttribute("aria-label", label);
+  expandToggleBtn.title = label;
+}
+
+function initExpandToggle() {
+  if (!expandToggleBtn) return;
+  paintExpandToggle();
+  expandToggleBtn.addEventListener("click", () => {
+    store.set(KEYS.expandedCharts, !expandedCharts);
+    document.dispatchEvent(new CustomEvent(SETTINGS_CHANGE, { detail: { key: KEYS.expandedCharts } }));
+  });
+}
+
 // ── Range selector ─────────────────────────────────────────────
 function initRangeButtons() {
   rangeButtons.forEach(btn => {
@@ -354,12 +380,14 @@ export function initMarkets() {
   if (!stocksGrid) return;
 
   initRangeButtons();
+  initExpandToggle();
 
   document.addEventListener(SETTINGS_CHANGE, (e) => {
     const key = e.detail?.key;
     if (key !== KEYS.expandedCharts && key !== KEYS.tickerCount) return;
     expandedCharts = store.bool(KEYS.expandedCharts, false);
     tickerCount    = store.int(KEYS.tickerCount, TICKER_MAX);
+    paintExpandToggle();
     renderGrid();
     // Expanded Charts changes chartHeight(), which is read once at
     // construction; surviving cards have to rebuild, not refresh.

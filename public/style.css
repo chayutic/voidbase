@@ -976,7 +976,6 @@ input:checked + .search__toggle-track::before {
   color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
-  letter-spacing: var(--track-normal);
   mask-image: linear-gradient(to right, black 60%, transparent 100%);
 }
 
@@ -1089,6 +1088,7 @@ input:checked + .search__toggle-track::before {
 
 .stocks__ranges {
   display: flex;
+  align-items: center;
   gap: 0.4rem;
 }
 
@@ -1114,6 +1114,19 @@ input:checked + .search__toggle-track::before {
   text-underline-offset: 3px;
   text-decoration-color: var(--accent);
 }
+
+.stocks__expand-toggle {
+  all: unset;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: color var(--transition-normal);
+}
+
+.stocks__expand-toggle svg { width: 1.25rem; height: 1.25rem; }
+.stocks__expand-toggle:hover { color: var(--text-primary); }
 
 /* 140px min fits ~6 cards wide */
 .stocks__grid {

@@ -1,5 +1,11 @@
 # Changelog — Voidbase
 
+## v0.7.12 — 2026-09-08
+*A second way into Expanded Charts*
+
+### Added
+- **A collapse/expand button on the Markets range row**, right after 1Y. It's the same `expandedCharts` preference the Control Panel checkbox already owned — one click here instead of a trip to Settings. The icon shows the action available from the current state (collapse glyph while expanded, expand glyph while not), and the checkbox stays in sync if you flip it from either place
+
 ## v0.7.11 — 2026-09-07
 *A table that measures itself, and a chart that stopped rebuilding every minute*
 
