@@ -1,5 +1,26 @@
 # Changelog — Voidbase
 
+## v0.7.18 — 2026-09-25
+*Everything is a 500*
+
+### Added
+- **Game Deals holds 20 games.** At 20 the `+` goes and a "List full" label takes its place, set like the Markets range toggles. It comes back when a game is removed. The server refuses a longer price list, so a second tab can't sneak a 21st in either
+- **The server remembers upstream answers for a while**: air quality 5 minutes, Yahoo a minute, Steam and ITAD search an hour. Every proxy route is public, and until now anyone asking the same question twice spent the quota twice. Failures are never remembered
+- **Pages carry `nosniff`, `Referrer-Policy: same-origin` and `frame-ancestors 'none'`.** `/notes` could be framed by anyone. `X-Powered-By: Express` is gone
+
+### Changed
+- **Proxy failures say what failed.** An upstream that times out is a 504, one that answers wrong is a 502, and a symbol Yahoo doesn't know is a 404 rather than a 200 wrapping Yahoo's own error. A 500 now means the bug is ours
+- **A game search asks ITAD and Steam at the same time.** It used to ask them in turn, so a slow Steam could hold a search for 20 seconds. It still fails if either does, since a result without a Steam appid would pin a game that never gets a price
+- **Every proxy parameter is checked before it goes anywhere.** Symbols, appids, Jellyfin ids and image tags have to look like what they are, `range` has to be one of the five, and a repeated `q`, `range` or `tag` is a 400 rather than whatever Express made of it
+- **The image is `node:24-alpine`, installed with `npm ci --omit=dev`, and runs under `init`.** Node 18 went end of life in April 2025 and dev has been on 24 for a while. Without an init, node as PID 1 ignored `docker stop`, so every redeploy waited out the ten-second grace period and ended in a SIGKILL
+
+### Fixed
+- **A revoked ITAD key looked like an empty search.** ITAD's 403 came back as `200 []`, which read "No results found.", and the price lookup quietly dropped every discount. Any non-OK upstream answer is an error now
+- **`/jellyfin/image/..` walked out of `/Items/{id}` with the API key attached.** `encodeURIComponent` leaves `..` alone and the URL parser then resolves it. Jellyfin 404'd, but the comment above that line said encoding made it impossible
+- **`range=constructor` sent Yahoo a stringified function.** The range lookup fell through to `Object.prototype`
+- **Steam's review count went into the deals markup unchecked.** Steam has only ever sent a number, but the comment vouching for that markup was wrong. It is a number or it is nothing now
+- **The chart request didn't encode its ticker symbol.** It does now, as the client half of the symbol check above
+
 ## v0.7.17 — 2026-09-25
 *A preset nobody could see*
 

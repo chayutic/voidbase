@@ -623,6 +623,18 @@ input:checked + .search__toggle-track::before {
 
 .deals__add.active svg { transform: rotate(45deg); }
 
+/* The display above outranks the UA's [hidden] rule. */
+.deals__add[hidden] { display: none; }
+
+.deals__full {
+  margin-left: var(--gap);
+  font-size: 0.72rem;
+  font-family: var(--font-title);
+  font-weight: 700;
+  letter-spacing: var(--track-normal);
+  color: var(--text-secondary);
+}
+
 .deals__add-row {
   display: none;
   align-items: center;

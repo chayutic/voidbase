@@ -76,9 +76,9 @@
     "rest .footer": {
       "w": 5600,
       "h": 596,
-      "digest": "6706cc13",
+      "digest": "7933ad2d",
       "peakL": 0.709,
-      "atPeak": 9204
+      "atPeak": 9332
     },
     "hover .dock__item": {
       "w": 224,
@@ -125,7 +125,7 @@
     "hover .footer__top": {
       "w": 436,
       "h": 68,
-      "digest": "0adfce90",
+      "digest": "5c1aff5e",
       "peakL": 0.9702,
       "atPeak": 2593
     },
@@ -170,7 +170,7 @@
     "panel .settings-panel": {
       "w": 1360,
       "h": 2004,
-      "digest": "b38ac8d5",
+      "digest": "d14280a2",
       "peakL": 1,
       "atPeak": 6801
     },
@@ -198,9 +198,9 @@
     "panel .settings__version": {
       "w": 1352,
       "h": 232,
-      "digest": "ecd5b055",
+      "digest": "9ab0451a",
       "peakL": 0.709,
-      "atPeak": 3209
+      "atPeak": 3347
     },
     "customizer .customizer": {
       "w": 1440,
@@ -521,9 +521,9 @@
     "rest .footer": {
       "w": 5600,
       "h": 596,
-      "digest": "020af0c9",
+      "digest": "c158153d",
       "peakL": 0.709,
-      "atPeak": 9204
+      "atPeak": 9332
     }
   },
   "index-pink-w1400": {
@@ -603,9 +603,9 @@
     "rest .footer": {
       "w": 5600,
       "h": 596,
-      "digest": "4d02fbcf",
+      "digest": "51ad6987",
       "peakL": 0.709,
-      "atPeak": 9204
+      "atPeak": 9332
     }
   },
   "index-green-w1400": {
@@ -685,9 +685,9 @@
     "rest .footer": {
       "w": 5600,
       "h": 596,
-      "digest": "6e16c19c",
+      "digest": "7536f84d",
       "peakL": 0.709,
-      "atPeak": 9204
+      "atPeak": 9332
     }
   },
   "index-violet-w640": {
@@ -767,9 +767,9 @@
     "rest .footer": {
       "w": 2560,
       "h": 596,
-      "digest": "febae059",
+      "digest": "5d238785",
       "peakL": 0.709,
-      "atPeak": 9204
+      "atPeak": 9332
     }
   },
   "index-violet-w480": {
@@ -845,9 +845,9 @@
     "rest .footer": {
       "w": 1920,
       "h": 592,
-      "digest": "ca17f3e7",
+      "digest": "9294d83e",
       "peakL": 0.709,
-      "atPeak": 9204
+      "atPeak": 9332
     }
   },
   "index-violet-w400": {
@@ -923,9 +923,9 @@
     "rest .footer": {
       "w": 1600,
       "h": 596,
-      "digest": "7245f568",
+      "digest": "0a73445a",
       "peakL": 0.709,
-      "atPeak": 9204
+      "atPeak": 9332
     }
   },
   "index-violet-w1400-guest": {
@@ -1001,9 +1001,9 @@
     "rest .footer": {
       "w": 5600,
       "h": 592,
-      "digest": "87ccc37e",
+      "digest": "a0fa9a36",
       "peakL": 0.709,
-      "atPeak": 9204
+      "atPeak": 9332
     }
   },
   "notes-violet-w1400": {

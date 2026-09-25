@@ -5,7 +5,7 @@
 # runtime needs and says nothing about anything else on disk.
 #
 # node_modules is deliberately absent: the image installs its own with
-# `npm install --production`, so the host copy (which carries esbuild
+# `npm ci --omit=dev`, so the host copy (which carries esbuild
 # and the CodeMirror sources) must never be copied over it.
 
 *

@@ -9,6 +9,16 @@ const notesStore  = require("./lib/notes-store");
 const app = express();
 const PORT = 3000;
 
+app.disable("x-powered-by");
+app.use((req, res, next) => {
+  res.set({
+    "X-Content-Type-Options":  "nosniff",
+    "Referrer-Policy":         "same-origin",
+    "Content-Security-Policy": "frame-ancestors 'none'",
+  });
+  next();
+});
+
 // ── IsThereAnyDeal API key ─────────────────────────────────────
 const ITAD_KEY = process.env.ITAD_KEY;
 
@@ -19,6 +29,7 @@ const AQ_CITY  = process.env.AQ_CITY || "Bangkok";
 // ── Jellyfin ───────────────────────────────────────────────────
 const JELLYFIN_URL = process.env.JELLYFIN_URL; // e.g. http://192.168.1.41:8096
 const JELLYFIN_KEY = process.env.JELLYFIN_KEY; // API key: Jellyfin Dashboard → API Keys
+const JELLYFIN_ID_RE = /^[0-9a-f]{32}$/;       // item ids and image tags alike
 
 // ── Upstream fetching ──────────────────────────────────────────
 
@@ -38,6 +49,55 @@ function fetchUpstream(url, options = {}) {
     headers: { "Accept": "application/json", "User-Agent": UA, ...options.headers },
     signal:  AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
   });
+}
+
+class UpstreamError extends Error {
+  constructor(status, message, upstreamStatus = null) {
+    super(message);
+    this.status         = status;
+    this.upstreamStatus = upstreamStatus;
+  }
+}
+
+// Everything that can go wrong on the upstream's side, body read
+// included, leaves here as an UpstreamError: 504 for the deadline, 502
+// for the rest. Anything else a route throws is its own bug, and stays 500.
+async function upstream(url, options, read) {
+  let resp;
+  try {
+    resp = await fetchUpstream(url, options);
+    if (resp.ok) return await read(resp);
+  } catch (err) {
+    throw new UpstreamError(err.name === "TimeoutError" ? 504 : 502, err.message);
+  }
+  throw new UpstreamError(502, `upstream answered ${resp.status}`, resp.status);
+}
+
+const fetchJSON = (url, options) => upstream(url, options, resp => resp.json());
+
+// Every proxy route is public, so repeated identical requests would each
+// spend the upstream's quota. Only successes are kept: a cached failure
+// would outlive a transient 502 by the full TTL.
+const MEMO_MAX = 500;
+const HOUR_MS  = 60 * 60_000;
+const memo     = new Map();
+
+async function fetchJSONMemo(url, ttlMs, isGood = () => true) {
+  const hit = memo.get(url);
+  if (hit && hit.expires > Date.now()) return hit.data;
+
+  const data = await fetchJSON(url);
+  if (isGood(data)) {
+    memo.delete(url);
+    if (memo.size >= MEMO_MAX) memo.delete(memo.keys().next().value);
+    memo.set(url, { data, expires: Date.now() + ttlMs });
+  }
+  return data;
+}
+
+function sendFailure(res, err, label, body) {
+  console.error(`${label}:`, err.message);
+  res.status(err instanceof UpstreamError ? err.status : 500).json(body);
 }
 
 // ── Notes auth ─────────────────────────────────────────────────
@@ -106,10 +166,9 @@ app.get("/air/current", async (req, res) => {
 
   try {
     const url  = `https://api.waqi.info/feed/${encodeURIComponent(AQ_CITY)}/?token=${encodeURIComponent(AQ_TOKEN)}`;
-    const resp = await fetchUpstream(url);
-    const data = await resp.json();
+    const data = await fetchJSONMemo(url, 5 * 60_000, d => d?.status === "ok");
 
-    if (data.status !== "ok") return res.status(502).json({ error: "Upstream error" });
+    if (data?.status !== "ok") return res.status(502).json({ error: "Upstream error" });
 
     res.set("Cache-Control", "public, max-age=300"); // AQI updates hourly at best
     res.json({
@@ -117,8 +176,7 @@ app.get("/air/current", async (req, res) => {
       pm25: data.data?.iaqi?.pm25?.v ?? null,
     });
   } catch (err) {
-    console.error("Air quality error:", err.message);
-    res.status(500).json({ error: "Air quality fetch failed" });
+    sendFailure(res, err, "Air quality error", { error: "Air quality fetch failed" });
   }
 });
 
@@ -131,21 +189,28 @@ const RANGE_MAP = {
   "1y":  "1wk",
 };
 
+// Covers indices (^DJI), crypto (BTC-USD), share classes (BRK.B) and
+// forex (THB=X).
+const SYMBOL_RE = /^[A-Za-z0-9.^=-]{1,20}$/;
+
 app.get("/api/:symbol", async (req, res) => {
   const { symbol } = req.params;
-  const range    = RANGE_MAP[req.query.range] ? req.query.range : "1mo";
+  const asked      = req.query.range ?? "1mo";
+  if (!SYMBOL_RE.test(symbol) || typeof asked !== "string") {
+    return res.status(400).json({ error: "Bad request" });
+  }
+
+  const range    = Object.hasOwn(RANGE_MAP, asked) ? asked : "1mo";
   const interval = RANGE_MAP[range];
   // Encoded: the symbol is whatever the client typed into the ticker
   // edit field, and it is being spliced into an upstream URL path.
   const url      = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?range=${range}&interval=${interval}&includePrePost=false`;
 
   try {
-    const response = await fetchUpstream(url);
-    const data     = await response.json();
-    res.json(data);
+    res.json(await fetchJSONMemo(url, 60_000));
   } catch (err) {
-    console.error(`Fetch failed for ${symbol}:`, err.message);
-    res.status(500).json({ error: "Fetch failed" });
+    if (err.upstreamStatus === 404) return res.status(404).json({ error: "Unknown symbol" });
+    sendFailure(res, err, `Fetch failed for ${symbol}`, { error: "Fetch failed" });
   }
 });
 
@@ -155,17 +220,18 @@ app.get("/itad/search", async (req, res) => {
   if (!ITAD_KEY) return res.status(503).json({ error: "Game deals not configured" });
 
   const q = req.query.q;
-  if (!q) return res.status(400).json({ error: "Missing query" });
+  if (!q || typeof q !== "string") return res.status(400).json({ error: "Missing query" });
 
   try {
+    // Steam is not optional: deals.js records appid once, at pin time,
+    // so a result without one would pin a game that never gets a price.
     const itadUrl  = `https://api.isthereanydeal.com/games/search/v1?key=${encodeURIComponent(ITAD_KEY)}&title=${encodeURIComponent(q)}&results=6`;
-    const itadResp = await fetchUpstream(itadUrl);
-    const itadData = await itadResp.json();
-    const games    = Array.isArray(itadData) ? itadData.slice(0, 6) : [];
-
-    const steamUrl  = `https://store.steampowered.com/api/storesearch/?term=${encodeURIComponent(q)}&l=english&cc=TH`;
-    const steamResp = await fetchUpstream(steamUrl);
-    const steamData = await steamResp.json();
+    const steamUrl = `https://store.steampowered.com/api/storesearch/?term=${encodeURIComponent(q)}&l=english&cc=TH`;
+    const [itadData, steamData] = await Promise.all([
+      fetchJSONMemo(itadUrl,  HOUR_MS),
+      fetchJSONMemo(steamUrl, HOUR_MS),
+    ]);
+    const games = Array.isArray(itadData) ? itadData.slice(0, 6) : [];
 
     const steamMap = new Map();
     (steamData?.items || []).forEach(item => {
@@ -187,28 +253,34 @@ app.get("/itad/search", async (req, res) => {
 
     res.json(results);
   } catch (err) {
-    console.error("ITAD search error:", err.message);
-    res.status(500).json({ error: "Search failed" });
+    sendFailure(res, err, "ITAD search error", { error: "Search failed" });
   }
 });
 
 // ── ITAD: discount % and 90D low % for pinned games ────────────
 // Expects POST body: { ids: ["id1", "id2", ...] }
 // Returns: [{ id, discount, low90discount }, ...]
+
+// deals.js stops offering + at the same count. Raise both together, or
+// the client can pin a list this route refuses outright.
+const MAX_PINS = 20;
+
 app.post("/itad/prices", async (req, res) => {
   if (!ITAD_KEY) return res.status(503).json({ error: "Game deals not configured" });
 
   const ids = req.body?.ids;
   if (!Array.isArray(ids) || !ids.length) return res.status(400).json({ error: "Missing ids" });
+  if (ids.length > MAX_PINS || !ids.every(id => typeof id === "string")) {
+    return res.status(400).json({ error: "Bad ids" });
+  }
 
   try {
-    const url = `https://api.isthereanydeal.com/games/prices/v3?key=${encodeURIComponent(ITAD_KEY)}&country=US&shops=61`;
-    const response = await fetchUpstream(url, {
+    const url  = `https://api.isthereanydeal.com/games/prices/v3?key=${encodeURIComponent(ITAD_KEY)}&country=US&shops=61`;
+    const data = await fetchJSON(url, {
       method:  "POST",
       headers: { "Content-Type": "application/json" },
       body:    JSON.stringify(ids),
     });
-    const data = await response.json();
 
     const results = (Array.isArray(data) ? data : []).map(item => {
       const best        = item.deals?.[0];
@@ -227,8 +299,7 @@ app.post("/itad/prices", async (req, res) => {
 
     res.json(results);
   } catch (err) {
-    console.error("ITAD prices error:", err.message);
-    res.status(500).json({ error: "Price fetch failed" });
+    sendFailure(res, err, "ITAD prices error", { error: "Price fetch failed" });
   }
 });
 
@@ -236,16 +307,13 @@ app.post("/itad/prices", async (req, res) => {
 // Returns: { appid, price, currency, reviewDesc, reviewCount }
 app.get("/steam/price/:appid", async (req, res) => {
   const { appid } = req.params;
-  const id = encodeURIComponent(appid);
+  if (!/^\d{1,10}$/.test(appid)) return res.status(400).json({ error: "Bad appid" });
 
   try {
-    const [detailsResp, reviewsResp] = await Promise.all([
-      fetchUpstream(`https://store.steampowered.com/api/appdetails?appids=${id}&cc=th&filters=price_overview`),
-      fetchUpstream(`https://store.steampowered.com/appreviews/${id}?json=1&language=all&purchase_type=all&num_per_page=0`),
+    const [detailsData, reviewsData] = await Promise.all([
+      fetchJSONMemo(`https://store.steampowered.com/api/appdetails?appids=${appid}&cc=th&filters=price_overview`, HOUR_MS),
+      fetchJSONMemo(`https://store.steampowered.com/appreviews/${appid}?json=1&language=all&purchase_type=all&num_per_page=0`, HOUR_MS),
     ]);
-
-    const detailsData = await detailsResp.json();
-    const reviewsData = await reviewsResp.json();
 
     const appData = detailsData?.[appid];
     if (!appData?.success) return res.json({ appid, price: null, currency: "THB", reviewDesc: null, reviewCount: null });
@@ -258,11 +326,10 @@ app.get("/steam/price/:appid", async (req, res) => {
       price:       overview ? overview.final / 100 : null,
       currency:    overview?.currency ?? "THB",
       reviewDesc:  reviewScore?.review_score_desc ?? null,
-      reviewCount: reviewScore?.total_reviews      ?? null,
+      reviewCount: Number.isFinite(reviewScore?.total_reviews) ? reviewScore.total_reviews : null,
     });
   } catch (err) {
-    console.error("Steam price error:", err.message);
-    res.status(500).json({ error: "Steam price fetch failed" });
+    sendFailure(res, err, "Steam price error", { error: "Steam price fetch failed" });
   }
 });
 
@@ -305,13 +372,10 @@ app.get("/jellyfin/recent", async (req, res) => {
       apikey:           JELLYFIN_KEY,
     });
 
-    const [moviesResp, episodesResp] = await Promise.all([
-      fetchUpstream(moviesUrl),
-      fetchUpstream(episodesUrl),
+    const [moviesData, episodesData] = await Promise.all([
+      fetchJSON(moviesUrl),
+      fetchJSON(episodesUrl),
     ]);
-
-    const moviesData   = await moviesResp.json();
-    const episodesData = await episodesResp.json();
 
     const movies = (moviesData.Items || []).slice(0, MOVIE_SLOTS).map(item => ({
       id:         item.Id,
@@ -347,8 +411,7 @@ app.get("/jellyfin/recent", async (req, res) => {
 
     res.json([...movies, ...episodes]);
   } catch (err) {
-    console.error("Jellyfin recent error:", err.message);
-    res.status(500).json({ error: "Jellyfin fetch failed" });
+    sendFailure(res, err, "Jellyfin recent error", { error: "Jellyfin fetch failed" });
   }
 });
 
@@ -359,6 +422,8 @@ app.get("/jellyfin/poster/:seriesId", async (req, res) => {
   if (!JELLYFIN_URL || !JELLYFIN_KEY) {
     return res.status(503).json({ error: "Jellyfin not configured" });
   }
+  // arrivals.js falls back to a placeholder on { imageTag: null }, error or not.
+  if (!JELLYFIN_ID_RE.test(req.params.seriesId)) return res.status(400).json({ imageTag: null });
 
   try {
     // The /Items collection filtered by id, not /Items/{id}. The latter
@@ -373,12 +438,10 @@ app.get("/jellyfin/poster/:seriesId", async (req, res) => {
       EnableImageTypes: "Primary",
       apikey:           JELLYFIN_KEY,
     });
-    const resp = await fetchUpstream(url);
-    const data = await resp.json();
+    const data = await fetchJSON(url);
     res.json({ imageTag: data.Items?.[0]?.ImageTags?.Primary ?? null });
   } catch (err) {
-    console.error("Jellyfin poster error:", err.message);
-    res.status(500).json({ imageTag: null });
+    sendFailure(res, err, "Jellyfin poster error", { imageTag: null });
   }
 });
 
@@ -390,33 +453,33 @@ app.get("/jellyfin/image/:itemId", async (req, res) => {
     return res.status(503).end();
   }
 
+  // This route is public while the key it carries is not. Encoding alone
+  // is not enough: `..` survives encodeURIComponent and the URL parser
+  // then resolves it, walking the keyed request out of /Items/{id}.
   const { itemId } = req.params;
   const { tag }    = req.query;
-  if (!tag) return res.status(400).end();
+  if (!JELLYFIN_ID_RE.test(itemId) || typeof tag !== "string" || !JELLYFIN_ID_RE.test(tag)) {
+    return res.status(400).end();
+  }
 
   try {
-    // Both segments are encoded. This route is public and unauthenticated
-    // while the key it carries is not, so an unescaped `/` or `&` here
-    // would reach Jellyfin endpoints this proxy never meant to expose.
-    const url      = `${JELLYFIN_URL}/Items/${encodeURIComponent(itemId)}/Images/Primary?` + new URLSearchParams({
+    const url   = `${JELLYFIN_URL}/Items/${itemId}/Images/Primary?` + new URLSearchParams({
       tag:       tag,
       maxHeight: "400",
       quality:   "90",
       apikey:    JELLYFIN_KEY,
     });
-    const response = await fetchUpstream(url, { headers: { "Accept": "image/*" } });
+    const image = await upstream(url, { headers: { "Accept": "image/*" } }, async resp => ({
+      type: resp.headers.get("content-type") || "image/jpeg",
+      body: Buffer.from(await resp.arrayBuffer()),
+    }));
 
-    if (!response.ok) return res.status(response.status).end();
-
-    const contentType = response.headers.get("content-type") || "image/jpeg";
-    const buffer      = await response.arrayBuffer();
-
-    res.set("Content-Type", contentType);
+    res.set("Content-Type", image.type);
     res.set("Cache-Control", "public, max-age=86400");
-    res.send(Buffer.from(buffer));
+    res.send(image.body);
   } catch (err) {
     console.error("Jellyfin image proxy error:", err.message);
-    res.status(500).end();
+    res.status(err instanceof UpstreamError ? err.status : 500).end();
   }
 });
 

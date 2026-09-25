@@ -203,7 +203,7 @@ const dataCache = new Map();
 
 async function fetchSymbol(symbol) {
   const key      = `${symbol}:${currentRange}`;
-  const response = await fetch(`/api/${symbol}?range=${currentRange}`);
+  const response = await fetch(`/api/${encodeURIComponent(symbol)}?range=${currentRange}`);
   const json     = await response.json();
 
   const result    = json.chart.result[0];

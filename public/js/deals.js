@@ -20,6 +20,9 @@ const FIRE_NEAR_PP      = 10;
 const FIRE_NEAR_PP_DEEP = 15;
 const DEEP_LOW_PCT      = -55;
 
+// server.js refuses a longer /itad/prices list outright. Raise both together.
+const MAX_PINS = 20;
+
 // [{ id, title, appid }, ...]. Goes stale when another tab writes, so
 // every mutation re-reads it from the store first.
 let pinnedGames  = store.json(KEYS.pinnedGames, []);
@@ -28,6 +31,7 @@ const dealsCache  = new Map(); // id → { price, discount, low90, reviewDesc, r
 const dealsList       = document.getElementById("dealsList");
 const dealsAddBtn     = document.getElementById("dealsAdd");
 const dealsAddRow     = document.getElementById("dealsAddRow");
+const dealsFull       = document.getElementById("dealsFull");
 const dealsSearchInput  = document.getElementById("dealsSearchInput");
 const dealsSearchBtn  = document.getElementById("dealsSearchBtn");
 const dealsCancelBtn  = document.getElementById("dealsCancelBtn");
@@ -127,11 +131,13 @@ async function searchGames() {
 function pinGame(id, title, appid) {
   pinnedGames = store.json(KEYS.pinnedGames, pinnedGames);
   if (pinnedGames.find(g => g.id === id)) { clearSearch(); return; }
+  if (pinnedGames.length >= MAX_PINS) { syncListFull(); return; }
   pinnedGames.push({ id, title, appid: appid || null });
   store.set(KEYS.pinnedGames, pinnedGames);
   clearSearch();
   dealsAddRow.classList.remove("visible");
   dealsAddBtn.classList.remove("active");
+  syncListFull();
   fetchDeals().then(renderDeals);
 }
 
@@ -139,6 +145,17 @@ function unpinGame(id) {
   pinnedGames = store.json(KEYS.pinnedGames, pinnedGames).filter(g => g.id !== id);
   store.set(KEYS.pinnedGames, pinnedGames);
   renderDeals();
+}
+
+function syncListFull() {
+  const full = pinnedGames.length >= MAX_PINS;
+  dealsAddBtn.hidden = full;
+  dealsFull.hidden   = !full;
+  if (full && dealsAddRow.classList.contains("visible")) {
+    dealsAddRow.classList.remove("visible");
+    dealsAddBtn.classList.remove("active");
+    clearSearch();
+  }
 }
 
 // ── Data fetching ──────────────────────────────────────────────
@@ -273,6 +290,7 @@ function buildReviewText(desc, count) {
   return `<span class="deals__review-text" style="color:${color}">${esc(desc)}${countStr}</span>`;
 }
 function renderDeals() {
+  syncListFull();
   if (!pinnedGames.length) {
     dealsList.innerHTML = `<div class="deals__empty">No games tracked yet. Hit + to add a game.</div>`;
     return;
@@ -305,9 +323,6 @@ function renderDeals() {
     const firePP = low90 !== null && low90 <= DEEP_LOW_PCT ? FIRE_NEAR_PP_DEEP : FIRE_NEAR_PP;
     const isFire = d && low90 !== null && discount < 0 && discount <= low90 + firePP;
 
-    // reviewIcon/reviewText are built internally from Steam's own fixed
-    // review-sentiment vocabulary, not arbitrary external text — safe to
-    // insert as markup, unlike game.title below.
     const reviewIcon = buildReviewIcon(d?.reviewDesc ?? null, d?.reviewCount ?? null);
     const reviewText = buildReviewText(d?.reviewDesc ?? null, d?.reviewCount ?? null);
 
@@ -362,5 +377,6 @@ function renderDeals() {
 export function initDeals() {
   if (!dealsList) return;
   initSearchUI();
+  syncListFull();
   fetchDeals().then(renderDeals);
 }
