@@ -1,5 +1,18 @@
 # Changelog — Voidbase
 
+## v0.7.20 — 2026-09-25
+*Asked for everything at once*
+
+### Added
+- **A `modulepreload` convention check.** Each page's preload list has to equal its entry module's import graph, dynamic imports included. A module left off only loses the gain, but a deleted one would leave a preload that 404s on every load
+
+### Changed
+- **Both pages ask for every module up front.** The browser used to find imports one level at a time, a round trip per level, and every app file revalidates, so warm loads paid the same chain in 304s. The notes page was five levels deep, then fetched CodeMirror's three pieces one after another, and only then asked for the note. On a throttled phone the note request moved from 1.76 s to 1.02 s, and the dashboard's first price request from 1.07 s to 0.93 s
+- **uPlot no longer blocks rendering.** It was a plain `<script>` in the head and, on a cold load, the last thing the first paint waited for. It's `defer` now, which still runs it before the charts need it
+
+### Fixed
+- **The whole dashboard jumped down when the date and the air quality arrived.** Both header rows painted empty and grew a line when their text landed, which moved everything below them. The AQI takes its time, sometimes six seconds on a phone, which is plenty of time to start reading. They hold their line from the start now
+
 ## v0.7.19 — 2026-09-25
 *Invisible, but still there*
 

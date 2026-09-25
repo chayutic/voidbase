@@ -40,6 +40,26 @@
   <link rel="stylesheet" href="/theme.css" />
   <link rel="stylesheet" href="/settings.css" />
   <link rel="stylesheet" href="/notes.css" />
+
+  <!-- The whole import graph of js/notes/main.js, dynamic imports
+       included, so every module is requested at once instead of one
+       import level per round trip. Kept equal to the graph by
+       `npm run lint:conventions`. -->
+  <link rel="modulepreload" href="/js/theme.js">
+  <link rel="modulepreload" href="/js/settings.js">
+  <link rel="modulepreload" href="/js/notes/sidebar.js">
+  <link rel="modulepreload" href="/js/notes/editor.js">
+  <link rel="modulepreload" href="/js/store.js">
+  <link rel="modulepreload" href="/js/config.js">
+  <link rel="modulepreload" href="/js/notes/api.js">
+  <link rel="modulepreload" href="/js/notes/format.js">
+  <link rel="modulepreload" href="/js/icons.js">
+  <link rel="modulepreload" href="/js/notes/preview.js">
+  <link rel="modulepreload" href="/js/notes/markdown.js">
+  <link rel="modulepreload" href="/js/vendor/marked.esm.js">
+  <link rel="modulepreload" href="/js/vendor/cm6.min.js">
+  <link rel="modulepreload" href="/js/notes/livepreview.js">
+  <link rel="modulepreload" href="/js/notes/commands.js">
 </head>
 
 <body class="notes">

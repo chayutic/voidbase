@@ -50,7 +50,26 @@
        survives. -->
   <link rel="prefetch" as="script" href="/js/vendor/cm6.min.js">
 
-  <script src="/js/vendor/uPlot.iife.min.js"></script>
+  <script defer src="/js/vendor/uPlot.iife.min.js"></script>
+
+  <!-- The whole import graph of js/main.js, so every module is requested
+       at once instead of one import level per round trip. Kept equal to
+       the graph by `npm run lint:conventions`. -->
+  <link rel="modulepreload" href="/js/theme.js">
+  <link rel="modulepreload" href="/js/customizer.js">
+  <link rel="modulepreload" href="/js/settings.js">
+  <link rel="modulepreload" href="/js/clock.js">
+  <link rel="modulepreload" href="/js/air-quality.js">
+  <link rel="modulepreload" href="/js/dock.js">
+  <link rel="modulepreload" href="/js/search.js">
+  <link rel="modulepreload" href="/js/utilities.js">
+  <link rel="modulepreload" href="/js/markets.js">
+  <link rel="modulepreload" href="/js/deals.js">
+  <link rel="modulepreload" href="/js/arrivals.js">
+  <link rel="modulepreload" href="/js/store.js">
+  <link rel="modulepreload" href="/js/config.js">
+  <link rel="modulepreload" href="/js/icons.js">
+  <link rel="modulepreload" href="/js/inline-edit.js">
 </head>
 
 <body id="top">

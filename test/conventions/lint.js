@@ -339,6 +339,52 @@ check("banner-html", "HTML banners are `<!-- ════ NAME ════ -->`
   }
 });
 
+// ── Preloads ───────────────────────────────────────────────────
+
+// Vendor bundles are self-contained, so the walk does not descend
+// into them.
+function moduleGraph(entry) {
+  const seen = new Set();
+  const queue = [entry];
+  while (queue.length) {
+    const f = queue.shift();
+    if (isVendor(f)) continue;
+    const src = stripJsComments(read(f));
+    const specs = [
+      ...src.matchAll(/(?:import|export)\s+(?:[\w*{}\s,]*?\s+from\s+)?["']([^"']+)["']/g),
+      ...src.matchAll(/import\(\s*["']([^"']+)["']\s*\)/g),
+    ];
+    for (const m of specs) {
+      if (!m[1].startsWith(".")) continue;
+      const p = path.resolve(path.dirname(f), m[1]);
+      if (!seen.has(p)) { seen.add(p); queue.push(p); }
+    }
+  }
+  seen.delete(entry);
+  return seen;
+}
+
+check("modulepreload", "Each page preloads exactly its entry module's import graph", (hit) => {
+  for (const f of HTML) {
+    const src = stripHtmlComments(read(f));
+    const entry = src.match(/<script type="module" src="([^"]+)"/);
+    if (!entry) continue;
+    const at = (href) => path.join(PUBLIC, href.replace(/^\//, ""));
+    const graph = moduleGraph(at(entry[1]));
+    const preloaded = new Map();
+    for (const m of src.matchAll(/<link rel="modulepreload" href="([^"]+)"/g)) {
+      preloaded.set(at(m[1]), lineOf(src, m.index));
+    }
+    const endOfHead = lineOf(src, src.indexOf("</head>"));
+    for (const p of graph) {
+      if (!preloaded.has(p)) hit(f, endOfHead, `${rel(p)} is imported but not preloaded`);
+    }
+    for (const [p, line] of preloaded) {
+      if (!graph.has(p)) hit(f, line, `${rel(p)} is preloaded but not imported`);
+    }
+  }
+});
+
 // ── Exports ────────────────────────────────────────────────────
 
 check("unused-export", "Every export is imported somewhere", (hit) => {
