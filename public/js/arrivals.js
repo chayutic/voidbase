@@ -16,8 +16,7 @@ const ARRIVALS_LIMIT = 6;
 const arrivalsGrid = document.getElementById("arrivalsGrid");
 
 function buildImageUrl(itemId, imageTag) {
-  if (!imageTag) return null;
-  return `/jellyfin/image/${itemId}?tag=${imageTag}`;
+  return `/jellyfin/image/${encodeURIComponent(itemId)}?tag=${encodeURIComponent(imageTag)}`;
 }
 
 function buildItemUrl(itemId) {
@@ -28,21 +27,27 @@ function padNum(n) {
   return String(n).padStart(2, "0");
 }
 
-async function resolveEpisodePoster(item) {
-  if (item.imageTag) {
-    return { id: item.id, tag: item.imageTag };
-  }
-  if (!item.seriesId) return { id: item.id, tag: null };
+async function fetchSeriesPosterTag(seriesId) {
   try {
-    const res  = await fetch(`/jellyfin/poster/${item.seriesId}`);
+    const res  = await fetch(`/jellyfin/poster/${encodeURIComponent(seriesId)}`);
     const data = await res.json();
-    return { id: item.seriesId, tag: data.imageTag ?? null };
+    return data.imageTag ?? null;
   } catch {
-    return { id: item.id, tag: null };
+    return null;
   }
 }
 
-function createArrivalCard(item, posterInfo) {
+function setPoster(imgWrap, id, tag, alt) {
+  const img   = document.createElement("img");
+  img.src     = buildImageUrl(id, tag);
+  img.alt     = alt;
+  img.loading = "lazy";
+  img.draggable = false;
+  imgWrap.classList.remove("arrivals__poster--placeholder");
+  imgWrap.appendChild(img);
+}
+
+function createArrivalCard(item) {
   const a = document.createElement("a");
   a.className = "arrivals__card";
   a.href      = buildItemUrl(item.id);
@@ -52,16 +57,16 @@ function createArrivalCard(item, posterInfo) {
   const imgWrap = document.createElement("div");
   imgWrap.className = "arrivals__poster";
 
-  const imgUrl = buildImageUrl(posterInfo.id, posterInfo.tag);
-  if (imgUrl) {
-    const img   = document.createElement("img");
-    img.src     = imgUrl;
-    img.alt     = item.type === "Movie" ? item.title : (item.seriesName ?? item.title);
-    img.loading = "lazy";
-    img.draggable = false;
-    imgWrap.appendChild(img);
+  const alt = item.type === "Movie" ? item.title : (item.seriesName ?? item.title);
+  if (item.imageTag) {
+    setPoster(imgWrap, item.id, item.imageTag, alt);
   } else {
     imgWrap.classList.add("arrivals__poster--placeholder");
+    if (item.type === "Episode" && item.seriesId) {
+      fetchSeriesPosterTag(item.seriesId).then(tag => {
+        if (tag) setPoster(imgWrap, item.seriesId, tag, alt);
+      });
+    }
   }
 
   const info = document.createElement("div");
@@ -130,26 +135,16 @@ async function fetchArrivals() {
 
     if (!Array.isArray(items)) throw new Error("Bad response");
 
-    const top = items.slice(0, ARRIVALS_LIMIT);
-
-    const posterInfos = await Promise.all(
-      top.map(item =>
-        item.type === "Episode"
-          ? resolveEpisodePoster(item)
-          : Promise.resolve({ id: item.id, tag: item.imageTag })
-      )
-    );
-
     arrivalsGrid.innerHTML = "";
-    top.forEach((item, i) => {
-      arrivalsGrid.appendChild(createArrivalCard(item, posterInfos[i]));
+    items.slice(0, ARRIVALS_LIMIT).forEach(item => {
+      arrivalsGrid.appendChild(createArrivalCard(item));
     });
-    arrivalsGrid.appendChild(createLibraryCard());
 
   } catch (err) {
     console.error("Arrivals fetch error:", err);
     arrivalsGrid.innerHTML = `<div class="arrivals__error">Could not load recent media.</div>`;
   }
+  arrivalsGrid.appendChild(createLibraryCard());
 }
 
 export function initArrivals() {

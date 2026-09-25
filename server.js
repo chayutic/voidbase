@@ -113,7 +113,7 @@ app.get("/air/current", async (req, res) => {
 
     res.set("Cache-Control", "public, max-age=300"); // AQI updates hourly at best
     res.json({
-      aqi:  data.data?.aqi ?? null,
+      aqi:  Number.isFinite(data.data?.aqi) ? data.data.aqi : null,
       pm25: data.data?.iaqi?.pm25?.v ?? null,
     });
   } catch (err) {

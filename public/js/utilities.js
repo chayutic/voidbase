@@ -8,7 +8,8 @@ export function initUtilities() {
   if (!toggle || !content) return;
 
   toggle.addEventListener("click", () => {
-    content.classList.toggle("expanded");
-    toggle.classList.toggle("expanded");
+    const expanded = content.classList.toggle("expanded");
+    toggle.classList.toggle("expanded", expanded);
+    toggle.setAttribute("aria-expanded", expanded);
   });
 }

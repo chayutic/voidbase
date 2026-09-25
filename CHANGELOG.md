@@ -1,5 +1,21 @@
 # Changelog — Voidbase
 
+## v0.7.17 — 2026-09-25
+*A preset nobody could see*
+
+### Changed
+- **The AQI refreshes every ten minutes.** It was read once per page load, so a tab left open all day showed the morning's air. A slow reading that lands after a newer one is dropped, failure included
+- **New Arrivals draws its cards before the series posters arrive.** Episodes without their own image used to hold the whole section blank until every poster lookup came back. They sit on the placeholder now and fill in as each one lands
+- **The Utilities toggle says whether it's open.** It carries `aria-expanded`, and its name no longer reads "Expand utilities" while collapsing them
+
+### Fixed
+- **Renaming the active Turbo preset in a stale tab left the active term pointing at nothing**, and every search after that had it prepended anyway — `alpha test` from a panel showing no preset selected. An active term that isn't a preset is ignored
+- **Two tabs reverted each other's Turbo presets**, the same way they did tickers and pinned games before v0.7.16. Add, rename and remove re-read storage first
+- **A preset could be renamed to one that already existed**, though adding one couldn't. With two identical presets, renaming the second changed the first, and removing either removed both. The rename is refused
+- **WAQI's `-` for a station with no reading showed as `AQI -` with the hazardous dot.** Both the server and the header treat a non-numeric AQI as unavailable
+- **When Jellyfin failed, the library card went with it**, including Watch on Voidport, which doesn't touch the Jellyfin API
+- **The dock tooltip survived a round trip.** Click a shortcut, press Back, and the label was still up over an item the pointer wasn't on. It's also shown on keyboard focus now, which it never was
+
 ## v0.7.16 — 2026-09-25
 *The last response in is not the latest*
 

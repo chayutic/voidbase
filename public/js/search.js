@@ -54,8 +54,8 @@ function applyUdm(on) {
 // ── Build preset query prefix on submit ────────────────────────
 
 function getActivePresetTerm() {
-  if (!turboEnabled) return null;
-  return turboActive || null;
+  if (!turboEnabled || !turboPresets.includes(turboActive)) return null;
+  return turboActive;
 }
 
 // ── Add-preset row ─────────────────────────────────────────────
@@ -68,6 +68,8 @@ function closeAddRow() {
 
 function savePreset() {
   const val = turboPresetInput.value.trim();
+  // Re-read first: another tab may have written since this one loaded.
+  turboPresets = store.json(KEYS.turboPresets, turboPresets);
   if (!val || turboPresets.includes(val) || turboPresets.length >= MAX_PRESETS) return;
   turboPresets.push(val);
   store.set(KEYS.turboPresets, turboPresets);
@@ -119,8 +121,11 @@ function renderPresets() {
         maxLength: 40,
         hideWhileEditing: editBtn,
         onCommit: (newVal) => {
+          turboPresets = store.json(KEYS.turboPresets, turboPresets);
+          turboActive  = store.str(KEYS.turboActive, null);
           const idx = turboPresets.indexOf(term);
-          if (idx !== -1) turboPresets[idx] = newVal;
+          if (idx === -1 || turboPresets.includes(newVal)) return;
+          turboPresets[idx] = newVal;
           if (turboActive === term) {
             turboActive = newVal;
             store.set(KEYS.turboActive, turboActive);
@@ -143,7 +148,8 @@ function renderPresets() {
     remove.setAttribute("aria-label", "Remove " + term);
     remove.innerHTML = CLOSE;
     remove.addEventListener("click", () => {
-      turboPresets = turboPresets.filter(p => p !== term);
+      turboPresets = store.json(KEYS.turboPresets, turboPresets).filter(p => p !== term);
+      turboActive  = store.str(KEYS.turboActive, null);
       if (turboActive === term) { turboActive = null; store.remove(KEYS.turboActive); }
       store.set(KEYS.turboPresets, turboPresets);
       renderPresets();
