@@ -1743,20 +1743,27 @@ input:checked + .search__toggle-track::before {
   }
 }
 
-body.force-90d .deals__col-low {
+:root.force-90d .deals__col-low {
   display: revert;
 }
 
 /* Five columns, not six: the reviews column is already gone at this width. */
 @container (max-width: 400px) {
-  body.force-90d .deals__table-header,
-  body.force-90d .deals__row {
+  :root.force-90d .deals__table-header,
+  :root.force-90d .deals__row {
     grid-template-columns: 1fr minmax(4rem, max-content) minmax(3rem, max-content) minmax(3.5rem, max-content) 1.2rem;
   }
 }
 /* ── Guest mode — hide homelab sections ── */
 
-body.guest-mode .section--homelab {
+:root.guest-mode .section--homelab {
+  display: none;
+}
+
+/* ── Status Info off ── */
+
+:root.status-hidden .header__meta,
+:root.status-hidden .header__separator {
   display: none;
 }
 

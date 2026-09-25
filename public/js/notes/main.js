@@ -3,8 +3,7 @@
 // ═══════════════════════════════════════════════════════════════
 //
 //  Reuses theme.js and store.js from the dashboard — same origin, so
-//  the Control Panel's theme is already in localStorage. This page has
-//  no swatches, which initTheme() handles fine.
+//  the Control Panel's theme is already in localStorage.
 
 import { initTheme }    from "../theme.js";
 import { initSettings } from "../settings.js";

@@ -2,11 +2,9 @@
 //  MAIN — entry point
 // ═══════════════════════════════════════════════════════════════
 //
-//  Order matters in two places:
-//    · theme first, so the palette is on <body> before anything paints
-//    · customizer next, so section order and visibility are settled
-//      before the data-fetching features start filling them in
-//  The rest are independent.
+//  Init order does not matter. Theme, display toggles and section
+//  layout are applied by inline scripts in index.html before first
+//  paint, so nothing below waits on anything else.
 
 import { initTheme }      from "./theme.js";
 import { initCustomizer } from "./customizer.js";

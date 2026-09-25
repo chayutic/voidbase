@@ -8,7 +8,7 @@ import * as store           from "./store.js";
 import { KEYS }             from "./store.js";
 import { THEME_CHANGE }     from "./theme.js";
 import { SETTINGS_CHANGE }  from "./settings.js";
-import { TICKER_MAX }       from "./config.js";
+import { readTickerCount }  from "./config.js";
 import { EDIT }             from "./icons.js";
 import { beginInlineEdit }  from "./inline-edit.js";
 
@@ -26,7 +26,7 @@ const REFRESH_MS       = 60000;
 let currentRange   = store.str(KEYS.stocksRange, "1mo");
 let symbols        = store.json(KEYS.stocksSymbols, null) || DEFAULT_SYMBOLS;
 let expandedCharts = store.bool(KEYS.expandedCharts, false);
-let tickerCount    = store.int(KEYS.tickerCount, TICKER_MAX);
+let tickerCount    = readTickerCount();
 let refreshTimer   = null;
 const chartInstances = new Map();
 
@@ -386,7 +386,7 @@ export function initMarkets() {
     const key = e.detail?.key;
     if (key !== KEYS.expandedCharts && key !== KEYS.tickerCount) return;
     expandedCharts = store.bool(KEYS.expandedCharts, false);
-    tickerCount    = store.int(KEYS.tickerCount, TICKER_MAX);
+    tickerCount    = readTickerCount();
     paintExpandToggle();
     renderGrid();
     // Expanded Charts changes chartHeight(), which is read once at

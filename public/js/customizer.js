@@ -2,11 +2,12 @@
 //  LAYOUT CUSTOMIZER — section order and visibility
 // ═══════════════════════════════════════════════════════════════
 //
-//  DEFAULT_LAYOUT is snapshotted from the DOM at module load, before any
-//  saved layout is applied — that is what makes Reset restore the real
-//  authored order rather than whatever was last saved. Nothing may
-//  reorder .section elements before this module is imported.
-
+//  The saved layout is applied before first paint by the inline script
+//  after the last .section in index.html, which also records the
+//  authored order on .container as data-default-order. So by the time
+//  this runs, the DOM is the saved layout and Reset reads the default
+//  from that attribute. The inline script parses the stored value; this
+//  module only ever writes it.
 
 import * as store              from "./store.js";
 import { KEYS }                from "./store.js";
@@ -23,48 +24,17 @@ const SECTION_NAMES = {
   "utilities":       "Utilities",
 };
 
-// Snapshots default order before layout is applied
-const DEFAULT_LAYOUT = Array.from(document.querySelectorAll(".section[data-section-id]")).map(el => ({
-  id:      el.dataset.sectionId,
-  visible: true,
-}));
+const container = document.querySelector(".container");
 
 function getDefaultLayout() {
-  return DEFAULT_LAYOUT;
+  return container.dataset.defaultOrder.split(" ").map(id => ({ id, visible: true }));
 }
 
-function loadLayout() {
-  try {
-    const saved = store.json(KEYS.sectionLayout, null);
-    if (Array.isArray(saved) && saved.length) {
-      const defaultIds = DEFAULT_LAYOUT.map(s => s.id);
-      const savedIds   = saved.map(s => s.id);
-
-      // Keep saved order/visibility, but append any new sections not yet in saved
-      const merged = saved.filter(s => defaultIds.includes(s.id));
-      const newSections = DEFAULT_LAYOUT.filter(s => !savedIds.includes(s.id));
-      return [...merged, ...newSections];
-    }
-  } catch {}
-  return getDefaultLayout();
-}
-
-// Ids come from localStorage, so sections are looked up in a map rather
-// than by interpolating one into a selector — a stray quote in a saved
-// layout would throw and leave the page with no sections at all.
-function applyLayout(layout) {
-  const container = document.querySelector(".container");
-  const sections  = new Map(
-    Array.from(document.querySelectorAll(".section[data-section-id]"))
-      .map(el => [el.dataset.sectionId, el])
-  );
-
-  layout.forEach(({ id, visible }) => {
-    const el = sections.get(id);
-    if (!el) return;
-    el.style.display = visible ? "" : "none";
-    container.appendChild(el); // move to end in order
-  });
+function currentLayout() {
+  return Array.from(document.querySelectorAll(".section[data-section-id]")).map(el => ({
+    id:      el.dataset.sectionId,
+    visible: el.style.display !== "none",
+  }));
 }
 
 // ── Customizer modal ───────────────────────────────────────────
@@ -140,7 +110,7 @@ function buildCustomizerList(layout) {
 
 function openCustomizer() {
   // Always build fresh from saved state, never from stale working state
-  workingLayout = loadLayout().map(item => ({ ...item }));
+  workingLayout = currentLayout();
   buildCustomizerList(workingLayout);
   customizerOverlay.classList.add("open");
   closeSettingsPanel();
@@ -152,18 +122,13 @@ function closeCustomizer() {
 }
 
 export function initCustomizer() {
-  // Order and visibility are applied before anything else paints.
-  applyLayout(loadLayout());
-
   if (!customizerOverlay) return;
 
   customizerOpen.addEventListener("click", openCustomizer);
   customizerCancel.addEventListener("click", closeCustomizer);
 
   customizerReset.addEventListener("click", () => {
-    // Copy — getDefaultLayout() hands back the live snapshot, and the eye
-    // toggles mutate workingLayout in place.
-    workingLayout = getDefaultLayout().map(item => ({ ...item }));
+    workingLayout = getDefaultLayout();
     buildCustomizerList(workingLayout);
   });
 

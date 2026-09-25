@@ -3,12 +3,15 @@
 // ═══════════════════════════════════════════════════════════════
 //
 //  Guest Mode is a presentation filter, not a security boundary: it
-//  toggles a body class and nothing more. Markup, URLs and every proxy
-//  route stay reachable. Do not put private data behind it.
+//  toggles a class on <html> and nothing more. Markup, URLs and every
+//  proxy route stay reachable. Do not put private data behind it.
+//
+//  The display toggles' classes are first set by the inline <head>
+//  script in index.html, before paint. Rename one here, rename it there.
 
 import * as store              from "./store.js";
 import { KEYS }                from "./store.js";
-import { VERSION, TICKER_MAX } from "./config.js";
+import { VERSION, TICKER_MAX, readTickerCount } from "./config.js";
 
 /** Fired on document after any Control Panel preference changes. */
 export const SETTINGS_CHANGE = "voidbase:settingschange";
@@ -63,24 +66,23 @@ function bindToggle(elementId, key, fallback, apply) {
   el.addEventListener("change", () => {
     store.set(key, el.checked);
     apply(el.checked);
+    announce(key);
   });
 }
 
 function initDisplayToggles() {
-  const headerMeta = document.querySelector(".header__meta");
-  const headerSep  = document.querySelector(".header__separator");
+  const root = document.documentElement;
 
   bindToggle("statusInfoToggle", KEYS.statusInfo, true, (show) => {
-    if (headerMeta) headerMeta.style.display = show ? "" : "none";
-    if (headerSep)  headerSep.style.display  = show ? "" : "none";
+    root.classList.toggle("status-hidden", !show);
   });
 
   bindToggle("guestModeToggle", KEYS.guestMode, false, (on) => {
-    document.body.classList.toggle("guest-mode", on);
+    root.classList.toggle("guest-mode", on);
   });
 
   bindToggle("force90dToggle", KEYS.force90d, false, (on) => {
-    document.body.classList.toggle("force-90d", on);
+    root.classList.toggle("force-90d", on);
   });
 }
 
@@ -108,7 +110,7 @@ function initMarketsWidgets() {
   const plusEl  = document.getElementById("tickerPlus");
   if (!countEl || !minusEl || !plusEl) return;
 
-  let count = store.int(KEYS.tickerCount, TICKER_MAX);
+  let count = readTickerCount();
 
   function paint() {
     countEl.textContent = count;

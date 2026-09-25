@@ -5,15 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Voidbase</title>
 
-  <!-- Applies the saved theme before first paint. Must stay inline and
-       blocking: a deferred module runs after the default palette is
-       already on screen. -->
+  <!-- Applies the saved theme and display toggles before first paint.
+       Must stay inline and blocking: a deferred module runs after the
+       default palette and layout are already on screen. -->
   <script>
-    try {
-      document.documentElement.dataset.theme =
-        localStorage.getItem("theme") || "violet";
-    } catch (e) {
-      document.documentElement.dataset.theme = "violet";
+    {
+      const root = document.documentElement;
+      root.dataset.theme = "violet";
+      try {
+        root.dataset.theme = localStorage.getItem("theme") || "violet";
+        root.classList.toggle("guest-mode",    localStorage.getItem("guestMode")  === "true");
+        root.classList.toggle("status-hidden", localStorage.getItem("statusInfo") === "false");
+        root.classList.toggle("force-90d",     localStorage.getItem("force90d")   === "true");
+      } catch (e) {}
     }
   </script>
 
@@ -444,6 +448,37 @@
         </div>
 
     </section>
+
+    <!-- Applies the saved section order and visibility before first
+         paint, for the same reason the <head> script applies the theme.
+         Records the authored order first: by the time customizer.js
+         runs, the DOM no longer holds it. -->
+    <script>
+      {
+        const here = document.currentScript;
+        const sections = new Map(
+          [...here.parentNode.querySelectorAll(".section[data-section-id]")]
+            .map(el => [el.dataset.sectionId, el])
+        );
+        here.parentNode.dataset.defaultOrder = [...sections.keys()].join(" ");
+
+        try {
+          const saved = JSON.parse(localStorage.getItem("sectionLayout"));
+          if (Array.isArray(saved) && saved.length) {
+            const layout = saved.filter(s => sections.has(s.id));
+            const listed = new Set(layout.map(s => s.id));
+            for (const id of sections.keys()) {
+              if (!listed.has(id)) layout.push({ id, visible: true });
+            }
+            for (const { id, visible } of layout) {
+              const el = sections.get(id);
+              el.style.display = visible ? "" : "none";
+              here.before(el);
+            }
+          }
+        } catch (e) {}
+      }
+    </script>
 
     <!-- ════ NOTES BUTTON ════
          Its twin sits in the same corner on /notes, pointing back

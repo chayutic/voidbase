@@ -103,14 +103,15 @@ check("storage-direct", "All persisted state goes through store.js", (hit) => {
     const src = stripJsComments(read(f));
     for (const m of src.matchAll(/\b(localStorage|sessionStorage)\b/g)) hit(f, lineOf(src, m.index), m[1]);
   }
-  // The inline anti-flash script in each <head> is the one sanctioned
-  // exception: it runs before any module can load. It must read the
-  // same key store.js writes, or the theme resets on every load.
+  // The inline pre-paint scripts are the one sanctioned exception: they
+  // run before any module can load. They must read the same keys
+  // store.js writes, or the preference resets on every load.
+  const PRE_PAINT_KEYS = new Set([KEYS.theme, KEYS.guestMode, KEYS.statusInfo, KEYS.force90d, KEYS.sectionLayout]);
   for (const f of HTML) {
     const src = stripHtmlComments(read(f));
     for (const m of src.matchAll(/\b(localStorage|sessionStorage)\b(\.getItem\("([^"]*)"\))?/g)) {
-      if (m[1] === "localStorage" && m[3] === KEYS.theme) continue;
-      hit(f, lineOf(src, m.index), m[3] ? `${m[1]} key "${m[3]}" is not KEYS.theme` : m[1]);
+      if (m[1] === "localStorage" && PRE_PAINT_KEYS.has(m[3])) continue;
+      hit(f, lineOf(src, m.index), m[3] ? `${m[1]} key "${m[3]}" is not a pre-paint key` : m[1]);
     }
   }
 });

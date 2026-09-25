@@ -1034,8 +1034,8 @@ const ENSURE_FONTS = `window.ensureFonts = async () => {
 };`;
 
 // Wait for the page to stop moving: fonts loaded, data rendered, two
-// animation frames clear. Deferred modules apply body classes (guest mode)
-// after first paint, so a fixed sleep alone would race them.
+// animation frames clear. Deferred modules fill data in after first
+// paint, so a fixed sleep alone would race them.
 async function settle(cdp) {
   for (let i = 0; i < 60; i++) {
     const r = await cdp.send("Runtime.evaluate", {

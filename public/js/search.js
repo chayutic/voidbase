@@ -127,7 +127,13 @@ function renderPresets() {
           }
           store.set(KEYS.turboPresets, turboPresets);
         },
-        restore: () => renderPresets(),
+        // A newer rename may already be open, since this runs 150 ms after
+        // blur. Rebuilding would destroy it; its own restore redraws both.
+        restore: (input) => {
+          const open = document.activeElement;
+          if (open !== input && open?.matches(".search__preset-input")) return;
+          renderPresets();
+        },
       });
     });
 

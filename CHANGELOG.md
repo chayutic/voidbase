@@ -1,5 +1,21 @@
 # Changelog — Voidbase
 
+## v0.7.15 — 2026-09-25
+*Painted once, in the right order*
+
+### Changed
+- **Guest Mode, Status Info and Force 90d are classes on `<html>`**, set by the inline `<head>` script alongside the theme and toggled by `settings.js` after that. Status Info used to hide the header by setting an inline `display` on two elements
+- **The saved section order is applied by an inline script** right after the last section, which records the authored order on `.container` first so Customizer Reset still knows it. `customizer.js` no longer parses or applies a layout. It reads the current one off the page and writes the new one
+- **`SETTINGS_CHANGE` fires for every Control Panel toggle.** It was documented as firing for any preference, but Status Info, Guest Mode and Force 90d never sent it. Nothing was listening for them yet
+- **`lint:conventions` allows the pre-paint keys in HTML**: `theme`, plus the four above. Anything else is still a hit
+- **Init order in `main.js` no longer matters**, and its header stops claiming it does. The theme half of that claim was already stale, and the customizer half was never true
+
+### Fixed
+- **Blocking site data for voidport.com killed both pages on load.** Reading `localStorage` throws when storage is blocked, and the first throw aborted every module: no clock, no version, no notes list, no editor. `store.js` catches now. Reads fall back to defaults and writes go nowhere
+- **A saved section order, Guest Mode and a hidden status line all painted in the default state first**, then jumped. That was about 370 ms of the wrong layout per load over the tunnel, repeated on every customizer save, since saving reloads. In Guest Mode, a homelab section was on screen for 430 ms. All of it is settled before first paint now
+- **Starting a second Turbo preset rename within 150 ms of the first one's blur threw the second one away.** The first rename's deferred commit rebuilt the list, the new input with it. It now skips the rebuild while a newer rename is open
+- **A stored ticker count outside 1–6 locked the stepper or emptied Markets.** Nothing writes one today, but lowering `TICKER_MAX` would have. All three reads clamp through one function in `config.js`
+
 ## v0.7.14 — 2026-09-25
 *Ctrl+Z, and seventeen other ways to lose a note*
 
