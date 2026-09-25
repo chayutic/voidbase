@@ -1036,12 +1036,6 @@ input:checked + .search__toggle-track::before {
   flex-shrink: 0;
 }
 
-.arrivals__library-favicon {
-  width: 28px;
-  height: 28px;
-  flex-shrink: 0;
-}
-
 .arrivals__library-label {
   font-family: var(--font-title);
   font-size: 0.72rem;

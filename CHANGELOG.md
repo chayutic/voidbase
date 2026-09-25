@@ -14,6 +14,7 @@
 - **A preset could be renamed to one that already existed**, though adding one couldn't. With two identical presets, renaming the second changed the first, and removing either removed both. The rename is refused
 - **WAQI's `-` for a station with no reading showed as `AQI -` with the hazardous dot.** Both the server and the header treat a non-numeric AQI as unavailable
 - **When Jellyfin failed, the library card went with it**, including Watch on Voidport, which doesn't touch the Jellyfin API
+- **The Watch on Voidport icon was a 404.** voidport.com moved off Ghost, and the `/content/images/` URL the library card pointed at went with it. It only looked fine in a browser that still had the old copy cached. The mark is inline SVG now, lifted from the site's own `favicon.svg` and drawn in `currentColor` like the arrow above it, so nothing under `public/` loads from voidport.com anymore
 - **The dock tooltip survived a round trip.** Click a shortcut, press Back, and the label was still up over an item the pointer wasn't on. It's also shown on keyboard focus now, which it never was
 
 ## v0.7.16 — 2026-09-25

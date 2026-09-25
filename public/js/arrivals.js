@@ -119,7 +119,10 @@ function createLibraryCard() {
     </a>
     <div class="arrivals__library-divider"></div>
     <a class="arrivals__library-link" href="https://watch.voidport.com" target="_blank" rel="noopener noreferrer">
-      <img class="arrivals__library-favicon" src="https://voidport.com/content/images/size/w256h256/2026/02/voidport-icon-bw-whitebg-roundedcorner-512px.png" alt="" aria-hidden="true">
+      <svg class="arrivals__library-icon" viewBox="119.4 -11.6 191 191" fill="currentColor" aria-hidden="true">
+        <circle cx="214.906" cy="83.938" r="71.5" fill="none" stroke="currentColor" stroke-width="16"/>
+        <path fill-rule="evenodd" d="M214.982,25.321A58.519,58.519,0,1,1,156.463,83.84,58.519,58.519,0,0,1,214.982,25.321ZM293.448,5.392c6.748,6.747-22.946,47.38-66.322,90.756s-84.008,73.069-90.756,66.322,22.946-47.381,66.322-90.756S286.7-1.356,293.448,5.392Z"/>
+      </svg>
       <span class="arrivals__library-label">Watch on Voidport</span>
     </a>`;
 
