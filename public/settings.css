@@ -288,6 +288,9 @@
   transform: scale(1.15);
 }
 
+/* Tuned by eye to how each theme reads on screen, so darker and less
+   saturated than its --accent. Not drift: do not derive these from it.
+   The hue must still equal the theme's --theme-hue; the lint checks. */
 .theme__swatch[data-theme="violet"] { background: oklch(0.433 0.178 295); }
 .theme__swatch[data-theme="blue"]   { background: oklch(0.5 0.1411 261); }
 .theme__swatch[data-theme="pink"]   { background: oklch(0.3412 0.1411 352); }

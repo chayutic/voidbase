@@ -20,7 +20,9 @@ const FIRE_NEAR_PP      = 10;
 const FIRE_NEAR_PP_DEEP = 15;
 const DEEP_LOW_PCT      = -55;
 
-let pinnedGames  = store.json(KEYS.pinnedGames, []); // [{ id, title, appid }, ...]
+// [{ id, title, appid }, ...]. Goes stale when another tab writes, so
+// every mutation re-reads it from the store first.
+let pinnedGames  = store.json(KEYS.pinnedGames, []);
 const dealsCache  = new Map(); // id → { price, discount, low90, reviewDesc, reviewCount }
 
 const dealsList       = document.getElementById("dealsList");
@@ -62,55 +64,68 @@ function initSearchUI() {
 }
 
 function clearSearch() {
+  searchSeq++;
   dealsSearchInput.value = "";
   dealsSearchResults.innerHTML = "";
   dealsSearchResults.classList.remove("visible");
 }
 
+let searchSeq = 0;
+
 async function searchGames() {
   const q = dealsSearchInput.value.trim();
   if (!q) return;
+  const seq = ++searchSeq;
   dealsSearchResults.innerHTML = `<div class="deals__result-item deals__result-loading">Searching…</div>`;
   dealsSearchResults.classList.add("visible");
 
+  let results = null;
   try {
-    const res     = await fetch(`/itad/search?q=${encodeURIComponent(q)}`);
-    const data    = await res.json();
-    const results = Array.isArray(data) ? data : [];
-
-    if (!results.length) {
-      dealsSearchResults.innerHTML = `<div class="deals__result-item">No results found.</div>`;
-      return;
-    }
-
-    dealsSearchResults.innerHTML = "";
-    results.forEach(g => {
-      const item = document.createElement("div");
-      item.className     = "deals__result-item";
-      item.dataset.id    = g.id;
-      item.dataset.title = g.title;
-      item.dataset.appid = g.appid || "";
-      item.append(g.title);
-
-      if (!g.appid) {
-        const note = document.createElement("span");
-        note.style.opacity  = "0.4";
-        note.style.fontSize = "0.75em";
-        note.textContent    = " (no Steam ID)";
-        item.appendChild(note);
-      }
-
-      item.addEventListener("click", () => pinGame(item.dataset.id, item.dataset.title, item.dataset.appid));
-      dealsSearchResults.appendChild(item);
-    });
-
+    const res  = await fetch(`/itad/search?q=${encodeURIComponent(q)}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    results    = Array.isArray(data) ? data : [];
   } catch (err) {
-    dealsSearchResults.innerHTML = `<div class="deals__result-item">Search failed.</div>`;
     console.error("ITAD search error:", err);
   }
+
+  // A newer search, Cancel or Escape may have happened mid-fetch.
+  if (seq !== searchSeq) return;
+
+  if (!results) {
+    dealsSearchResults.innerHTML = `<div class="deals__result-item">Search failed.</div>`;
+    return;
+  }
+
+  if (!results.length) {
+    dealsSearchResults.innerHTML = `<div class="deals__result-item">No results found.</div>`;
+    return;
+  }
+
+  dealsSearchResults.innerHTML = "";
+  results.forEach(g => {
+    const item = document.createElement("div");
+    item.className     = "deals__result-item";
+    item.dataset.id    = g.id;
+    item.dataset.title = g.title;
+    item.dataset.appid = g.appid || "";
+    item.append(g.title);
+
+    if (!g.appid) {
+      const note = document.createElement("span");
+      note.style.opacity  = "0.4";
+      note.style.fontSize = "0.75em";
+      note.textContent    = " (no Steam ID)";
+      item.appendChild(note);
+    }
+
+    item.addEventListener("click", () => pinGame(item.dataset.id, item.dataset.title, item.dataset.appid));
+    dealsSearchResults.appendChild(item);
+  });
 }
 
 function pinGame(id, title, appid) {
+  pinnedGames = store.json(KEYS.pinnedGames, pinnedGames);
   if (pinnedGames.find(g => g.id === id)) { clearSearch(); return; }
   pinnedGames.push({ id, title, appid: appid || null });
   store.set(KEYS.pinnedGames, pinnedGames);
@@ -121,7 +136,7 @@ function pinGame(id, title, appid) {
 }
 
 function unpinGame(id) {
-  pinnedGames = pinnedGames.filter(g => g.id !== id);
+  pinnedGames = store.json(KEYS.pinnedGames, pinnedGames).filter(g => g.id !== id);
   store.set(KEYS.pinnedGames, pinnedGames);
   renderDeals();
 }
@@ -131,39 +146,48 @@ async function fetchDeals() {
   if (!pinnedGames.length) return;
   const ids = pinnedGames.map(g => g.id);
 
-  try {
-    const steamFetches = pinnedGames
-      .filter(g => g.appid)
-      .map(g => fetch(`/steam/price/${g.appid}`).then(r => r.json()).then(d => ({
-        id:          g.id,
-        price:       d.price,
-        reviewDesc:  d.reviewDesc  ?? null,
-        reviewCount: d.reviewCount ?? null,
-      })));
-
-    const [itadRes, ...steamResults] = await Promise.all([
-      fetch("/itad/prices", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ids }) }),
-      ...steamFetches,
-    ]);
-    const itadData = await itadRes.json();
-
-    const steamPrices = new Map();
-    steamResults.forEach(s => {
-      if (s.price       != null) steamPrices.set(s.id, { price: s.price, reviewDesc: s.reviewDesc, reviewCount: s.reviewCount });
+  const itadFetch = fetch("/itad/prices", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ids }) })
+    .then(r => {
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      return r.json();
     });
 
-    itadData.forEach(item => {
-      const steam = steamPrices.get(item.id) ?? {};
-      dealsCache.set(item.id, {
-        price:       steam.price       ?? null,
-        discount:    item.discount,
-        low90:       item.low90discount,
-        reviewDesc:  steam.reviewDesc  ?? null,
-        reviewCount: steam.reviewCount ?? null,
-      });
+  const steamFetches = pinnedGames
+    .filter(g => g.appid)
+    .map(g => fetch(`/steam/price/${g.appid}`).then(r => r.json()).then(d => ({
+      id:          g.id,
+      price:       d.price,
+      reviewDesc:  d.reviewDesc  ?? null,
+      reviewCount: d.reviewCount ?? null,
+    })));
+
+  // Settled, not all: one source failing must not discard the other's rows.
+  const [itadResult, ...steamResults] = await Promise.allSettled([itadFetch, ...steamFetches]);
+
+  const itadById = new Map();
+  if (itadResult.status === "fulfilled") {
+    for (const item of itadResult.value) itadById.set(item.id, item);
+  } else {
+    console.error("Deals fetch error:", itadResult.reason);
+  }
+
+  const steamById = new Map();
+  for (const s of steamResults) {
+    if (s.status === "rejected") console.error("Steam price error:", s.reason);
+    else if (s.value.price != null) steamById.set(s.value.id, s.value);
+  }
+
+  for (const { id } of pinnedGames) {
+    const itad  = itadById.get(id);
+    const steam = steamById.get(id);
+    if (!itad && !steam) continue;
+    dealsCache.set(id, {
+      price:       steam?.price        ?? null,
+      discount:    itad?.discount      ?? null,
+      low90:       itad?.low90discount ?? null,
+      reviewDesc:  steam?.reviewDesc   ?? null,
+      reviewCount: steam?.reviewCount  ?? null,
     });
-  } catch (err) {
-    console.error("Deals fetch error:", err);
   }
 }
 
@@ -276,7 +300,7 @@ function renderDeals() {
 
   sorted.forEach(game => {
     const d        = dealsCache.get(game.id);
-    const discount = d?.discount ?? 0;
+    const discount = d?.discount ?? null;
     const low90    = d?.low90    ?? null;
     const firePP = low90 !== null && low90 <= DEEP_LOW_PCT ? FIRE_NEAR_PP_DEEP : FIRE_NEAR_PP;
     const isFire = d && low90 !== null && discount < 0 && discount <= low90 + firePP;
@@ -313,7 +337,7 @@ function renderDeals() {
 
     const discountEl = document.createElement("span");
     discountEl.className   = "deals__col-discount deals__discount" + (discount < 0 ? " deals__discount--off" : "");
-    discountEl.textContent = fmtPct(discount !== 0 ? discount : 0);
+    discountEl.textContent = fmtPct(discount);
 
     const lowEl = document.createElement("span");
     lowEl.className   = "deals__col-low deals__low";

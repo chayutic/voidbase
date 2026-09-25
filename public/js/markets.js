@@ -92,6 +92,8 @@ function createCard(symbol) {
       hideWhileEditing: editBtn,
       transform: (v) => v.trim().toUpperCase(),
       onCommit: (newSymbol) => {
+        // Re-read first: another tab may have written since this one loaded.
+        symbols = store.json(KEYS.stocksSymbols, null) || symbols;
         const idx = symbols.indexOf(card.dataset.symbol);
         if (idx !== -1) symbols[idx] = newSymbol;
         store.set(KEYS.stocksSymbols, symbols);
@@ -143,21 +145,27 @@ function renderGrid() {
 // ── Fetch and render a single card from cache if available ─────
 async function fetchCard(card) {
   const symbol         = card.dataset.symbol;
+  const range          = currentRange;
   const chartContainer = card.querySelector(".stocks__chart");
   const priceEl        = card.querySelector(".stocks__price");
   const deltaEl        = card.querySelector(".stocks__delta");
 
-  const key = `${symbol}:${currentRange}`;
+  const key = `${symbol}:${range}`;
   if (dataCache.has(key)) {
     renderCardData(card, dataCache.get(key), chartContainer, priceEl, deltaEl);
   }
 
+  let data = null;
   try {
-    const data = await fetchSymbol(symbol);   // fetchSymbol also writes to cache
-    renderCardData(card, data, chartContainer, priceEl, deltaEl);
+    data = await fetchSymbol(symbol);   // fetchSymbol also writes to cache
   } catch (err) {
     console.error("Error fetching", symbol, err);
   }
+
+  // A range click, a rename or a Ticker Count change can land mid-fetch.
+  if (card.dataset.symbol !== symbol || currentRange !== range || !card.isConnected) return;
+
+  if (data) renderCardData(card, data, chartContainer, priceEl, deltaEl);
 }
 
 function renderCardData(card, data, chartContainer, priceEl, deltaEl) {
@@ -305,8 +313,7 @@ function createChart(container, data) {
         const lo = u.scales.y.min, hi = u.scales.y.max;
         const range = hi - lo;
         const padTop    = range * 0.12;
-        const padBottom = range * 0;
-        const insetLo = lo + padBottom;
+        const insetLo = lo;
         const insetHi = hi - padTop;
         const step = (insetHi - insetLo) / 3;
         return [insetLo, insetLo + step, insetLo + step * 2, insetHi];
@@ -319,7 +326,7 @@ function createChart(container, data) {
   const options = {
     width:   container.clientWidth,
     height:  CHART_H,
-    padding: expandedCharts ? [0, 0, 0, 0] : [0, 0, 0, 0],
+    padding: [0, 0, 0, 0],
     scales:  { x: { time: true } },
     axes,
     series: [
@@ -389,10 +396,16 @@ export function initMarkets() {
     tickerCount    = readTickerCount();
     paintExpandToggle();
     renderGrid();
-    // Expanded Charts changes chartHeight(), which is read once at
-    // construction; surviving cards have to rebuild, not refresh.
-    teardownAllCharts();
-    fetchStocks();
+    if (key === KEYS.expandedCharts) {
+      // Expanded Charts changes chartHeight(), which is read once at
+      // construction; surviving cards have to rebuild, not refresh.
+      teardownAllCharts();
+      fetchStocks();
+      return;
+    }
+    for (const card of stocksGrid.querySelectorAll(".stocks__card")) {
+      if (!chartInstances.has(card)) fetchCard(card);
+    }
   });
 
   // uPlot rasterizes the accent colour into a canvas, so a CSS-only

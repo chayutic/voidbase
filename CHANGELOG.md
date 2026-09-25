@@ -1,5 +1,21 @@
 # Changelog — Voidbase
 
+## v0.7.16 — 2026-09-25
+*The last response in is not the latest*
+
+### Changed
+- **A Ticker Count change only fetches the card it adds.** It used to tear down and refetch all six charts, six upstream requests per click, which is the rebuild `renderGrid()` diffs to avoid. Expanded Charts still rebuilds every chart, since it changes their height
+
+### Fixed
+- **Switching range while the previous one was still loading drew the old range under the new button.** With 6M held and 1Y landing first, every card ended on 6M's numbers: BTC-USD +18.72%, where 1Y is −24.49%. A response for a range, symbol or card that has moved on since is dropped
+- **Two dashboard tabs reverted each other's edits.** Each wrote its own copy of the ticker list and the pinned games back whole, so a rename or a pin made in one tab was gone after the other tab's next edit. Both re-read storage before writing and apply just the one change. The stale tab still shows its old copy until it reloads
+- **When the ITAD price lookup failed, the Steam prices and reviews that had arrived were thrown away**, and every row claimed a 0% discount. The two sources land independently now, and a discount nobody knows is `—`
+- **A failed game search said "No results found."** The "Search failed." branch was only reachable on a network error
+- **An older game search landing after a newer one replaced its results**, and clicking one pinned a game nobody had searched for. Late responses are dropped, including one that lands after Cancel
+
+### Removed
+- **Two bits of dead arithmetic in the chart factory**: a padding ternary with the same value on both arms, and a bottom inset of `range * 0`
+
 ## v0.7.15 — 2026-09-25
 *Painted once, in the right order*
 
