@@ -1,5 +1,28 @@
 # Changelog — Voidbase
 
+## v0.7.14 — 2026-09-25
+*Ctrl+Z, and seventeen other ways to lose a note*
+
+### Changed
+- **Notes auth fails closed.** With no `NOTES_PASSWORD`, every `/notes*` request gets a 503 saying no authentication is configured and all access is blocked, and the server says the same once at startup. It used to wave everyone through, which on voidport.com meant one missing line in the NAS `.env` published every note. The dashboard is unaffected
+- **The password is compared as SHA-256 digests.** `timingSafeEqual` on the raw strings needed a length check first, and that check returned early — which leaked the password's length. Digests are always 32 bytes
+- **`/notes.html` redirects to `/notes`.** Static served it ahead of the auth gate. It was only markup — the API was always gated — but the page and its API are meant to share one gate
+- **Saves carry the mtime they were based on.** A save from a copy that has since changed on disk — another tab, the phone — gets a 409 and the status line says so, instead of silently overwriting. The unload beacon is the one unconditional write, and a copy already known to be stale no longer sends it; the browser's leave-page prompt fires instead
+
+### Fixed
+- **Ctrl+Z straight after opening a note emptied it, and autosave then wrote the empty note to disk.** Loading a note was an ordinary undoable edit, so the first undo restored whatever the editor held before — nothing, on a fresh page, or the previous note's text after a switch. Each load now gets a fresh editor state with its own history
+- **Two saves to one note at once could tear the file** into the new text followed by the tail of the old one (27 runs in 50). The editor now sends saves one at a time; the store serialises writes and deletes per note and writes via temp file and rename, so a power cut mid-save leaves the old version rather than half of the new one
+- **`/notes/` with a trailing slash loaded no CSS and no JavaScript.** Every asset URL in `notes.html` was relative and resolved under `/notes/`. They are root-absolute now
+- **One deleted note took the whole list down.** A file removed between `readdir` and `readFile` failed the entire list or search with a 500, and the page reported the service unreachable. Missing files are skipped
+- **Two notes created in the same second got the same id**, and the second overwrote the first. Ids are claimed with an exclusive create now. A double-click on New used to produce two rows for one file
+- **"# C#" was titled "C".** The closing `#` run of a heading only counts after whitespace, and four spaces of indent is a code block, not a title
+- **Switching notes after a failed save discarded the unsaved edits.** Now the switch asks first
+- **Clicking two notes quickly could leave the editor on one and the sidebar on the other.** Stale loads are dropped, and a note that fails to open says so and hands the highlight back
+- **Deleting a note that wasn't open reloaded the one that was**, which sent the caret to the top
+- **A note over 64 KiB was never saved by the unload beacon** — `sendBeacon` refuses anything that size, and the refusal was ignored. It now triggers the leave-page prompt
+- **A failed search said "Nothing matches".** Failed searches, deletes and creates now say they failed
+- **`nextId()` built note paths itself**, against the rule that only `notePath()` does. Its replacement uses `notePath()`
+
 ## v0.7.13 — 2026-09-25
 *The rules, as a script, and one theme fewer*
 

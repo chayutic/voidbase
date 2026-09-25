@@ -17,7 +17,9 @@ async function request(path, options = {}) {
       const body = await res.json();
       if (body?.error) detail = body.error;
     } catch { /* non-JSON error body */ }
-    throw new Error(`${res.status} ${detail}`);
+    const err = new Error(`${res.status} ${detail}`);
+    err.status = res.status;
+    throw err;
   }
 
   return res.status === 204 ? null : res.json();
@@ -45,9 +47,13 @@ export function createNote(body = "") {
   return request("/note", { method: "POST", ...jsonBody({ body }) });
 }
 
-/** Overwrite a note. Returns the updated summary. */
-export function saveNote(id, body) {
-  return request(`/note/${id}`, { method: "PUT", ...jsonBody({ body }) });
+/**
+ * Overwrite a note. `base` is the mtime this copy was loaded or last
+ * saved at; the server answers 409 if the file has moved on since.
+ * Returns the updated summary.
+ */
+export function saveNote(id, body, base) {
+  return request(`/note/${id}`, { method: "PUT", ...jsonBody({ body, base }) });
 }
 
 /** Full-text search across titles and bodies. Empty query returns []. */

@@ -45,8 +45,19 @@ function fetchUpstream(url, options = {}) {
 // shared password is not a substitute for real auth.
 const NOTES_PASSWORD = process.env.NOTES_PASSWORD;
 
+// Digests are always 32 bytes, so the comparison cannot leak the
+// password's length the way a length check before it would.
+const digest = (text) => crypto.createHash("sha256").update(text).digest();
+const NOTES_DIGEST = NOTES_PASSWORD ? digest(NOTES_PASSWORD) : null;
+
+if (!NOTES_DIGEST) console.error("Notes: no authentication configured — all access is blocked");
+
 function notesAuth(req, res, next) {
-  if (!NOTES_PASSWORD) return next(); // unset — leave ungated rather than lock yourself out
+  if (!NOTES_DIGEST) {
+    return res.status(503).type("text").send(
+      "Notes are unavailable: no authentication is configured, so all access is blocked."
+    );
+  }
 
   const header = req.headers.authorization || "";
   const [scheme, encoded] = header.split(" ");
@@ -55,11 +66,7 @@ function notesAuth(req, res, next) {
     const decoded  = Buffer.from(encoded, "base64").toString("utf8");
     const password = decoded.slice(decoded.indexOf(":") + 1);
 
-    const given    = Buffer.from(password);
-    const expected = Buffer.from(NOTES_PASSWORD);
-    if (given.length === expected.length && crypto.timingSafeEqual(given, expected)) {
-      return next();
-    }
+    if (crypto.timingSafeEqual(digest(password), NOTES_DIGEST)) return next();
   }
 
   res.set("WWW-Authenticate", 'Basic realm="Notes"');
@@ -74,6 +81,9 @@ app.use("/js/vendor", express.static("public/js/vendor", {
   maxAge:    "1y",
   immutable: true,
 }));
+
+// Static would otherwise serve the notes page around the auth gate.
+app.get("/notes.html", (req, res) => res.redirect(301, "/notes"));
 
 // Everything else is edited in place and bind-mounted, so it must stay
 // revalidated. ETag still means a 304 rather than a re-download.

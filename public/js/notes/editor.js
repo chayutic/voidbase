@@ -25,14 +25,18 @@ const SAVE_DEBOUNCE_MS = 600;
 
 let currentId = null;
 let lastSaved = "";
+let baseMtime = null;      // mtime of the copy being edited, for conflict checks
+let conflict  = false;     // the server refused a save; this copy is stale
 let saveTimer = null;
-let inFlight  = null;
+let saving    = Promise.resolve();
+let loadSeq   = 0;
 let onSaved   = () => {};
 
 // The active editing surface: "loading" | "cm6" | "fallback"
 let mode = "loading";
 let view = null;           // CodeMirror EditorView once ready
 let cm   = null;           // the loaded module namespace
+let extensions = null;
 
 // ── Status line ────────────────────────────────────────────────
 
@@ -53,12 +57,11 @@ function getValue() {
   return lastSaved;
 }
 
+// A fresh state, not a dispatch: a dispatched load lands in the undo
+// history, and Ctrl+Z would then restore the previous note's text.
 function setValue(text) {
   if (mode === "cm6" && view) {
-    view.dispatch({
-      changes: { from: 0, to: view.state.doc.length, insert: text },
-      selection: { anchor: 0 },
-    });
+    view.setState(cm.EditorState.create({ doc: text, extensions }));
   } else if (mode === "fallback") {
     fallbackEl.value = text;
   }
@@ -82,7 +85,7 @@ function onEdit() {
   saveTimer = setTimeout(() => save(), SAVE_DEBOUNCE_MS);
 }
 
-async function save() {
+async function saveNow() {
   if (!isDirty()) return;
 
   const id      = currentId;
@@ -91,12 +94,12 @@ async function save() {
   setStatus("Saving…", "saving");
 
   try {
-    inFlight = api.saveNote(id, payload);
-    const summary = await inFlight;
+    const summary = await api.saveNote(id, payload, baseMtime);
 
     // The note may have been switched while the request was in flight.
     if (currentId === id) {
       lastSaved = payload;
+      baseMtime = summary.mtime;
       const dirty = isDirty();
       setStatus(dirty ? "Unsaved changes" : "Saved", dirty ? "dirty" : "saved");
       setMeta(summary);
@@ -104,17 +107,29 @@ async function save() {
     onSaved(summary);
   } catch (err) {
     console.error("Save failed:", err);
-    setStatus("Save failed — retrying on next edit", "error");
-  } finally {
-    inFlight = null;
+    if (currentId !== id) return;
+    if (err.status === 409) conflict = true;
+    setStatus(err.status === 409
+      ? "Changed elsewhere — not saved. Copy your edits, then reload"
+      : "Save failed — retrying on next edit", "error");
   }
+}
+
+// Saves run one at a time. Two PUTs in flight can land out of order,
+// and the older text would win.
+function save() {
+  saving = saving.then(saveNow);
+  return saving;
 }
 
 export async function flush() {
   clearTimeout(saveTimer);
   saveTimer = null;
-  if (inFlight) await inFlight;
   await save();
+}
+
+export function reportError(text) {
+  setStatus(text, "error");
 }
 
 // ── CodeMirror bootstrap ───────────────────────────────────────
@@ -124,35 +139,34 @@ async function mountCodeMirror(initialText) {
   const { hideMarkers, livePreviewExtensions } = await import("./livepreview.js");
   const { notesKeymap } = await import("./commands.js");
 
+  extensions = [
+    cm.history(),
+    cm.drawSelection(),
+    cm.EditorView.lineWrapping,
+    // Highest precedence so Enter reaches continueList before the
+    // default newline command, and so Mod-i is not swallowed.
+    cm.Prec.highest(cm.keymap.of(notesKeymap)),
+    cm.keymap.of([...cm.defaultKeymap, ...cm.historyKeymap, cm.indentWithTab]),
+    cm.placeholder("Start typing. A first line like “# Groceries” becomes the title."),
+    // markdownLanguage is a Language instance built in the bundle
+    // entry; .extension is what wires its parser into the editor.
+    cm.markdownLanguage.extension,
+    ...livePreviewExtensions,
+    hideMarkers,
+    cm.EditorView.updateListener.of((update) => {
+      if (update.docChanged) {
+        onEdit();
+        renderPreview(update.state.doc.toString());
+      }
+    }),
+    cm.EditorView.domEventHandlers({
+      blur: () => { flush(); },
+    }),
+  ];
+
   view = new cm.EditorView({
     parent: mountEl,
-    state: cm.EditorState.create({
-      doc: initialText,
-      extensions: [
-        cm.history(),
-        cm.drawSelection(),
-        cm.EditorView.lineWrapping,
-        // Highest precedence so Enter reaches continueList before the
-        // default newline command, and so Mod-i is not swallowed.
-        cm.Prec.highest(cm.keymap.of(notesKeymap)),
-        cm.keymap.of([...cm.defaultKeymap, ...cm.historyKeymap, cm.indentWithTab]),
-        cm.placeholder("Start typing. A first line like “# Groceries” becomes the title."),
-        // markdownLanguage is a Language instance built in the bundle
-        // entry; .extension is what wires its parser into the editor.
-        cm.markdownLanguage.extension,
-        ...livePreviewExtensions,
-        hideMarkers,
-        cm.EditorView.updateListener.of((update) => {
-          if (update.docChanged) {
-            onEdit();
-            renderPreview(update.state.doc.toString());
-          }
-        }),
-        cm.EditorView.domEventHandlers({
-          blur: () => { flush(); },
-        }),
-      ],
-    }),
+    state:  cm.EditorState.create({ doc: initialText, extensions }),
   });
 
   mode = "cm6";
@@ -161,26 +175,61 @@ async function mountCodeMirror(initialText) {
 
 // ── Loading a note ─────────────────────────────────────────────
 
-export async function load(id) {
-  await flush();
+function showNothing() {
+  currentId = null;
+  lastSaved = "";
+  baseMtime = null;
+  conflict  = false;
+  setValue("");
+  setEditable(false);
+  setStatus("");
+  setMeta(null);
+}
+
+/**
+ * Show a note, or nothing for null. Resolves false when the note did
+ * not end up on screen: a later load superseded it, the read failed, or
+ * unsaved edits were kept. `discard` throws unsaved edits away — for
+ * a note that has just been deleted.
+ */
+export async function load(id, { discard = false } = {}) {
+  const seq = ++loadSeq;
+
+  if (discard) {
+    clearTimeout(saveTimer);
+    showNothing();
+  } else {
+    await flush();
+    if (isDirty() && !window.confirm("Your latest edits could not be saved. Discard them and switch notes?")) {
+      return false;
+    }
+  }
+  if (seq !== loadSeq) return false;
 
   if (id === null) {
-    currentId = null;
-    lastSaved = "";
-    setValue("");
-    setEditable(false);
-    setStatus("");
-    setMeta(null);
-    return;
+    showNothing();
+    return true;
   }
 
-  const note = await api.readNote(id);
+  let note;
+  try {
+    note = await api.readNote(id);
+  } catch (err) {
+    console.error("Could not open note:", err);
+    if (seq === loadSeq) setStatus("Could not open that note", "error");
+    return false;
+  }
+  if (seq !== loadSeq) return false;
+
   currentId = id;
   lastSaved = note.body;
+  baseMtime = note.mtime;
+  conflict  = false;
   setValue(note.body);
   setEditable(true);
   setStatus("Saved", "saved");
   setMeta(note);
+  return true;
 }
 
 export function focus() {
@@ -200,12 +249,23 @@ export async function initEditor(handlers = {}) {
   // Last line of defence. sendBeacon survives page teardown where a
   // normal fetch would be cancelled mid-flight. It can only issue POST,
   // which is why the API accepts POST on /note/:id as well as PUT.
-  window.addEventListener("beforeunload", () => {
+  //
+  // No base mtime: a save still in flight moves it on, and the beacon
+  // would then be refused as a conflict. That makes it unconditional, so
+  // a copy already known to be stale must not send it — it would
+  // overwrite the newer version. Neither can a body over the 64 KiB
+  // beacon quota. Both ask the browser to hold the page instead.
+  window.addEventListener("beforeunload", (e) => {
     if (!isDirty()) return;
-    navigator.sendBeacon(
+    if (conflict) {
+      e.preventDefault();
+      return;
+    }
+    const sent = navigator.sendBeacon(
       `/notes/api/note/${currentId}`,
       new Blob([JSON.stringify({ body: getValue() })], { type: "application/json" }),
     );
+    if (!sent) e.preventDefault();
   });
 
   try {

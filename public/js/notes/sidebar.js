@@ -29,6 +29,7 @@ let selectedId  = null;
 let searchTimer = null;
 let onSelect    = () => {};
 let onDelete    = () => {};
+let onError     = () => {};
 
 function visibleNotes() {
   return results ?? notes;
@@ -111,16 +112,16 @@ function renderEmpty(message) {
   listEl.appendChild(empty);
 }
 
-function render() {
+function render(emptyMessage) {
   const query = searchEl.value.trim();
   listEl.textContent = "";
 
   const rows = visibleNotes();
 
   if (!rows.length) {
-    renderEmpty(results
+    renderEmpty(emptyMessage ?? (results
       ? `Nothing matches “${query}”.`
-      : "No notes yet — start one above.");
+      : "No notes yet — start one above."));
     return;
   }
 
@@ -164,9 +165,16 @@ function markActive() {
 
 async function select(id) {
   if (id === selectedId) return;
+  const previous = selectedId;
   selectedId = id;
   markActive();
-  await onSelect(id);
+
+  // The editor kept the previous note; the highlight follows it back.
+  const shown = await onSelect(id);
+  if (!shown && selectedId === id) {
+    selectedId = previous;
+    markActive();
+  }
 }
 
 // ── Search ─────────────────────────────────────────────────────
@@ -186,7 +194,7 @@ async function runSearch() {
   } catch (err) {
     console.error("Search failed:", err);
     results = [];
-    render();
+    render("Search failed — try again.");
   }
 }
 
@@ -224,7 +232,13 @@ async function confirmDelete(note) {
   const label = isUntitled(note) ? formatCreated(note.id) : note.title;
   if (!window.confirm(`Delete “${label}”? This cannot be undone.`)) return;
 
-  await api.deleteNote(note.id);
+  try {
+    await api.deleteNote(note.id);
+  } catch (err) {
+    console.error("Delete failed:", err);
+    onError("Could not delete that note");
+    return;
+  }
   const wasSelected = note.id === selectedId;
 
   notes = notes.filter(n => n.id !== note.id);
@@ -232,7 +246,7 @@ async function confirmDelete(note) {
   if (wasSelected) selectedId = visibleNotes()[0]?.id ?? null;
   render();
 
-  await onDelete(selectedId);
+  if (wasSelected) await onDelete(selectedId);
 }
 
 // ── Collapse ───────────────────────────────────────────────────
@@ -253,6 +267,7 @@ function applyCollapsed(collapsed) {
 export function initSidebar(handlers = {}) {
   onSelect = handlers.onSelect ?? onSelect;
   onDelete = handlers.onDelete ?? onDelete;
+  onError  = handlers.onError  ?? onError;
 
   let collapsed = store.bool(KEYS.notesSidebarCollapsed, false);
   applyCollapsed(collapsed);
@@ -264,7 +279,10 @@ export function initSidebar(handlers = {}) {
   });
 
   newBtn.addEventListener("click", () => {
-    createNote().catch(err => console.error("Create failed:", err));
+    createNote().catch(err => {
+      console.error("Create failed:", err);
+      onError("Could not create a note");
+    });
   });
 
   searchEl.addEventListener("input", () => {

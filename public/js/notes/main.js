@@ -19,7 +19,8 @@ initSettings();
 
 sidebar.initSidebar({
   onSelect: (id) => editor.load(id),
-  onDelete: (nextId) => editor.load(nextId),
+  onDelete: (nextId) => editor.load(nextId, { discard: true }),
+  onError:  (message) => editor.reportError(message),
 });
 
 // Flush before the tab is hidden as well as on unload — on mobile a
