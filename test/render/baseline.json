@@ -10,9 +10,9 @@
     "rest .search__input-row": {
       "w": 2336,
       "h": 184,
-      "digest": "cb334f58",
+      "digest": "78400259",
       "peakL": 0.709,
-      "atPeak": 566
+      "atPeak": 5012
     },
     "rest .dock": {
       "w": 5600,
@@ -76,9 +76,9 @@
     "rest .footer": {
       "w": 5600,
       "h": 596,
-      "digest": "7933ad2d",
+      "digest": "6497365e",
       "peakL": 0.709,
-      "atPeak": 9332
+      "atPeak": 9310
     },
     "hover .dock__item": {
       "w": 224,
@@ -90,9 +90,9 @@
     "hover .search__input-row": {
       "w": 2336,
       "h": 184,
-      "digest": "d5c234cd",
+      "digest": "100aafb8",
       "peakL": 0.709,
-      "atPeak": 566
+      "atPeak": 5012
     },
     "hover .card": {
       "w": 920,
@@ -125,9 +125,9 @@
     "hover .footer__top": {
       "w": 436,
       "h": 68,
-      "digest": "5c1aff5e",
+      "digest": "50b93126",
       "peakL": 0.9702,
-      "atPeak": 2593
+      "atPeak": 2571
     },
     "hover .settings-trigger": {
       "w": 168,
@@ -145,7 +145,7 @@
     },
     "focus .search__input": {
       "paints": true,
-      "restL": 0.5624,
+      "restL": 0.709,
       "focusL": 0.2253,
       "focusDigest": "94015380"
     },
@@ -170,7 +170,7 @@
     "panel .settings-panel": {
       "w": 1360,
       "h": 2004,
-      "digest": "d14280a2",
+      "digest": "d0aaa975",
       "peakL": 1,
       "atPeak": 6801
     },
@@ -198,9 +198,9 @@
     "panel .settings__version": {
       "w": 1352,
       "h": 232,
-      "digest": "9ab0451a",
+      "digest": "3ceeff59",
       "peakL": 0.709,
-      "atPeak": 3347
+      "atPeak": 3333
     },
     "customizer .customizer": {
       "w": 1440,
@@ -247,7 +247,7 @@
     "turbo .search__turbo": {
       "w": 2336,
       "h": 692,
-      "digest": "10753286",
+      "digest": "afc86544",
       "peakL": 1,
       "atPeak": 3400
     },
@@ -359,9 +359,9 @@
     "deals-search .deals__search-results": {
       "w": 3840,
       "h": 256,
-      "digest": "17a7c24c",
+      "digest": "025497b0",
       "peakL": 0.709,
-      "atPeak": 5896
+      "atPeak": 7581
     },
     "deals-search .deals__result-item": {
       "w": 3832,
@@ -455,9 +455,9 @@
     "rest .search__input-row": {
       "w": 2336,
       "h": 184,
-      "digest": "2e1ea656",
+      "digest": "39eaf850",
       "peakL": 0.709,
-      "atPeak": 566
+      "atPeak": 5012
     },
     "rest .dock": {
       "w": 5600,
@@ -521,9 +521,9 @@
     "rest .footer": {
       "w": 5600,
       "h": 596,
-      "digest": "c158153d",
+      "digest": "a7fa7e8c",
       "peakL": 0.709,
-      "atPeak": 9332
+      "atPeak": 9310
     }
   },
   "index-pink-w1400": {
@@ -537,9 +537,9 @@
     "rest .search__input-row": {
       "w": 2336,
       "h": 184,
-      "digest": "76b7f42d",
+      "digest": "d4029350",
       "peakL": 0.709,
-      "atPeak": 566
+      "atPeak": 5012
     },
     "rest .dock": {
       "w": 5600,
@@ -603,9 +603,9 @@
     "rest .footer": {
       "w": 5600,
       "h": 596,
-      "digest": "51ad6987",
+      "digest": "0329ceb6",
       "peakL": 0.709,
-      "atPeak": 9332
+      "atPeak": 9310
     }
   },
   "index-green-w1400": {
@@ -619,9 +619,9 @@
     "rest .search__input-row": {
       "w": 2336,
       "h": 184,
-      "digest": "fd27f2d4",
+      "digest": "8e4a53ab",
       "peakL": 0.709,
-      "atPeak": 566
+      "atPeak": 5012
     },
     "rest .dock": {
       "w": 5600,
@@ -685,9 +685,9 @@
     "rest .footer": {
       "w": 5600,
       "h": 596,
-      "digest": "7536f84d",
+      "digest": "7ea26747",
       "peakL": 0.709,
-      "atPeak": 9332
+      "atPeak": 9310
     }
   },
   "index-violet-w640": {
@@ -701,9 +701,9 @@
     "rest .search__input-row": {
       "w": 2304,
       "h": 184,
-      "digest": "5e451091",
+      "digest": "a03fcc9c",
       "peakL": 0.709,
-      "atPeak": 566
+      "atPeak": 5012
     },
     "rest .dock": {
       "w": 2560,
@@ -715,7 +715,7 @@
     "rest .deals-section": {
       "w": 2304,
       "h": 544,
-      "digest": "99171edc",
+      "digest": "4e6cd821",
       "peakL": 0.9702,
       "atPeak": 17568
     },
@@ -729,7 +729,7 @@
     "rest .markets": {
       "w": 2304,
       "h": 984,
-      "digest": "f49042d2",
+      "digest": "78f5455c",
       "peakL": 0.9702,
       "atPeak": 23596
     },
@@ -767,9 +767,9 @@
     "rest .footer": {
       "w": 2560,
       "h": 596,
-      "digest": "5d238785",
+      "digest": "1a70871b",
       "peakL": 0.709,
-      "atPeak": 9332
+      "atPeak": 9310
     }
   },
   "index-violet-w480": {
@@ -783,9 +783,9 @@
     "rest .search__input-row": {
       "w": 1664,
       "h": 184,
-      "digest": "3c1851c5",
+      "digest": "543f7e3d",
       "peakL": 0.709,
-      "atPeak": 566
+      "atPeak": 5012
     },
     "rest .dock": {
       "w": 1920,
@@ -797,7 +797,7 @@
     "rest .deals-section": {
       "w": 1664,
       "h": 540,
-      "digest": "3bd33a1c",
+      "digest": "bcb8e9a8",
       "peakL": 0.9702,
       "atPeak": 14275
     },
@@ -811,7 +811,7 @@
     "rest .markets": {
       "w": 1664,
       "h": 1444,
-      "digest": "c37bb75f",
+      "digest": "b0fa2f52",
       "peakL": 0.9702,
       "atPeak": 23580
     },
@@ -845,9 +845,9 @@
     "rest .footer": {
       "w": 1920,
       "h": 592,
-      "digest": "9294d83e",
+      "digest": "9a9f352e",
       "peakL": 0.709,
-      "atPeak": 9332
+      "atPeak": 9310
     }
   },
   "index-violet-w400": {
@@ -861,9 +861,9 @@
     "rest .search__input-row": {
       "w": 1472,
       "h": 184,
-      "digest": "4056bb9b",
+      "digest": "b89d9f88",
       "peakL": 0.709,
-      "atPeak": 566
+      "atPeak": 5012
     },
     "rest .dock": {
       "w": 1600,
@@ -875,7 +875,7 @@
     "rest .deals-section": {
       "w": 1472,
       "h": 540,
-      "digest": "556378ae",
+      "digest": "139504e7",
       "peakL": 0.9702,
       "atPeak": 14956
     },
@@ -889,7 +889,7 @@
     "rest .markets": {
       "w": 1472,
       "h": 1444,
-      "digest": "47b6747e",
+      "digest": "ab397ffa",
       "peakL": 0.9702,
       "atPeak": 23580
     },
@@ -923,9 +923,9 @@
     "rest .footer": {
       "w": 1600,
       "h": 596,
-      "digest": "0a73445a",
+      "digest": "db8c020d",
       "peakL": 0.709,
-      "atPeak": 9332
+      "atPeak": 9310
     }
   },
   "index-violet-w1400-guest": {
@@ -939,9 +939,9 @@
     "rest .search__input-row": {
       "w": 2336,
       "h": 184,
-      "digest": "df2e70a5",
+      "digest": "a878534e",
       "peakL": 0.709,
-      "atPeak": 566
+      "atPeak": 5012
     },
     "rest .dock": {
       "w": 5600,
@@ -1001,9 +1001,9 @@
     "rest .footer": {
       "w": 5600,
       "h": 592,
-      "digest": "a0fa9a36",
+      "digest": "d1bbe9f2",
       "peakL": 0.709,
-      "atPeak": 9332
+      "atPeak": 9310
     }
   },
   "notes-violet-w1400": {

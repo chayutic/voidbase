@@ -135,9 +135,7 @@ body {
   /* Search bar */
   --search-bg:          var(--surface-glass);
   --search-border:      var(--border-color);
-  --search-text:        var(--text-secondary);
   --search-placeholder: var(--text-secondary);
-  --search-shadow:      var(--accent-bright);
 
   /* Panel & surface backgrounds — overridable per theme */
   --panel-bg:       oklch(0.17 0.008 var(--theme-hue));

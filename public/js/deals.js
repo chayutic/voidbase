@@ -117,9 +117,8 @@ async function searchGames() {
 
     if (!g.appid) {
       const note = document.createElement("span");
-      note.style.opacity  = "0.4";
-      note.style.fontSize = "0.75em";
-      note.textContent    = " (no Steam ID)";
+      note.className   = "deals__result-note";
+      note.textContent = " (no Steam ID)";
       item.appendChild(note);
     }
 

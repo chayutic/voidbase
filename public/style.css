@@ -16,7 +16,7 @@ h1 {
 h2 {
   font-family: var(--font-title);
   font-weight: 200;
-  font-size: 1.25rem;
+  font-size: var(--text-headline);
   line-height: 1;
   letter-spacing: var(--track-wide);
   margin: 0 0 calc(var(--gap) * 0.75);
@@ -28,14 +28,14 @@ h2 {
 h3 {
   font-family: var(--font-title);
   font-weight: 600;
-  font-size: 0.875rem;
+  font-size: var(--text-body);
   letter-spacing: var(--track-normal);
   margin: 0 0 0.1rem;
 }
 
 h4 {
   font-family: var(--font-body);
-  font-size: 0.8rem;
+  font-size: var(--text-label);
   font-weight: 400;
   color: var(--text-secondary);
   margin: 0;
@@ -159,7 +159,7 @@ h4 {
   flex-direction: column;
   align-items: center;
   gap: 0.35rem;
-  font-size: 1.25rem;
+  font-size: var(--text-headline);
   font-weight: 200;
   letter-spacing: var(--track-wide);
   text-transform: uppercase;
@@ -171,7 +171,7 @@ h4 {
   align-items: center;
   gap: 0.35rem;
   font-weight: 400;
-  font-size: 0.875rem;
+  font-size: var(--text-body);
   color: var(--text-secondary);
 }
 
@@ -184,7 +184,7 @@ h4 {
 }
 
 .header__location {
-  font-size: 0.875rem;
+  font-size: var(--text-body);
   font-weight: 400;
   color: var(--text-secondary);
 }
@@ -257,7 +257,7 @@ h4 {
   top: 100%;
   transform: translateX(-50%) translateY(3px);
   margin-top: 0.6rem;
-  font-size: 0.8rem;
+  font-size: var(--text-label);
   font-weight: 400;
   text-transform: uppercase;
   letter-spacing: var(--track-wider);
@@ -316,7 +316,7 @@ h4 {
   border: none;
   outline: none;
   font-family: var(--font-body);
-  font-size: 1rem;
+  font-size: var(--text-subhead);
   color: var(--text-primary);
   background: transparent;
   padding: 0 10px;
@@ -325,6 +325,7 @@ h4 {
 }
 
 .search__input::placeholder {
+  color: var(--search-placeholder);
   opacity: 1;
   transition: opacity var(--transition-normal);
 }
@@ -335,6 +336,8 @@ h4 {
 
 .search__submit {
   all: unset;
+
+  outline: revert;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -443,7 +446,7 @@ input:checked + .search__toggle-track::before {
 }
 
 .search__turbo-label {
-  font-size: 0.8rem;
+  font-size: var(--text-label);
   font-family: var(--font-title);
   font-weight: 400;
   letter-spacing: var(--track-wide);
@@ -453,6 +456,8 @@ input:checked + .search__toggle-track::before {
 
 .search__turbo-add {
   all: unset;
+
+  outline: revert;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -489,7 +494,7 @@ input:checked + .search__toggle-track::before {
 }
 
 .search__turbo-empty {
-  font-size: 0.8rem;
+  font-size: var(--text-label);
   color: var(--text-secondary);
 }
 
@@ -505,6 +510,8 @@ input:checked + .search__toggle-track::before {
 
 .search__preset-radio {
   all: unset;
+
+  outline: revert;
   cursor: pointer;
   width: 14px;
   height: 14px;
@@ -549,6 +556,8 @@ input:checked + .search__toggle-track::before {
 
 .search__preset-edit {
   all: unset;
+
+  outline: revert;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -565,7 +574,7 @@ input:checked + .search__toggle-track::before {
 .search__preset-input {
   all: unset;
   font-family: var(--font-title);
-  font-size: 0.8rem;
+  font-size: var(--text-label);
   flex: 1;
   min-width: 0;
   border-bottom: 1px solid var(--accent);
@@ -575,6 +584,8 @@ input:checked + .search__toggle-track::before {
 
 .search__preset-remove {
   all: unset;
+
+  outline: revert;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -609,6 +620,8 @@ input:checked + .search__toggle-track::before {
 
 .deals__add {
   all: unset;
+
+  outline: revert;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -628,7 +641,7 @@ input:checked + .search__toggle-track::before {
 
 .deals__full {
   margin-left: var(--gap);
-  font-size: 0.72rem;
+  font-size: var(--text-micro);
   font-family: var(--font-title);
   font-weight: 700;
   letter-spacing: var(--track-normal);
@@ -653,7 +666,7 @@ input:checked + .search__toggle-track::before {
   min-width: 8rem;
   flex: 1.25;
   font-family: var(--font-body);
-  font-size: 0.8rem;
+  font-size: var(--text-label);
   line-height: 1;
   color: var(--text-primary);
   background: var(--surface-glass);
@@ -661,6 +674,10 @@ input:checked + .search__toggle-track::before {
   border-radius: var(--radius-pill);
   padding: 0 0.8rem;
   transition: border-color var(--transition-normal);
+}
+
+.deals__search-input::placeholder {
+  color: var(--search-placeholder);
 }
 
 .deals__search-input:focus {
@@ -672,13 +689,15 @@ input:checked + .search__toggle-track::before {
 .deals__search-btn,
 .deals__cancel-btn {
   all: unset;
+
+  outline: revert;
   box-sizing: border-box;
   display: flex;
   align-items: center;
   height: 2rem;
   cursor: pointer;
   font-family: var(--font-title);
-  font-size: 0.72rem;
+  font-size: var(--text-micro);
   font-weight: 600;
   text-transform: uppercase;
   line-height: 1;
@@ -713,7 +732,7 @@ input:checked + .search__toggle-track::before {
 
 .deals__result-item {
   padding: 0.45rem 0.75rem;
-  font-size: 0.8rem;
+  font-size: var(--text-label);
   color: var(--text-secondary);
   cursor: pointer;
   transition: background var(--transition-fast), color var(--transition-fast);
@@ -725,6 +744,8 @@ input:checked + .search__toggle-track::before {
 }
 
 .deals__result-loading { cursor: default; }
+
+.deals__result-note { font-size: var(--text-micro); }
 
 /* columns: title | reviews | price (with fire) | discount | 90d low | remove */
 .deals__table-header,
@@ -743,7 +764,7 @@ input:checked + .search__toggle-track::before {
 
 .deals__table-header span {
   font-family: var(--font-title);
-  font-size: 0.72rem;
+  font-size: var(--text-micro);
   font-weight: 600;
   letter-spacing: var(--track-wide);
   text-transform: uppercase;
@@ -753,11 +774,7 @@ input:checked + .search__toggle-track::before {
 .deals__col-price,
 .deals__col-discount,
 .deals__col-low,
-.deals__col-review,
-.deals__table-header .deals__col-price,
-.deals__table-header .deals__col-discount,
-.deals__table-header .deals__col-low,
-.deals__table-header .deals__col-review {
+.deals__col-review {
   text-align: right;
   justify-self: end;
 }
@@ -768,7 +785,7 @@ input:checked + .search__toggle-track::before {
 }
 
 .deals__empty {
-  font-size: 0.8rem;
+  font-size: var(--text-label);
   color: var(--text-secondary);
   padding: 0.2rem 0;
 }
@@ -789,7 +806,7 @@ input:checked + .search__toggle-track::before {
 }
 
 .deals__price {
-  font-size: 0.8rem;
+  font-size: var(--text-label);
   font-family: var(--font-title);
   color: var(--text-primary);
   white-space: nowrap;
@@ -800,7 +817,7 @@ input:checked + .search__toggle-track::before {
 }
 
 .deals__discount {
-  font-size: 0.8rem;
+  font-size: var(--text-label);
   font-family: var(--font-title);
   color: var(--text-secondary);
   white-space: nowrap;
@@ -809,7 +826,7 @@ input:checked + .search__toggle-track::before {
 .deals__discount--off { color: var(--green-highlights); }
 
 .deals__low {
-  font-size: 0.8rem;
+  font-size: var(--text-label);
   font-family: var(--font-title);
   color: var(--text-secondary);
   white-space: nowrap;
@@ -834,7 +851,7 @@ input:checked + .search__toggle-track::before {
 
 /* ── Review cell ── */
 .deals__col-review {
-  font-size: 0.8rem;
+  font-size: var(--text-label);
   font-family: var(--font-title);
   white-space: nowrap;
   overflow: hidden;
@@ -843,7 +860,7 @@ input:checked + .search__toggle-track::before {
 
 .deals__review-text { display: inline; }
 
-.deals__review-count { font-size: 0.8rem; }
+.deals__review-count { font-size: var(--text-label); }
 
 .deals__review-icon {
   display: none;
@@ -860,7 +877,7 @@ input:checked + .search__toggle-track::before {
 }
 
 .deals__review-modifier {
-  font-size: 0.72rem;
+  font-size: var(--text-micro);
   font-weight: 700;
   line-height: 1;
   display: inline-flex;
@@ -883,7 +900,7 @@ input:checked + .search__toggle-track::before {
   border: 1px solid var(--border-color);
   border-radius: var(--radius-xs);
   padding: 0.2rem 0.45rem;
-  font-size: 0.8rem;
+  font-size: var(--text-label);
   white-space: nowrap;
   pointer-events: none;
   z-index: 10;
@@ -892,6 +909,8 @@ input:checked + .search__toggle-track::before {
 
 .deals__remove {
   all: unset;
+
+  outline: revert;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -983,7 +1002,7 @@ input:checked + .search__toggle-track::before {
 
 .arrivals__title {
   font-family: var(--font-title);
-  font-size: 0.8rem;
+  font-size: var(--text-label);
   font-weight: 600;
   color: var(--text-primary);
   white-space: nowrap;
@@ -993,7 +1012,7 @@ input:checked + .search__toggle-track::before {
 
 .arrivals__meta {
   font-family: var(--font-title);
-  font-size: 0.72rem;
+  font-size: var(--text-micro);
   color: var(--text-secondary);
   white-space: nowrap;
   overflow: hidden;
@@ -1050,7 +1069,7 @@ input:checked + .search__toggle-track::before {
 
 .arrivals__library-label {
   font-family: var(--font-title);
-  font-size: 0.72rem;
+  font-size: var(--text-micro);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: var(--track-wide);
@@ -1058,19 +1077,14 @@ input:checked + .search__toggle-track::before {
 }
 
 .arrivals__error {
-  font-size: 0.875rem;
+  font-size: var(--text-body);
   color: var(--text-secondary);
-  opacity: 0.5;
   padding: 0.2rem 0;
 }
 
 /* ======================================================
    MARKETS
 ====================================================== */
-
-.stocks {
-  align-items: center;
-}
 
 .stocks__header {
   line-height: 1;
@@ -1100,8 +1114,10 @@ input:checked + .search__toggle-track::before {
 
 .stocks__range {
   all: unset;
+
+  outline: revert;
   padding: 0.25rem 0.5rem;
-  font-size: 0.72rem;
+  font-size: var(--text-micro);
   font-family: var(--font-title);
   font-weight: 700;
   letter-spacing: var(--track-normal);
@@ -1123,6 +1139,8 @@ input:checked + .search__toggle-track::before {
 
 .stocks__expand-toggle {
   all: unset;
+
+  outline: revert;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1202,14 +1220,14 @@ input:checked + .search__toggle-track::before {
 
 .stocks__price {
   font-family: var(--font-title);
-  font-size: 0.8rem;
+  font-size: var(--text-label);
   color: var(--text-primary);
   letter-spacing: var(--track-normal);
 }
 
 .stocks__delta {
   font-family: var(--font-title);
-  font-size: 0.8rem;
+  font-size: var(--text-label);
   font-weight: 500;
   letter-spacing: var(--track-normal);
 }
@@ -1236,6 +1254,8 @@ input:checked + .search__toggle-track::before {
 
 .stocks__edit {
   all: unset;
+
+  outline: revert;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1258,7 +1278,7 @@ input:checked + .search__toggle-track::before {
   all: unset;
   font-family: var(--font-title);
   font-weight: 700;
-  font-size: 0.875rem;
+  font-size: var(--text-body);
   width: 6ch;
   border-bottom: 1px solid var(--accent);
   color: var(--text-primary);
@@ -1287,6 +1307,8 @@ input:checked + .search__toggle-track::before {
 
 .utilities__toggle {
   all: unset;
+
+  outline: revert;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -1349,7 +1371,7 @@ input:checked + .search__toggle-track::before {
   border: 1px solid var(--border-color);
   color: var(--text-secondary);
   font-family: var(--font-title);
-  font-size: 0.8rem;
+  font-size: var(--text-label);
   font-weight: 500;
   transition:
     border-color var(--transition-normal),
@@ -1394,7 +1416,7 @@ input:checked + .search__toggle-track::before {
 }
 
 .footer__tagline {
-  font-size: 0.875rem;
+  font-size: var(--text-body);
   font-style: italic;
   font-weight: 400;
   letter-spacing: var(--track-normal);
@@ -1405,7 +1427,7 @@ input:checked + .search__toggle-track::before {
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  font-size: 0.8rem;
+  font-size: var(--text-label);
   font-weight: 400;
   letter-spacing: var(--track-wider);
   text-transform: uppercase;
@@ -1419,12 +1441,11 @@ input:checked + .search__toggle-track::before {
 .footer__top {
   color: inherit;
   text-decoration: none;
-  transition: color var(--transition-normal), opacity var(--transition-normal);
+  transition: color var(--transition-normal);
 }
 
 .footer__top:hover {
   color: var(--text-primary);
-  opacity: 1;
 }
 
 
@@ -1472,7 +1493,7 @@ input:checked + .search__toggle-track::before {
 
 .customizer__title {
   font-family: var(--font-title);
-  font-size: 1rem;
+  font-size: var(--text-subhead);
   font-weight: 200;
   letter-spacing: var(--track-wider);
   text-transform: uppercase;
@@ -1523,12 +1544,14 @@ input:checked + .search__toggle-track::before {
 
 .customizer__label {
   flex: 1;
-  font-size: 0.875rem;
+  font-size: var(--text-body);
   letter-spacing: var(--track-normal);
 }
 
 .customizer__eye {
   all: unset;
+
+  outline: revert;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -1562,9 +1585,11 @@ input:checked + .search__toggle-track::before {
 
 .customizer__reset {
   all: unset;
+
+  outline: revert;
   cursor: pointer;
   font-family: var(--font-title);
-  font-size: 0.8rem;
+  font-size: var(--text-label);
   font-weight: 600;
   letter-spacing: var(--track-wider);
   text-transform: uppercase;
@@ -1581,9 +1606,11 @@ input:checked + .search__toggle-track::before {
 .customizer__cancel,
 .customizer__save {
   all: unset;
+
+  outline: revert;
   cursor: pointer;
   font-family: var(--font-title);
-  font-size: 0.8rem;
+  font-size: var(--text-label);
   font-weight: 600;
   letter-spacing: var(--track-wider);
   text-transform: uppercase;
@@ -1641,6 +1668,17 @@ input:checked + .search__toggle-track::before {
 /* ======================================================
    RESPONSIVE
 ====================================================== */
+
+/* No hover below 700px, so controls that wait for it would never show
+   yet still take a tap. Same breakpoint as notes.css. */
+@media (max-width: 700px) {
+  .deals__remove,
+  .stocks__edit,
+  .search__preset-edit,
+  .search__preset-remove {
+    opacity: 1;
+  }
+}
 @media (max-width: 425px) {
   :root {
   --text-display: 3rem;
@@ -1674,12 +1712,8 @@ input:checked + .search__toggle-track::before {
 }
 
 .header__meta {
-  font-size: 1rem;
+  font-size: var(--text-subhead);
   gap: 0.25rem;
-}
-
-.header__aqi {
-  font-size: 0.875rem;
 }
 
 .header__aqi-dot {
@@ -1687,16 +1721,8 @@ input:checked + .search__toggle-track::before {
   height: 6px;
 }
 
-.header__location {
-  font-size: 0.875rem;
-  color: var(--text-secondary);
-}
-
 /* ── Dock ── */
 .dock {
-  position: relative;
-  display: flex;
-  justify-content: center;
   height: 80px;
   margin: 0 0 1rem;
 }
@@ -1708,7 +1734,6 @@ input:checked + .search__toggle-track::before {
 .dock__item:hover {
   flex-basis: 36px;
   height: 42px;
-  color: var(--accent-bright);
 }
 
 .dock__tooltip {
@@ -1720,11 +1745,6 @@ input:checked + .search__toggle-track::before {
 
 /* ── Deals table: the section's width decides, not the viewport's ── */
 @container (max-width: 590px) {
-  .deals__table-header,
-  .deals__row {
-    grid-template-columns: 1fr max-content minmax(4rem, max-content) minmax(3rem, max-content) minmax(3.5rem, max-content) 1.2rem;
-  }
-
   .deals__review-text { display: none; }
   .deals__review-icon { display: inline-flex; }
 }

@@ -18,7 +18,6 @@ import { CLOSE } from "../icons.js";
 const listEl     = document.getElementById("notesList");
 const newBtn     = document.getElementById("noteNew");
 const searchEl   = document.getElementById("notesSearch");
-const layoutEl   = document.querySelector(".notes__layout");
 const collapseBtn = document.getElementById("sidebarToggle");
 
 const SEARCH_DEBOUNCE_MS = 150;
@@ -254,7 +253,8 @@ async function confirmDelete(note) {
 // The sidebar collapses to a rail rather than to nothing, so this
 // button survives its own click and is the only way back.
 function applyCollapsed(collapsed) {
-  layoutEl.classList.toggle("notes__layout--sidebar-collapsed", collapsed);
+  // On <html>, where notes.html's <head> script sets it before first paint.
+  document.documentElement.classList.toggle("notes-sidebar-collapsed", collapsed);
 
   const label = collapsed ? "Expand note list" : "Collapse note list";
   collapseBtn.setAttribute("aria-expanded", String(!collapsed));

@@ -5,15 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Notes — Voidbase</title>
 
-  <!-- Applies the saved theme before first paint. Must stay inline and
-       blocking: a deferred module runs after the default palette is
-       already on screen. -->
+  <!-- Applies the saved theme and sidebar state before first paint.
+       Must stay inline and blocking: a deferred module runs after the
+       default palette and layout are already on screen. -->
   <script>
-    try {
-      document.documentElement.dataset.theme =
-        localStorage.getItem("theme") || "violet";
-    } catch (e) {
-      document.documentElement.dataset.theme = "violet";
+    {
+      const root = document.documentElement;
+      root.dataset.theme = "violet";
+      try {
+        root.dataset.theme = localStorage.getItem("theme") || "violet";
+        root.classList.toggle("notes-sidebar-collapsed", localStorage.getItem("notesSidebarCollapsed") === "true");
+      } catch (e) {}
     }
   </script>
 
@@ -55,7 +57,7 @@
           <svg class="notes__search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/>
           </svg>
-          <input class="notes__search" id="notesSearch" type="text"
+          <input class="notes__search" id="notesSearch" aria-label="Search notes" type="text"
                  placeholder="Search notes…" autocomplete="off" spellcheck="false">
 
           <button class="notes__collapse" id="sidebarToggle" type="button"
@@ -158,7 +160,7 @@
       <div class="settings__row">
         <span>Status Info</span>
         <label class="settings__toggle">
-          <input type="checkbox" id="statusInfoToggle" checked>
+          <input type="checkbox" id="statusInfoToggle" aria-label="Status Info" checked>
           <span class="settings__toggle-track"></span>
         </label>
       </div>
@@ -166,7 +168,7 @@
       <div class="settings__row">
         <span>Guest Mode</span>
         <label class="settings__toggle">
-          <input type="checkbox" id="guestModeToggle">
+          <input type="checkbox" id="guestModeToggle" aria-label="Guest Mode">
           <span class="settings__toggle-track"></span>
         </label>
       </div>
@@ -180,7 +182,7 @@
       <div class="settings__row">
         <span>Force 90D Low</span>
         <label class="settings__toggle">
-          <input type="checkbox" id="force90dToggle">
+          <input type="checkbox" id="force90dToggle" aria-label="Force 90D Low">
           <span class="settings__toggle-track"></span>
         </label>
       </div>
@@ -188,7 +190,7 @@
       <div class="settings__row">
         <span>Expanded Charts</span>
         <label class="settings__toggle">
-          <input type="checkbox" id="expandedChartsToggle">
+          <input type="checkbox" id="expandedChartsToggle" aria-label="Expanded Charts">
           <span class="settings__toggle-track"></span>
         </label>
       </div>
@@ -196,9 +198,9 @@
       <div class="settings__row">
         <span>Ticker Count</span>
         <div class="settings__stepper">
-          <button id="tickerMinus">−</button>
+          <button id="tickerMinus" aria-label="Fewer tickers">−</button>
           <span id="tickerCount">6</span>
-          <button id="tickerPlus">+</button>
+          <button id="tickerPlus" aria-label="More tickers">+</button>
         </div>
       </div>
 

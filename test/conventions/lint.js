@@ -106,7 +106,7 @@ check("storage-direct", "All persisted state goes through store.js", (hit) => {
   // The inline pre-paint scripts are the one sanctioned exception: they
   // run before any module can load. They must read the same keys
   // store.js writes, or the preference resets on every load.
-  const PRE_PAINT_KEYS = new Set([KEYS.theme, KEYS.guestMode, KEYS.statusInfo, KEYS.force90d, KEYS.sectionLayout]);
+  const PRE_PAINT_KEYS = new Set([KEYS.theme, KEYS.guestMode, KEYS.statusInfo, KEYS.force90d, KEYS.sectionLayout, KEYS.notesSidebarCollapsed]);
   for (const f of HTML) {
     const src = stripHtmlComments(read(f));
     for (const m of src.matchAll(/\b(localStorage|sessionStorage)\b(\.getItem\("([^"]*)"\))?/g)) {
@@ -227,6 +227,48 @@ check("colour-literal", "No hard-coded colour outside theme.css (The One Hue Rul
         if (m[0].startsWith("#") && /href="#|querySelector|getElementById/.test(src.slice(m.index - 30, m.index))) continue;
         hit(f, lineOf(src, m.index), m[0].trim());
       }
+    }
+  }
+});
+
+// ── Type and focus ─────────────────────────────────────────────
+
+// Innermost rule blocks only: an @layer or @media wrapper never matches,
+// because its body contains braces.
+const cssRules = (src) => [...src.matchAll(/([^{};]*)\{([^{}]*)\}/g)]
+  .map((m) => ({ sel: m[1].trim(), body: m[2], index: m.index + m[0].indexOf(m[1].trim()) }));
+
+// DESIGN.md's One Ramp Rule names the only two raw sizes it allows.
+const RAW_SIZE_OK = new Set(["style.css 2rem", "notes.css 0.9em", "livepreview.js 0.9em"]);
+
+check("font-size-ramp", "Every font-size is a --text-* token (The One Ramp Rule)", (hit) => {
+  for (const f of CSS) {
+    if (f === THEME_CSS) continue;
+    const src = stripCssComments(read(f));
+    for (const m of src.matchAll(/font-size\s*:\s*([^;}]+)/g)) {
+      const v = m[1].trim();
+      if (/^var\(--text-[a-z]+\)$/.test(v) || RAW_SIZE_OK.has(`${path.basename(f)} ${v}`)) continue;
+      hit(f, lineOf(src, m.index), v);
+    }
+  }
+  for (const f of JS) {
+    const src = stripJsComments(read(f));
+    for (const m of src.matchAll(/fontSize\s*[:=]\s*["'`]([^"'`]+)["'`]/g)) {
+      if (/^var\(--text-[a-z]+\)$/.test(m[1]) || RAW_SIZE_OK.has(`${path.basename(f)} ${m[1]}`)) continue;
+      hit(f, lineOf(src, m.index), m[1]);
+    }
+  }
+});
+
+// `all: unset` resets outline in the author origin, which beats the UA's
+// :focus-visible ring. PRODUCT.md promises that ring on every non-text
+// control, so each one hands it back. Inputs carry their own treatment.
+check("focus-ring", "A control reset with all: unset restores the UA ring (outline: revert)", (hit) => {
+  for (const f of CSS) {
+    const src = stripCssComments(read(f));
+    for (const r of cssRules(src)) {
+      if (!/\ball\s*:\s*unset\b/.test(r.body) || /input/.test(r.sel)) continue;
+      if (!/\boutline\s*:\s*revert\b/.test(r.body)) hit(f, lineOf(src, r.index), r.sel.replace(/\s+/g, " "));
     }
   }
 });

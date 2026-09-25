@@ -243,6 +243,7 @@
 
 .settings__stepper button {
   all: unset;
+  outline: revert;
   cursor: pointer;
   width: 20px;
   height: 20px;
@@ -305,6 +306,7 @@
 
 .settings__open-btn {
   all: unset;
+  outline: revert;
   cursor: pointer;
   font-family: var(--font-title);
   font-size: var(--text-label);

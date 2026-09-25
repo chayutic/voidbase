@@ -1,5 +1,25 @@
 # Changelog — Voidbase
 
+## v0.7.19 — 2026-09-25
+*Invisible, but still there*
+
+### Added
+- **Two new convention checks.** `font-size-ramp` fails any font size that isn't a `--text-*` token, in CSS or in a JS `fontSize`. `focus-ring` fails any control reset with `all: unset` that doesn't hand the browser's focus ring back
+
+### Changed
+- **Every dashboard font size is a ramp token.** v0.7.8 moved the 40 of them onto the ramp's values and never actually swapped in the tokens, so changing `--text-label` moved notes and the Control Panel and left the dashboard where it was. Not one pixel moved in the swap
+- **A collapsed notes sidebar is applied before first paint.** It used to paint the full list first and snap to the rail half a second later on a slow connection, the same flash the dashboard layout had until v0.7.15
+
+### Fixed
+- **On a phone, a tap on empty-looking space could unpin a game.** The row × and the ticker pencil sit at `opacity: 0` until hovered, and a touch screen doesn't hover, but they still took taps. Below 700px they're visible now, as they already were in notes
+- **Collapse the notes sidebar, then narrow the window below 700px, and the list couldn't scroll.** The narrow layout undid every collapsed rule except `overflow: hidden`
+- **Controls reset with `all: unset` showed no focus at all.** The browser's own ring is back on all 17 of them; mouse clicks don't draw it
+- **The dashboard's placeholders were the browser's grey**, at about 4:1. They're `--text-secondary` now, like everything else that describes something. Its token had been declared all along and never read
+- **The New Arrivals error message sat at 2.7:1**, secondary text at half opacity. Full opacity now
+- **"(no Steam ID)" in deals search results was 0.6rem at 40% opacity.** It's the micro step now, like other small print
+- **The Control Panel toggles and the three dashboard inputs had no accessible names.** Neither did the ticker stepper, unless "−" counts
+- Dead CSS: `.stocks`, `--search-text`, `--search-shadow`, and a `.cm-md-rule *` whose comment described a span `livepreview.js` deliberately never creates
+
 ## v0.7.18 — 2026-09-25
 *Everything is a 500*
 

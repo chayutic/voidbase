@@ -77,7 +77,7 @@ body.notes {
 }
 
 /* No transition: width is a layout property, so this snaps. */
-.notes__layout--sidebar-collapsed {
+:root.notes-sidebar-collapsed .notes__layout {
   grid-template-columns: var(--notes-rail-w) 1fr;
 }
 
@@ -92,7 +92,7 @@ body.notes {
   background: var(--surface-dark);
 }
 
-.notes__layout--sidebar-collapsed .notes__sidebar {
+:root.notes-sidebar-collapsed .notes__sidebar {
   overflow: hidden;
 }
 
@@ -194,19 +194,19 @@ body.notes {
 
 /* ── Collapsed rail ── */
 
-.notes__layout--sidebar-collapsed .notes__search,
-.notes__layout--sidebar-collapsed .notes__search-icon,
-.notes__layout--sidebar-collapsed .notes__new-row,
-.notes__layout--sidebar-collapsed .notes__list {
+:root.notes-sidebar-collapsed .notes__search,
+:root.notes-sidebar-collapsed .notes__search-icon,
+:root.notes-sidebar-collapsed .notes__new-row,
+:root.notes-sidebar-collapsed .notes__list {
   display: none;
 }
 
-.notes__layout--sidebar-collapsed .notes__searchbar {
+:root.notes-sidebar-collapsed .notes__searchbar {
   justify-content: center;
   padding: 0.6rem 0;
 }
 
-.notes__layout--sidebar-collapsed .notes__collapse svg {
+:root.notes-sidebar-collapsed .notes__collapse svg {
   transform: rotate(180deg);
 }
 
@@ -587,18 +587,28 @@ body.notes {
   .notes__collapse { display: none; }
 
   /* Undo a collapsed state saved on desktop: the toggle above is hidden
-     here, so the rail would strand the list with no way back. */
-  .notes__layout--sidebar-collapsed .notes__new-row,
-  .notes__layout--sidebar-collapsed .notes__list {
+     here, so the rail would strand the list with no way back. Every
+     collapsed rule has to be undone here, overflow included, or the
+     list shows but cannot scroll. */
+  :root.notes-sidebar-collapsed .notes__layout {
+    grid-template-columns: 1fr;
+  }
+
+  :root.notes-sidebar-collapsed .notes__sidebar {
+    overflow-y: auto;
+  }
+
+  :root.notes-sidebar-collapsed .notes__new-row,
+  :root.notes-sidebar-collapsed .notes__list {
     display: flex;
   }
 
-  .notes__layout--sidebar-collapsed .notes__search,
-  .notes__layout--sidebar-collapsed .notes__search-icon {
+  :root.notes-sidebar-collapsed .notes__search,
+  :root.notes-sidebar-collapsed .notes__search-icon {
     display: block;
   }
 
-  .notes__layout--sidebar-collapsed .notes__searchbar {
+  :root.notes-sidebar-collapsed .notes__searchbar {
     justify-content: flex-start;
     padding: 0.6rem 0.7rem;
   }
@@ -624,13 +634,6 @@ body.notes {
 
 .cm-md-rule {
   position: relative;
-}
-
-/* The descendant selector is the point. CodeMirror wraps the --- in a
-   highlight span, and a colour on that span outranks one set on the
-   line, so hiding the line alone left the dashes showing. */
-.cm-md-rule,
-.cm-md-rule * {
   /* Hides the dashes without collapsing the line — font-size: 0 would
      make the row jump every time the cursor entered it. */
   color: transparent;

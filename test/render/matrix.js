@@ -321,14 +321,11 @@ const HOVER = {
   notes: [".notes__row", ".notes__new-row", ".notes__collapse", ".nav-trigger"],
 };
 
-// Focus sweep. The project has no :focus-visible rule anywhere, and
-// DESIGN.md describes focus states the CSS does not implement (see
-// TODO.md, "Keyboard focus states"). What this measures is therefore not
-// the design system: where `paints` is true it is Chrome's own default
-// focus ring showing through, and where it is false the control shows
-// nothing at all when tabbed to. Both are findings, not baselines to be
-// proud of; the axis exists so that whichever way that decision goes, the
-// diff says so.
+// Focus sweep. By design only text inputs have a focus treatment of
+// their own; every other control shows Chrome's default ring (PRODUCT.md,
+// and `focus-ring` in lint:conventions since v0.7.19). Where `paints` is
+// true on a non-input, that is the UA ring; false would mean a control
+// that shows nothing when tabbed to.
 const FOCUS = {
   index: [".search__input", ".card", ".settings-trigger", ".nav-trigger"],
   notes: [".notes__search", ".notes__row", ".nav-trigger"],
