@@ -1,5 +1,10 @@
 # Changelog — Voidbase
 
+## Unreleased
+
+### Added
+- **`npm run dev`, a dev instance on :3006.** It restarts itself on server edits, keeps its notes in `./notes`, and reads the NAS's real status folder. The port comes from `PORT` now, and the live container still gets 3000 because nothing sets it there
+
 ## v0.7.20 — 2026-09-25
 *Asked for everything at once*
 
