@@ -3,8 +3,10 @@ require('dotenv').config();
 const crypto  = require("crypto");
 const express = require("express");
 
-const notesRouter = require("./lib/notes-routes");
-const notesStore  = require("./lib/notes-store");
+const notesRouter  = require("./lib/notes-routes");
+const notesStore   = require("./lib/notes-store");
+const opsRouter    = require("./lib/ops-routes");
+const publicStatus = require("./lib/public-status");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -16,6 +18,31 @@ app.use((req, res, next) => {
     "Referrer-Policy":         "same-origin",
     "Content-Security-Policy": "frame-ancestors 'none'",
   });
+  next();
+});
+
+// ── Lock 2: /ops refuses proxied requests ──────────────────────
+// Caddy and Cloudflare add these headers; a direct LAN or tailnet
+// request never has them. The path is matched the way Caddy's `/ops*`
+// matches it, a case-insensitive prefix of the decoded path, so the
+// two locks cover the same set and not only what the router answers.
+
+// Also the app's last handler: the refusal has to match what any other
+// missing path gets, or it tells the caller that something is there.
+const notFound = (req, res) => res.status(404).type("text").send("Not found");
+
+const FORWARDED_HEADERS = ["x-forwarded-for", "x-forwarded-host", "forwarded", "cf-connecting-ip"];
+
+function isOpsPath(urlPath) {
+  try {
+    return decodeURIComponent(urlPath).toLowerCase().startsWith("/ops");
+  } catch {
+    return true;
+  }
+}
+
+app.use((req, res, next) => {
+  if (FORWARDED_HEADERS.some(h => h in req.headers) && isOpsPath(req.path)) return notFound(req, res);
   next();
 });
 
@@ -153,6 +180,8 @@ app.use(express.static("public"));
 // its own, larger body limit.
 app.use("/notes", notesAuth, notesRouter);
 
+app.use("/ops", opsRouter);
+
 app.use(express.json());
 
 // ── Air quality: AQI + PM2.5 for the configured city ───────────
@@ -180,6 +209,17 @@ app.get("/air/current", async (req, res) => {
   }
 });
 
+// ── Public status: the homelab's overall state ─────────────────
+// Returns: { overall } — ok, degraded, down or unknown.
+//
+// Registered ahead of /api/:symbol, which would otherwise take this
+// path as a Yahoo lookup for a ticker called STATUS.
+app.get("/api/status", async (req, res) => {
+  res.set("Cache-Control", "public, max-age=60"); // public.json is rewritten every 5 min
+  res.json({ overall: await publicStatus.overall() });
+});
+
+// ── Markets: Yahoo Finance chart data ──────────────────────────
 // Valid combinations: 1d/5m, 5d/15m, 1mo/1d, 6mo/1d, 1y/1wk
 const RANGE_MAP = {
   "1d":  "5m",
@@ -482,6 +522,8 @@ app.get("/jellyfin/image/:itemId", async (req, res) => {
     res.status(err instanceof UpstreamError ? err.status : 500).end();
   }
 });
+
+app.use(notFound);
 
 notesStore.init()
   .then(dir => console.log(`Notes directory: ${dir}`))

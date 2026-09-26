@@ -1,9 +1,16 @@
 # Changelog — Voidbase
 
-## Unreleased
+## v0.7.21 — 2026-09-26
+*Nothing to see here*
 
 ### Added
+- **`/ops`, a page with nothing on it yet.** It's the private half of the homelab dashboard to come, reachable on the LAN and the tailnet. Through the tunnel it doesn't exist: Caddy refuses it, and should that ever stop, the app refuses anything that came through a proxy with a 404 that looks like any other
+- **`/api/status`, the homelab in one word**: `ok`, `degraded`, `down`, or `unknown` when ops' public summary is missing or more than 15 minutes old. It reads that one file and nothing else, so it can't leak anything ops didn't put there
 - **`npm run dev`, a dev instance on :3006.** It restarts itself on server edits, keeps its notes in `./notes`, and reads the NAS's real status folder. The port comes from `PORT` now, and the live container still gets 3000 because nothing sets it there
+
+### Changed
+- **The base image is pinned by digest.** A rebuild gets the same Node byte for byte, and ops can notice when `node:24-alpine` moves on
+- **A missing page is a plain "Not found".** It was Express's own HTML page, which repeated the path back to whoever asked
 
 ## v0.7.20 — 2026-09-25
 *Asked for everything at once*
