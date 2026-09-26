@@ -12,7 +12,8 @@
  * either, and is the caller's job because the two sites put back
  * different things — a fresh span, or a re-rendered list.
  *
- * `onCommit` fires only when the value actually changed.
+ * `onCommit` fires only when the value actually changed. `validate`
+ * returns a message to refuse the new value with, or "" to accept it.
  */
 export function beginInlineEdit({
   target,
@@ -21,6 +22,7 @@ export function beginInlineEdit({
   maxLength,
   hideWhileEditing = null,
   transform = (v) => v.trim(),
+  validate = () => "",
   onCommit,
   restore,
 }) {
@@ -37,14 +39,21 @@ export function beginInlineEdit({
 
   let settled = false;
 
-  function finish(commit) {
+  function finish(commit, fromBlur = false) {
     if (settled) return;
-    settled = true;
 
-    if (commit) {
-      const next = transform(input.value);
-      if (next && next !== value) onCommit(next);
+    const next    = transform(input.value);
+    const changed = commit && next && next !== value;
+    const problem = changed ? validate(next) : "";
+    // After a blur there is no field left to point the refusal at, so a
+    // refused value is discarded, as Escape would.
+    if (problem && !fromBlur) {
+      reject(input, problem);
+      return;
     }
+
+    settled = true;
+    if (changed && !problem) onCommit(next);
 
     if (hideWhileEditing) hideWhileEditing.style.display = "";
     restore(input);
@@ -57,5 +66,15 @@ export function beginInlineEdit({
 
   // Deferred so a click on the trigger button lands before the input is
   // torn out from under it.
-  input.addEventListener("blur", () => setTimeout(() => finish(true), 150));
+  input.addEventListener("blur", () => setTimeout(() => finish(true, true), 150));
+}
+
+/**
+ * Refuse what `input` holds, with the browser's own validation message.
+ * It clears on the next keystroke.
+ */
+export function reject(input, message) {
+  input.setCustomValidity(message);
+  input.reportValidity();
+  input.addEventListener("input", () => input.setCustomValidity(""), { once: true });
 }

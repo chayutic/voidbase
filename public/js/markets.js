@@ -93,6 +93,11 @@ function createCard(symbol) {
       maxLength: 10,
       hideWhileEditing: editBtn,
       transform: (v) => v.trim().toUpperCase(),
+      // Every stored symbol, including those past Ticker Count: renderGrid
+      // matches cards by symbol, so two of one would share a card.
+      validate: (next) => (store.json(KEYS.stocksSymbols, null) || symbols).includes(next)
+        ? `${next} is already one of your tickers.`
+        : "",
       onCommit: (newSymbol) => {
         // Re-read first: another tab may have written since this one loaded.
         symbols = store.json(KEYS.stocksSymbols, null) || symbols;

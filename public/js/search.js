@@ -11,7 +11,7 @@
 import * as store            from "./store.js";
 import { KEYS }              from "./store.js";
 import { EDIT, CLOSE }       from "./icons.js";
-import { beginInlineEdit }   from "./inline-edit.js";
+import { beginInlineEdit, reject } from "./inline-edit.js";
 
 const turboToggle      = document.getElementById("turboToggle");
 const searchTurbo      = document.getElementById("searchTurbo");
@@ -64,13 +64,16 @@ function closeAddRow() {
   turboAddRow.classList.remove("visible");
   turboPresetsAdd.classList.remove("active");
   turboPresetInput.value = "";
+  turboPresetInput.setCustomValidity("");
 }
 
 function savePreset() {
   const val = turboPresetInput.value.trim();
   // Re-read first: another tab may have written since this one loaded.
   turboPresets = store.json(KEYS.turboPresets, turboPresets);
-  if (!val || turboPresets.includes(val) || turboPresets.length >= MAX_PRESETS) return;
+  if (!val) return;
+  if (turboPresets.includes(val))         return reject(turboPresetInput, "Already a preset.");
+  if (turboPresets.length >= MAX_PRESETS) return reject(turboPresetInput, `Up to ${MAX_PRESETS} presets. Remove one first.`);
   turboPresets.push(val);
   store.set(KEYS.turboPresets, turboPresets);
   closeAddRow();
@@ -120,6 +123,7 @@ function renderPresets() {
         className: "search__preset-input",
         maxLength: 40,
         hideWhileEditing: editBtn,
+        validate: (next) => store.json(KEYS.turboPresets, turboPresets).includes(next) ? "Already a preset." : "",
         onCommit: (newVal) => {
           turboPresets = store.json(KEYS.turboPresets, turboPresets);
           turboActive  = store.str(KEYS.turboActive, null);

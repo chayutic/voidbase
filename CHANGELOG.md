@@ -12,6 +12,8 @@
 - **The dock tooltip, the footer meta and the Customizer's title are tracked a little tighter.** They were spaced like buttons, which none of them is
 
 ### Fixed
+- **Two cards could hold the same ticker.** Renaming one to a symbol you already have is refused now, including one hidden past Ticker Count, and the browser says why. Click away and the old name comes back
+- **A duplicate or seventh Turbo preset did nothing, silently**, and left the text sitting in the add row. It says why now. So does renaming a preset to one that exists. The browser's own message is standing in until the error-state design gives these a look
 - **A ticked task only greyed its first bit of bold.** The rest stayed full brightness. And a task list with blank lines between items lost it entirely: bullets came back, and every checkbox piled up in the top-left corner of the note. Only the phone view and the moment before the editor loads draw tasks at all, which is how it lasted
 - **The dock let go of an icon every time the cursor crossed a gap.** Every icon shrank back, then the next one grew. Anywhere over the dock now counts, and the icon nearest the cursor is the one that swells
 - **Game Deals sat empty on every load, then grew all its rows at once.** Coming back from notes is where it showed, but that's just a load like any other. The rows paint right away now with the last prices seen, and the fresh ones replace them when they land
