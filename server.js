@@ -536,6 +536,8 @@ notesStore.init()
   .then(dir => console.log(`Notes directory: ${dir}`))
   .catch(err => console.error("Notes directory unavailable:", err.message));
 
-app.listen(PORT, () => {
+// Express 5 hands a bind failure to this callback instead of throwing.
+app.listen(PORT, (err) => {
+  if (err) throw err;
   console.log(`Dashboard running on port ${PORT}`);
 });
