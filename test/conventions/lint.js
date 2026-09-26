@@ -260,6 +260,35 @@ check("font-size-ramp", "Every font-size is a --text-* token (The One Ramp Rule)
   }
 });
 
+// A class found in no page's markup fails too: the check cannot see
+// what element a JS-built node is, and unseen must not read as a pass.
+check("track-wider", "Every --track-wider site is a <button> (The Three-Track Rule)", (hit) => {
+  const tagsByClass = new Map();
+  for (const f of HTML) {
+    for (const m of stripHtmlComments(read(f)).matchAll(/<(\w+)\b[^>]*\sclass="([^"]*)"/g)) {
+      for (const cls of m[2].split(/\s+/).filter(Boolean)) {
+        if (!tagsByClass.has(cls)) tagsByClass.set(cls, new Set());
+        tagsByClass.get(cls).add(m[1].toLowerCase());
+      }
+    }
+  }
+  for (const f of CSS) {
+    if (f === THEME_CSS) continue;
+    const src = stripCssComments(read(f));
+    for (const r of cssRules(src)) {
+      if (!/var\(--track-wider\)/.test(r.body)) continue;
+      for (const sel of r.sel.split(",")) {
+        const target = sel.trim().split(/[\s>+~]+/).pop();
+        for (const [, cls] of target.matchAll(/\.([\w-]+)/g)) {
+          const tags = tagsByClass.get(cls);
+          if (!tags) hit(f, lineOf(src, r.index), `.${cls} is in no page's markup`);
+          else if ([...tags].some((t) => t !== "button")) hit(f, lineOf(src, r.index), `.${cls} is on <${[...tags].join(">, <")}>`);
+        }
+      }
+    }
+  }
+});
+
 // `all: unset` resets outline in the author origin, which beats the UA's
 // :focus-visible ring. PRODUCT.md promises that ring on every non-text
 // control, so each one hands it back. Inputs carry their own treatment.

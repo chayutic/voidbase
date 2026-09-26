@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Added
+- **A `--track-wider` convention check.** The widest tracking is for buttons, and every rule using it has to style one. A class the check can't find in any page's markup fails as well, rather than getting the benefit of the doubt
+
+### Changed
+- **The dock tooltip, the footer meta and the Customizer's title are tracked a little tighter.** They were spaced like buttons, which none of them is
+
 ### Fixed
 - **Game Deals sat empty on every load, then grew all its rows at once.** Coming back from notes is where it showed, but that's just a load like any other. The rows paint right away now with the last prices seen, and the fresh ones replace them when they land
 - **Free games showed `—` for reviews they have.** Dota 2 has 2.7 million of them. A game with no price still shows its reviews now, and the price stays `—`

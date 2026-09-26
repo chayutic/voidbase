@@ -266,7 +266,7 @@ h4 {
   font-size: var(--text-label);
   font-weight: 400;
   text-transform: uppercase;
-  letter-spacing: var(--track-wider);
+  letter-spacing: var(--track-wide);
   color: var(--text-secondary);
   opacity: 0;
   pointer-events: none;
@@ -1435,7 +1435,7 @@ input:checked + .search__toggle-track::before {
   gap: 0.4rem;
   font-size: var(--text-label);
   font-weight: 400;
-  letter-spacing: var(--track-wider);
+  letter-spacing: var(--track-wide);
   text-transform: uppercase;
   color: var(--text-secondary);
 }
@@ -1501,7 +1501,7 @@ input:checked + .search__toggle-track::before {
   font-family: var(--font-title);
   font-size: var(--text-subhead);
   font-weight: 200;
-  letter-spacing: var(--track-wider);
+  letter-spacing: var(--track-wide);
   text-transform: uppercase;
   color: var(--text-secondary);
 }
