@@ -5,6 +5,8 @@
 //  Reads GET /air/current. The WAQI token lives in .env and is applied
 //  server-side; it is never sent to the browser.
 
+import { getJSON } from "./request.js";
+
 const aqInfoEl = document.getElementById("aqInfo");
 const aqDotEl  = document.querySelector(".header__aqi-dot");
 
@@ -28,9 +30,7 @@ async function fetchAirQuality() {
   const seq = ++latestRequest;
   let data = null;
   try {
-    const res = await fetch("/air/current");
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    data = await res.json();
+    data = await getJSON("/air/current");
     if (!Number.isFinite(data.aqi)) throw new Error("No AQI in response");
   } catch (err) {
     console.error("Air quality error:", err.message);

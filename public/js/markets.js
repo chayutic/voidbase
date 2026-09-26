@@ -11,6 +11,7 @@ import { SETTINGS_CHANGE }  from "./settings.js";
 import { readTickerCount }  from "./config.js";
 import { EDIT }             from "./icons.js";
 import { beginInlineEdit }  from "./inline-edit.js";
+import { getJSON }          from "./request.js";
 
 const rangeButtons    = document.querySelectorAll(".stocks__range");
 const expandToggleBtn = document.getElementById("chartsExpandToggle");
@@ -208,9 +209,7 @@ const dataCache = new Map();
 
 async function fetchSymbol(symbol) {
   const key      = `${symbol}:${currentRange}`;
-  const response = await fetch(`/api/${encodeURIComponent(symbol)}?range=${currentRange}`);
-  if (!response.ok) throw new Error(`HTTP ${response.status}`);
-  const json     = await response.json();
+  const json     = await getJSON(`/api/${encodeURIComponent(symbol)}?range=${currentRange}`);
 
   const result    = json.chart?.result?.[0];
   if (result == null) throw new Error("No chart result");

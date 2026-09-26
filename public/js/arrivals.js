@@ -7,6 +7,7 @@
 //  only resolve on the local network or over Tailscale — see config.js.
 
 import { JELLYFIN_BASE } from "./config.js";
+import { getJSON }       from "./request.js";
 
 const ARRIVALS_LIMIT = 6;
 
@@ -120,8 +121,7 @@ async function fetchArrivals() {
   if (!arrivalsGrid) return;
 
   try {
-    const res   = await fetch("/jellyfin/recent");
-    const items = await res.json();
+    const items = await getJSON("/jellyfin/recent");
 
     if (!Array.isArray(items)) throw new Error("Bad response");
 

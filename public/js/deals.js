@@ -13,6 +13,7 @@
 import * as store              from "./store.js";
 import { KEYS }                from "./store.js";
 import { PLUS, MINUS, CLOSE }  from "./icons.js";
+import { getJSON }             from "./request.js";
 
 // Fire icon appears when the current discount is within this many
 // percentage points of the 90-day low. Widened for already-deep lows.
@@ -86,9 +87,7 @@ async function searchGames() {
 
   let results = null;
   try {
-    const res  = await fetch(`/itad/search?q=${encodeURIComponent(q)}`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
+    const data = await getJSON(`/itad/search?q=${encodeURIComponent(q)}`);
     results    = Array.isArray(data) ? data : [];
   } catch (err) {
     console.error("ITAD search error:", err);
@@ -163,18 +162,11 @@ async function fetchDeals() {
   if (!pinnedGames.length) return;
   const ids = pinnedGames.map(g => g.id);
 
-  const itadFetch = fetch("/itad/prices", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ids }) })
-    .then(r => {
-      if (!r.ok) throw new Error(`HTTP ${r.status}`);
-      return r.json();
-    });
+  const itadFetch = getJSON("/itad/prices", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ids }) });
 
   const steamFetches = pinnedGames
     .filter(g => g.appid)
-    .map(g => fetch(`/steam/price/${g.appid}`).then(r => {
-      if (!r.ok) throw new Error(`HTTP ${r.status}`);
-      return r.json();
-    }).then(d => ({
+    .map(g => getJSON(`/steam/price/${g.appid}`).then(d => ({
       id:          g.id,
       price:       d.price,
       reviewDesc:  d.reviewDesc  ?? null,
