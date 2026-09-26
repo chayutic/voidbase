@@ -20,6 +20,7 @@ export const KEYS = {
 
   // Game Deals
   pinnedGames:    "pinnedGames",
+  dealsCache:     "dealsCache",
   force90d:       "force90d",
 
   // Notes

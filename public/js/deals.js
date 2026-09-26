@@ -26,7 +26,8 @@ const MAX_PINS = 20;
 // [{ id, title, appid }, ...]. Goes stale when another tab writes, so
 // every mutation re-reads it from the store first.
 let pinnedGames  = store.json(KEYS.pinnedGames, []);
-const dealsCache  = new Map(); // id → { price, discount, low90, reviewDesc, reviewCount }
+// Last known values, persisted so a reload paints them before the fetch lands.
+const dealsCache  = new Map(Object.entries(store.json(KEYS.dealsCache, {}))); // id → { price, discount, low90, reviewDesc, reviewCount }
 
 const dealsList       = document.getElementById("dealsList");
 const dealsAddBtn     = document.getElementById("dealsAdd");
@@ -209,6 +210,9 @@ async function fetchDeals() {
       reviewCount: steam?.reviewCount  ?? null,
     });
   }
+
+  const pinnedIds = new Set(pinnedGames.map(g => g.id));
+  store.set(KEYS.dealsCache, Object.fromEntries([...dealsCache].filter(([id]) => pinnedIds.has(id))));
 }
 
 // ── Render ─────────────────────────────────────────────────────
@@ -380,6 +384,6 @@ function renderDeals() {
 export function initDeals() {
   if (!dealsList) return;
   initSearchUI();
-  syncListFull();
+  renderDeals();
   fetchDeals().then(renderDeals);
 }

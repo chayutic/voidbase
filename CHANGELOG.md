@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Fixed
+- **Game Deals sat empty on every load, then grew all its rows at once.** Coming back from notes is where it showed, but that's just a load like any other. The rows paint right away now with the last prices seen, and the fresh ones replace them when they land
 - **Free games showed `—` for reviews they have.** Dota 2 has 2.7 million of them. A game with no price still shows its reviews now, and the price stays `—`
 - **A Steam hiccup on the reviews side cost the row its price too.** They're fetched separately, and a price that loaded fine now stays when the reviews don't
 - **Rename a ticker to one Yahoo doesn't know, and the old chart stayed drawn under the new name.** The card clears its chart on rename now. What it should show instead is for the error-state design
