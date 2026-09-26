@@ -8,6 +8,7 @@
 - **Rename a ticker to one Yahoo doesn't know, and the old chart stayed drawn under the new name.** The card clears its chart on rename now. What it should show instead is for the error-state design
 - **With the same ticker on two cards, renaming the second one renamed the first**, in storage, so a reload swapped them. Renames go by the card's position now
 - **A New Arrivals poster that failed to load showed the browser's broken-image icon** and its alt text. It gets the same placeholder as an item with no artwork
+- **A note's delete wasn't a control of its own.** It was a pretend button inside the row's real one, so the row read aloud as "title excerpt Delete title" and the keyboard couldn't reach it. They're two sibling buttons now; Tab stops on the delete and shows it. Not one pixel moved with the mouse
 
 ## v0.7.21 — 2026-09-26
 *Nothing to see here*

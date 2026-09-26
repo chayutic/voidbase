@@ -328,7 +328,7 @@ const HOVER = {
 // that shows nothing when tabbed to.
 const FOCUS = {
   index: [".search__input", ".card", ".settings-trigger", ".nav-trigger"],
-  notes: [".notes__search", ".notes__row", ".nav-trigger"],
+  notes: [".notes__search", ".notes__row-open", ".nav-trigger"],
 };
 
 // Closed, collapsed or empty at rest — invisible to every probe above.

@@ -224,8 +224,9 @@ body.notes {
   gap: 2px;
 }
 
-.notes__row {
-  position: relative;
+.notes__row { position: relative; }
+
+.notes__row-open {
   display: flex;
   flex-direction: column;
   gap: 0.15rem;
@@ -241,9 +242,11 @@ body.notes {
   transition: background var(--transition-fast), border-color var(--transition-fast);
 }
 
-.notes__row:hover { background: var(--surface-glass); }
+/* Keyed on the wrapper so the row stays lit while the pointer is on its
+   delete, which is a sibling of this button rather than inside it. */
+.notes__row:hover .notes__row-open { background: var(--surface-glass); }
 
-.notes__row.active {
+.notes__row.active .notes__row-open {
   background: var(--surface-glass-hover);
   border-color: var(--border-hover);
 }
@@ -276,21 +279,26 @@ body.notes {
 
 .notes__row-remove {
   position: absolute;
-  top: 0.5rem;
-  right: 0.45rem;
+  top: calc(0.5rem + 1px);
+  right: calc(0.45rem + 1px);
   display: grid;
   place-items: center;
   width: 20px;
   height: 20px;
+  padding: 0;
+  border: none;
   border-radius: var(--radius-xs);
+  background: none;
   color: var(--text-secondary);
+  cursor: pointer;
   opacity: 0;
   transition: opacity var(--transition-fast), background var(--transition-fast), color var(--transition-fast);
 }
 
 .notes__row-remove svg { width: 13px; height: 13px; }
 
-.notes__row:hover .notes__row-remove { opacity: 1; }
+.notes__row:hover .notes__row-remove,
+.notes__row-remove:focus-visible { opacity: 1; }
 
 .notes__row-remove:hover {
   background: var(--surface-glass-hover);

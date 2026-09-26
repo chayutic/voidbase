@@ -69,10 +69,13 @@ function highlighted(text, query) {
 // ── Rendering ──────────────────────────────────────────────────
 
 function buildRow(note, query) {
-  const row = document.createElement("button");
-  row.type       = "button";
+  const row = document.createElement("div");
   row.className  = "notes__row" + (note.id === selectedId ? " active" : "");
   row.dataset.id = note.id;
+
+  const open = document.createElement("button");
+  open.type      = "button";
+  open.className = "notes__row-open";
 
   const title = document.createElement("span");
   title.className = "notes__row-title" + (isUntitled(note) ? " untitled" : "");
@@ -89,18 +92,17 @@ function buildRow(note, query) {
     excerpt.textContent = "Empty note";
   }
 
-  const remove = document.createElement("span");
+  open.append(title, excerpt);
+  open.addEventListener("click", () => select(note.id));
+
+  const remove = document.createElement("button");
+  remove.type      = "button";
   remove.className = "notes__row-remove";
-  remove.setAttribute("role", "button");
   remove.setAttribute("aria-label", `Delete ${displayTitle(note)}`);
   remove.innerHTML = CLOSE;
-  remove.addEventListener("click", (e) => {
-    e.stopPropagation();
-    confirmDelete(note);
-  });
+  remove.addEventListener("click", () => confirmDelete(note));
 
-  row.append(title, excerpt, remove);
-  row.addEventListener("click", () => select(note.id));
+  row.append(open, remove);
   return row;
 }
 
@@ -149,6 +151,7 @@ export function updateRow(summary) {
   title.textContent = "";
   title.appendChild(document.createTextNode(displayTitle(note)));
   title.classList.toggle("untitled", isUntitled(note));
+  row.querySelector(".notes__row-remove").setAttribute("aria-label", `Delete ${displayTitle(note)}`);
 
   const excerpt = row.querySelector(".notes__row-excerpt");
   excerpt.textContent = note.excerpt || "Empty note";
