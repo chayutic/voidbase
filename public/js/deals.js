@@ -170,7 +170,10 @@ async function fetchDeals() {
 
   const steamFetches = pinnedGames
     .filter(g => g.appid)
-    .map(g => fetch(`/steam/price/${g.appid}`).then(r => r.json()).then(d => ({
+    .map(g => fetch(`/steam/price/${g.appid}`).then(r => {
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      return r.json();
+    }).then(d => ({
       id:          g.id,
       price:       d.price,
       reviewDesc:  d.reviewDesc  ?? null,
@@ -190,7 +193,8 @@ async function fetchDeals() {
   const steamById = new Map();
   for (const s of steamResults) {
     if (s.status === "rejected") console.error("Steam price error:", s.reason);
-    else if (s.value.price != null) steamById.set(s.value.id, s.value);
+    // A free game has no price but still has reviews.
+    else if (s.value.price != null || s.value.reviewDesc != null) steamById.set(s.value.id, s.value);
   }
 
   for (const { id } of pinnedGames) {

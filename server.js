@@ -350,9 +350,15 @@ app.get("/steam/price/:appid", async (req, res) => {
   if (!/^\d{1,10}$/.test(appid)) return res.status(400).json({ error: "Bad appid" });
 
   try {
+    // The price is the row's main field, so a reviews failure costs only
+    // the review column. Caught here, it never reaches the catch below.
     const [detailsData, reviewsData] = await Promise.all([
       fetchJSONMemo(`https://store.steampowered.com/api/appdetails?appids=${appid}&cc=th&filters=price_overview`, HOUR_MS),
-      fetchJSONMemo(`https://store.steampowered.com/appreviews/${appid}?json=1&language=all&purchase_type=all&num_per_page=0`, HOUR_MS),
+      fetchJSONMemo(`https://store.steampowered.com/appreviews/${appid}?json=1&language=all&purchase_type=all&num_per_page=0`, HOUR_MS)
+        .catch(err => {
+          console.error(`Steam reviews error for ${appid}:`, err.message);
+          return null;
+        }),
     ]);
 
     const appData = detailsData?.[appid];

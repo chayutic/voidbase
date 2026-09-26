@@ -1,5 +1,11 @@
 # Changelog — Voidbase
 
+## Unreleased
+
+### Fixed
+- **Free games showed `—` for reviews they have.** Dota 2 has 2.7 million of them. A game with no price still shows its reviews now, and the price stays `—`
+- **A Steam hiccup on the reviews side cost the row its price too.** They're fetched separately, and a price that loaded fine now stays when the reviews don't
+
 ## v0.7.21 — 2026-09-26
 *Nothing to see here*
 
