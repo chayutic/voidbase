@@ -220,14 +220,43 @@ app.get("/api/status", async (req, res) => {
 });
 
 // ── Markets: Yahoo Finance chart data ──────────────────────────
-// Valid combinations: 1d/5m, 5d/15m, 1mo/1d, 6mo/1d, 1y/1wk
+// Valid combinations: 1d/5m, 5d/15m, 1mo/1h, 6mo/1d, 1y/1wk
 const RANGE_MAP = {
   "1d":  "5m",
   "5d":  "15m",
-  "1mo": "1d",
+  "1mo": "1h",
   "6mo": "1d",
   "1y":  "1wk",
 };
+
+// Yahoo has nothing between 1h and 1d, so 1M asks for hourly and keeps
+// the last bar of each 12 hours from the exchange's local midnight:
+// midday and close for a stock, every 12 hours for crypto. Returns a
+// copy, because the memo hands every caller the same object.
+const HALF_DAY_S = 12 * 60 * 60;
+
+function thinToHalfDays(data) {
+  const r  = data?.chart?.result?.[0];
+  const ts = r?.timestamp;
+  const q  = r?.indicators?.quote?.[0];
+  if (!ts || !q?.close) return data;
+
+  const offset = r.meta?.gmtoffset ?? 0;
+  const bucket = (t) => Math.floor((t + offset) / HALF_DAY_S);
+  const keep   = [];
+  ts.forEach((t, i) => {
+    if (q.close[i] == null) return;
+    if (keep.length && bucket(ts[keep.at(-1)]) === bucket(t)) keep[keep.length - 1] = i;
+    else keep.push(i);
+  });
+
+  const pick  = (arr) => keep.map(i => arr[i]);
+  const quote = Object.fromEntries(Object.entries(q).map(([k, arr]) => [k, pick(arr)]));
+  return {
+    ...data,
+    chart: { ...data.chart, result: [{ ...r, timestamp: pick(ts), indicators: { ...r.indicators, quote: [quote] } }] },
+  };
+}
 
 // Covers indices (^DJI), crypto (BTC-USD), share classes (BRK.B) and
 // forex (THB=X).
@@ -247,7 +276,8 @@ app.get("/api/:symbol", async (req, res) => {
   const url      = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?range=${range}&interval=${interval}&includePrePost=false`;
 
   try {
-    res.json(await fetchJSONMemo(url, 60_000));
+    const data = await fetchJSONMemo(url, 60_000);
+    res.json(range === "1mo" ? thinToHalfDays(data) : data);
   } catch (err) {
     if (err.upstreamStatus === 404) return res.status(404).json({ error: "Unknown symbol" });
     sendFailure(res, err, `Fetch failed for ${symbol}`, { error: "Fetch failed" });
