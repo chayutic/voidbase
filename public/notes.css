@@ -484,8 +484,9 @@ body.notes {
 }
 
 /* Task lists — GFM `- [ ]`. Checkboxes render disabled; making them
-   write back to the source is deferred. */
-.markdown li:has(> input[type="checkbox"]) {
+   write back to the source is deferred. A loose list wraps each item,
+   box included, in a <p>. */
+.markdown li:has(> input[type="checkbox"], > p:first-child > input[type="checkbox"]) {
   list-style: none;
   margin-left: -1.4rem;
   padding-left: 1.4rem;
@@ -502,9 +503,12 @@ body.notes {
   accent-color: var(--accent);
 }
 
-.markdown input[type="checkbox"]:checked + * ,
-.markdown li:has(> input[type="checkbox"]:checked) {
+.markdown li:has(> input[type="checkbox"]:checked, > p:first-child > input[type="checkbox"]:checked) {
   color: var(--text-secondary);
+}
+
+.markdown li:has(> input[type="checkbox"]:checked, > p:first-child > input[type="checkbox"]:checked) strong {
+  color: inherit;
 }
 
 /* ── Rules, quotes, code ── */
