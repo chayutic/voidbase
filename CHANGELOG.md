@@ -10,6 +10,7 @@
 - **The dock tooltip, the footer meta and the Customizer's title are tracked a little tighter.** They were spaced like buttons, which none of them is
 
 ### Fixed
+- **The dock let go of an icon every time the cursor crossed a gap.** Every icon shrank back, then the next one grew. Anywhere over the dock now counts, and the icon nearest the cursor is the one that swells
 - **Game Deals sat empty on every load, then grew all its rows at once.** Coming back from notes is where it showed, but that's just a load like any other. The rows paint right away now with the last prices seen, and the fresh ones replace them when they land
 - **Free games showed `—` for reviews they have.** Dota 2 has 2.7 million of them. A game with no price still shows its reviews now, and the price stays `—`
 - **A Steam hiccup on the reviews side cost the row its price too.** They're fetched separately, and a price that loaded fine now stays when the reviews don't

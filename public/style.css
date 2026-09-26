@@ -245,7 +245,7 @@ h4 {
     color      var(--transition-normal);
 }
 
-.dock__item:hover {
+.dock__item--active {
   flex-basis: 46px;
   height: 56px;
   color: var(--accent-bright);
@@ -1737,7 +1737,7 @@ input:checked + .search__toggle-track::before {
   gap: 0.8rem;
 }
 
-.dock__item:hover {
+.dock__item--active {
   flex-basis: 36px;
   height: 42px;
 }
