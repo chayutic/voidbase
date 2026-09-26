@@ -2,9 +2,6 @@
 //  NEW ARRIVALS — recently added Jellyfin media
 // ═══════════════════════════════════════════════════════════════
 //
-//  Episodes frequently have no Primary image of their own, so those
-//  fall back to the series poster via GET /jellyfin/poster/:seriesId.
-//
 //  Poster images route through the /jellyfin/image/ proxy so they load
 //  from outside the LAN. Card *links* use JELLYFIN_BASE directly and so
 //  only resolve on the local network or over Tailscale — see config.js.
@@ -25,16 +22,6 @@ function buildItemUrl(itemId) {
 
 function padNum(n) {
   return String(n).padStart(2, "0");
-}
-
-async function fetchSeriesPosterTag(seriesId) {
-  try {
-    const res  = await fetch(`/jellyfin/poster/${encodeURIComponent(seriesId)}`);
-    const data = await res.json();
-    return data.imageTag ?? null;
-  } catch {
-    return null;
-  }
 }
 
 function setPoster(imgWrap, id, tag, alt) {
@@ -62,15 +49,11 @@ function createArrivalCard(item) {
   imgWrap.className = "arrivals__poster";
 
   const alt = item.type === "Movie" ? item.title : (item.seriesName ?? item.title);
-  if (item.imageTag) {
-    setPoster(imgWrap, item.id, item.imageTag, alt);
+  const imageId = item.type === "Movie" ? item.id : item.seriesId;
+  if (imageId && item.imageTag) {
+    setPoster(imgWrap, imageId, item.imageTag, alt);
   } else {
     imgWrap.classList.add("arrivals__poster--placeholder");
-    if (item.type === "Episode" && item.seriesId) {
-      fetchSeriesPosterTag(item.seriesId).then(tag => {
-        if (tag) setPoster(imgWrap, item.seriesId, tag, alt);
-      });
-    }
   }
 
   const info = document.createElement("div");

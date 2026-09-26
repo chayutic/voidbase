@@ -412,7 +412,8 @@ app.get("/steam/price/:appid", async (req, res) => {
 
 // ── Jellyfin: latest movies and episodes ───────────────────────
 // Returns MOVIE_SLOTS movies followed by EPISODE_SLOTS episodes, each
-// group sorted by DateCreated descending.
+// group sorted by DateCreated descending. An episode's imageTag is its
+// series' poster: its own Primary is a 16:9 still, cropped to 2:3.
 app.get("/jellyfin/recent", async (req, res) => {
   if (!JELLYFIN_URL || !JELLYFIN_KEY) {
     return res.status(503).json({ error: "Jellyfin not configured" });
@@ -480,7 +481,7 @@ app.get("/jellyfin/recent", async (req, res) => {
         seasonNum:  item.ParentIndexNumber ?? null,
         episodeNum: item.IndexNumber ?? null,
         seriesId:   item.SeriesId ?? null,
-        imageTag:   item.ImageTags?.Primary ?? null,
+        imageTag:   item.SeriesId ? item.SeriesPrimaryImageTag ?? null : null,
       });
       if (episodes.length >= EPISODE_SLOTS) break;
     }
@@ -488,36 +489,6 @@ app.get("/jellyfin/recent", async (req, res) => {
     res.json([...movies, ...episodes]);
   } catch (err) {
     sendFailure(res, err, "Jellyfin recent error", { error: "Jellyfin fetch failed" });
-  }
-});
-
-// ── Jellyfin: series poster by series ID ───────────────────────
-// Episodes often lack their own Primary image — fall back to the
-// series poster. Returns { imageTag } or { imageTag: null }.
-app.get("/jellyfin/poster/:seriesId", async (req, res) => {
-  if (!JELLYFIN_URL || !JELLYFIN_KEY) {
-    return res.status(503).json({ error: "Jellyfin not configured" });
-  }
-  // arrivals.js falls back to a placeholder on { imageTag: null }, error or not.
-  if (!JELLYFIN_ID_RE.test(req.params.seriesId)) return res.status(400).json({ imageTag: null });
-
-  try {
-    // The /Items collection filtered by id, not /Items/{id}. The latter
-    // answers 400 "Error processing request." on this server for every
-    // id, valid or not, so every episode missing its own artwork fell
-    // through arrivals.js's catch to a placeholder rather than the
-    // series poster this route exists to supply.
-    const url  = `${JELLYFIN_URL}/Items?` + new URLSearchParams({
-      ids:              req.params.seriesId,
-      Fields:           "ImageTags",
-      ImageTypeLimit:   "1",
-      EnableImageTypes: "Primary",
-      apikey:           JELLYFIN_KEY,
-    });
-    const data = await fetchJSON(url);
-    res.json({ imageTag: data.Items?.[0]?.ImageTags?.Primary ?? null });
-  } catch (err) {
-    sendFailure(res, err, "Jellyfin poster error", { imageTag: null });
   }
 });
 

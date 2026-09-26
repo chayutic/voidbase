@@ -156,8 +156,6 @@ function fixtureFor(url) {
   if (p.startsWith("/steam/price/"))
     return json(`steam_price_${p.split("/").pop()}.json`);
   if (p === "/jellyfin/recent") return json("jellyfin_recent.json");
-  if (p.startsWith("/jellyfin/poster/"))
-    return json(`jellyfin_poster_${p.split("/").pop()}.json`);
   if (p.startsWith("/jellyfin/image/"))
     return {
       file: path.join(FIXTURES, `poster_${p.split("/").pop()}.png`),
