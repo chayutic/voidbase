@@ -94,12 +94,17 @@ function createCard(symbol) {
       onCommit: (newSymbol) => {
         // Re-read first: another tab may have written since this one loaded.
         symbols = store.json(KEYS.stocksSymbols, null) || symbols;
-        const idx = symbols.indexOf(card.dataset.symbol);
-        if (idx !== -1) symbols[idx] = newSymbol;
+        // By position, not indexOf: with a symbol on the grid twice,
+        // indexOf renames the first card whichever one was edited.
+        const idx = [...stocksGrid.querySelectorAll(".stocks__card")].indexOf(card);
+        if (idx !== -1 && idx < symbols.length) symbols[idx] = newSymbol;
         store.set(KEYS.stocksSymbols, symbols);
         card.dataset.symbol = newSymbol;
         card.querySelector(".stocks__price").textContent = "—";
         card.querySelector(".stocks__delta").textContent = "";
+        // The old symbol's line would otherwise stay drawn under the new
+        // label until, or unless, the new data lands.
+        teardownChart(card);
         fetchCard(card);
       },
       restore: (input) => {
@@ -204,9 +209,11 @@ const dataCache = new Map();
 async function fetchSymbol(symbol) {
   const key      = `${symbol}:${currentRange}`;
   const response = await fetch(`/api/${encodeURIComponent(symbol)}?range=${currentRange}`);
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
   const json     = await response.json();
 
-  const result    = json.chart.result[0];
+  const result    = json.chart?.result?.[0];
+  if (result == null) throw new Error("No chart result");
   const rawTs     = result.timestamp;
   const rawCloses = result.indicators.quote[0].close;
 

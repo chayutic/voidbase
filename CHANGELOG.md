@@ -5,6 +5,8 @@
 ### Fixed
 - **Free games showed `—` for reviews they have.** Dota 2 has 2.7 million of them. A game with no price still shows its reviews now, and the price stays `—`
 - **A Steam hiccup on the reviews side cost the row its price too.** They're fetched separately, and a price that loaded fine now stays when the reviews don't
+- **Rename a ticker to one Yahoo doesn't know, and the old chart stayed drawn under the new name.** The card clears its chart on rename now. What it should show instead is for the error-state design
+- **With the same ticker on two cards, renaming the second one renamed the first**, in storage, so a reload swapped them. Renames go by the card's position now
 
 ## v0.7.21 — 2026-09-26
 *Nothing to see here*
