@@ -43,6 +43,10 @@ function setPoster(imgWrap, id, tag, alt) {
   img.alt     = alt;
   img.loading = "lazy";
   img.draggable = false;
+  img.addEventListener("error", () => {
+    img.remove();
+    imgWrap.classList.add("arrivals__poster--placeholder");
+  }, { once: true });
   imgWrap.classList.remove("arrivals__poster--placeholder");
   imgWrap.appendChild(img);
 }
