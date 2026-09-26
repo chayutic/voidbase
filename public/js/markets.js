@@ -11,7 +11,7 @@ import { SETTINGS_CHANGE }  from "./settings.js";
 import { readTickerCount }  from "./config.js";
 import { EDIT }             from "./icons.js";
 import { beginInlineEdit }  from "./inline-edit.js";
-import { getJSON }          from "./request.js";
+import { getJSON, failedState } from "./request.js";
 
 const rangeButtons    = document.querySelectorAll(".stocks__range");
 const expandToggleBtn = document.getElementById("chartsExpandToggle");
@@ -60,6 +60,7 @@ function createCard(symbol) {
   const card = document.createElement("div");
   card.className      = "stocks__card";
   card.dataset.symbol = symbol;
+  card.dataset.state  = "loading";
   card.innerHTML = `
     <div class="stocks__chart"></div>
     <div class="stocks__overlay">
@@ -106,6 +107,7 @@ function createCard(symbol) {
         // The old symbol's line would otherwise stay drawn under the new
         // label until, or unless, the new data lands.
         teardownChart(card);
+        card.dataset.state = "loading";
         fetchCard(card);
       },
       restore: (input) => {
@@ -162,16 +164,23 @@ async function fetchCard(card) {
   }
 
   let data = null;
+  let error;
   try {
     data = await fetchSymbol(symbol);   // fetchSymbol also writes to cache
   } catch (err) {
     console.error("Error fetching", symbol, err);
+    error = err;
   }
 
   // A range click, a rename or a Ticker Count change can land mid-fetch.
   if (card.dataset.symbol !== symbol || currentRange !== range || !card.isConnected) return;
 
-  if (data) renderCardData(card, data, chartContainer, priceEl, deltaEl);
+  if (data) {
+    renderCardData(card, data, chartContainer, priceEl, deltaEl);
+    card.dataset.state = "ready";
+  } else {
+    card.dataset.state = failedState(error, chartInstances.has(card));
+  }
 }
 
 function renderCardData(card, data, chartContainer, priceEl, deltaEl) {

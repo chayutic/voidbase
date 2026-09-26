@@ -13,7 +13,7 @@
 import * as store              from "./store.js";
 import { KEYS }                from "./store.js";
 import { PLUS, MINUS, CLOSE }  from "./icons.js";
-import { getJSON }             from "./request.js";
+import { getJSON, failedState } from "./request.js";
 
 // Fire icon appears when the current discount is within this many
 // percentage points of the 90-day low. Widened for already-deep lows.
@@ -29,6 +29,8 @@ const MAX_PINS = 20;
 let pinnedGames  = store.json(KEYS.pinnedGames, []);
 // Last known values, persisted so a reload paints them before the fetch lands.
 const dealsCache  = new Map(Object.entries(store.json(KEYS.dealsCache, {}))); // id → { price, discount, low90, reviewDesc, reviewCount }
+// id → data-state. A row with no entry has not been fetched yet.
+const rowStates   = new Map();
 
 const dealsList       = document.getElementById("dealsList");
 const dealsAddBtn     = document.getElementById("dealsAdd");
@@ -74,6 +76,7 @@ function clearSearch() {
   dealsSearchInput.value = "";
   dealsSearchResults.innerHTML = "";
   dealsSearchResults.classList.remove("visible");
+  delete dealsSearchResults.dataset.state;
 }
 
 let searchSeq = 0;
@@ -84,17 +87,22 @@ async function searchGames() {
   const seq = ++searchSeq;
   dealsSearchResults.innerHTML = `<div class="deals__result-item deals__result-loading">Searching…</div>`;
   dealsSearchResults.classList.add("visible");
+  dealsSearchResults.dataset.state = "loading";
 
   let results = null;
+  let error;
   try {
     const data = await getJSON(`/itad/search?q=${encodeURIComponent(q)}`);
     results    = Array.isArray(data) ? data : [];
   } catch (err) {
     console.error("ITAD search error:", err);
+    error = err;
   }
 
   // A newer search, Cancel or Escape may have happened mid-fetch.
   if (seq !== searchSeq) return;
+
+  dealsSearchResults.dataset.state = results ? "ready" : failedState(error, false);
 
   if (!results) {
     dealsSearchResults.innerHTML = `<div class="deals__result-item">Search failed.</div>`;
@@ -143,6 +151,7 @@ function pinGame(id, title, appid) {
 function unpinGame(id) {
   pinnedGames = store.json(KEYS.pinnedGames, pinnedGames).filter(g => g.id !== id);
   store.set(KEYS.pinnedGames, pinnedGames);
+  rowStates.delete(id);
   renderDeals();
 }
 
@@ -164,8 +173,8 @@ async function fetchDeals() {
 
   const itadFetch = getJSON("/itad/prices", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ids }) });
 
-  const steamFetches = pinnedGames
-    .filter(g => g.appid)
+  const steamGames   = pinnedGames.filter(g => g.appid);
+  const steamFetches = steamGames
     .map(g => getJSON(`/steam/price/${g.appid}`).then(d => ({
       id:          g.id,
       price:       d.price,
@@ -176,31 +185,40 @@ async function fetchDeals() {
   // Settled, not all: one source failing must not discard the other's rows.
   const [itadResult, ...steamResults] = await Promise.allSettled([itadFetch, ...steamFetches]);
 
-  const itadById = new Map();
+  const itadById  = new Map();
+  let   itadError = null;
   if (itadResult.status === "fulfilled") {
     for (const item of itadResult.value) itadById.set(item.id, item);
   } else {
     console.error("Deals fetch error:", itadResult.reason);
+    itadError = itadResult.reason;
   }
 
-  const steamById = new Map();
-  for (const s of steamResults) {
-    if (s.status === "rejected") console.error("Steam price error:", s.reason);
+  const steamById   = new Map();
+  const steamErrors = new Map();
+  steamResults.forEach((s, i) => {
+    if (s.status === "rejected") {
+      console.error("Steam price error:", s.reason);
+      steamErrors.set(steamGames[i].id, s.reason);
+    }
     // A free game has no price but still has reviews.
     else if (s.value.price != null || s.value.reviewDesc != null) steamById.set(s.value.id, s.value);
-  }
+  });
 
   for (const { id } of pinnedGames) {
     const itad  = itadById.get(id);
     const steam = steamById.get(id);
-    if (!itad && !steam) continue;
-    dealsCache.set(id, {
-      price:       steam?.price        ?? null,
-      discount:    itad?.discount      ?? null,
-      low90:       itad?.low90discount ?? null,
-      reviewDesc:  steam?.reviewDesc   ?? null,
-      reviewCount: steam?.reviewCount  ?? null,
-    });
+    if (itad || steam) {
+      dealsCache.set(id, {
+        price:       steam?.price        ?? null,
+        discount:    itad?.discount      ?? null,
+        low90:       itad?.low90discount ?? null,
+        reviewDesc:  steam?.reviewDesc   ?? null,
+        reviewCount: steam?.reviewCount  ?? null,
+      });
+    }
+    const error = itadError ?? steamErrors.get(id);
+    rowStates.set(id, error ? failedState(error, dealsCache.has(id)) : "ready");
   }
 
   const pinnedIds = new Set(pinnedGames.map(g => g.id));
@@ -328,6 +346,7 @@ function renderDeals() {
     const row = document.createElement("div");
     row.className   = "deals__row";
     row.dataset.id  = game.id;
+    row.dataset.state = rowStates.get(game.id) ?? "loading";
 
     const nameEl = document.createElement("span");
     nameEl.className   = "deals__col-title deals__name";

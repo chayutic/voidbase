@@ -6,7 +6,7 @@
 - **A `--track-wider` convention check.** The widest tracking is for buttons, and every rule using it has to style one. A class the check can't find in any page's markup fails as well, rather than getting the benefit of the doubt
 
 ### Changed
-- **Every section fetches the same way now**, through one helper that tells a wrong input from a server having a bad day from a feature with no key. Nothing on screen tells them apart yet; that's the error-state design's job
+- **Every section fetches the same way now**, through one helper that tells a wrong input from a server having a bad day from a feature with no key. Each card, row and section also carries which of those it's in, or that it's still loading, or showing old data after a failed refresh. Nothing on screen tells them apart yet; that's the error-state design's job
 - **Express 5.** Nothing on either page should look any different. The one behaviour it did change: a port already in use now stops the server, where Express 5 would otherwise have logged "running" and carried on listening to nothing
 - **Markets' 1M chart has two points a day instead of one.** Midday and close for stocks, every twelve hours for crypto. Yahoo has nothing between hourly and daily, so the server asks for hourly and keeps the last bar of each half day
 - **The dock tooltip, the footer meta and the Customizer's title are tracked a little tighter.** They were spaced like buttons, which none of them is

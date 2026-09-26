@@ -7,7 +7,7 @@
 //  only resolve on the local network or over Tailscale — see config.js.
 
 import { JELLYFIN_BASE } from "./config.js";
-import { getJSON }       from "./request.js";
+import { getJSON, failedState } from "./request.js";
 
 const ARRIVALS_LIMIT = 6;
 
@@ -129,10 +129,12 @@ async function fetchArrivals() {
     items.slice(0, ARRIVALS_LIMIT).forEach(item => {
       arrivalsGrid.appendChild(createArrivalCard(item));
     });
+    arrivalsGrid.dataset.state = "ready";
 
   } catch (err) {
     console.error("Arrivals fetch error:", err);
     arrivalsGrid.innerHTML = `<div class="arrivals__error">Could not load recent media.</div>`;
+    arrivalsGrid.dataset.state = failedState(err, false);
   }
   arrivalsGrid.appendChild(createLibraryCard());
 }

@@ -9,6 +9,14 @@
 //    invalid       400, 404 — the input was wrong
 //    unavailable   502, 504, any other failure — try again later
 //    unconfigured  503 — the route has no key, so it never will work
+//
+//  Those kinds are also three of the values of `data-state`, which each
+//  region that shows fetched data carries. JS decides the state; CSS
+//  alone decides what it looks like. The other three:
+//
+//    loading       nothing has landed for what the region now shows
+//    ready         the last request succeeded
+//    stale         the last request failed, and older data is still up
 
 class RequestError extends Error {
   constructor(kind, message) {
@@ -43,4 +51,10 @@ export async function getJSON(url, init) {
   } catch (err) {
     throw new RequestError("unavailable", err.message);
   }
+}
+
+/** The data-state for a region whose request just failed. */
+export function failedState(err, showingData) {
+  if (showingData) return "stale";
+  return err instanceof RequestError ? err.kind : "unavailable";
 }
