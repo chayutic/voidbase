@@ -102,6 +102,7 @@ export function showRecent(result, services) {
   } catch (err) {
     console.error("Ops recent error:", err.message);
     rowEl.dataset.state = failedState(err, showing);
+    if (!showing) rowEl.hidden = false;
   }
 }
 

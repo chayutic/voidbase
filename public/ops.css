@@ -3,8 +3,7 @@
    ======================================================
    The private homelab page. Status dots key off `data-file`, what
    health.json says, and `data-status`, carried by each dot; never
-   `data-state`, which is the request's own and still waits on the
-   error-state design.
+   `data-state`, which is the request's own.
 ====================================================== */
 
 @layer components {
@@ -803,6 +802,37 @@ a.ops__service:hover {
 }
 
 .ops__volumes-note:empty {
+  display: none;
+}
+
+/* ── Data states ── */
+
+/* Host has no request of its own: it is health's, like the board. */
+.ops__health[data-state="stale"] :is(.ops__topline, .ops__health-line),
+.ops__section[data-state="stale"] :is(.ops__checked, .ops__services, .ops__foot-row:not([data-state]) .ops__phrases),
+.ops__foot-row[data-state="stale"] .ops__phrases,
+:is(.ops__incidents, .ops__offers)[data-state="stale"] {
+  opacity: 0.5;
+}
+
+.ops__health[data-state="unavailable"] .ops__topline::after {
+  content: "Couldn't check on the collector";
+}
+
+.ops__foot-row[data-state="unavailable"] .ops__phrases::before {
+  content: "No answer";
+  color: var(--text-secondary);
+}
+
+.ops__section[data-state="unavailable"] .ops__checked {
+  display: inline;
+}
+
+.ops__section[data-state="unavailable"] .ops__checked::after {
+  content: "No answer";
+}
+
+.ops__section[data-state="unavailable"] .ops__chassis {
   display: none;
 }
 

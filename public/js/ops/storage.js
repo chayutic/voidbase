@@ -253,6 +253,7 @@ export function showStorage(result, checks) {
   } catch (err) {
     console.error("Ops storage error:", err.message);
     sectionEl.dataset.state = failedState(err, showing);
+    if (!showing) sectionEl.hidden = false;
   }
   return showing;
 }

@@ -136,7 +136,6 @@ async function fetchHealth() {
   const state = failedState(error, showingData);
   regionEl.dataset.state = state;
   boardFailed(state);
-  if (!showingData) toplineEl.textContent = "Couldn't check on the collector";
 }
 
 export function initHealth() {

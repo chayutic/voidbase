@@ -112,8 +112,9 @@ function render(data) {
   const text = checkedText(data);
   if (!text) throw new Error(`Unknown file state "${data.file}"`);
 
-  rowEl.dataset.state = "ready";
-  rowEl.dataset.file  = data.file;
+  rowEl.dataset.state    = "ready";
+  offersEl.dataset.state = "ready";
+  rowEl.dataset.file     = data.file;
   rowEl.hidden = false;
 
   if (data.file !== "fresh") {
@@ -150,17 +151,16 @@ function render(data) {
  * whatever was drawn, marked as old.
  */
 export function showUpdates(result) {
-  if (result.status === "fulfilled") {
-    try {
-      render(result.value);
-      showing = result.value;
-    } catch (err) {
-      console.error("Ops updates error:", err.message);
-      rowEl.dataset.state = failedState(err, showing !== null);
-    }
-  } else {
-    console.error("Ops updates error:", result.reason?.message);
-    rowEl.dataset.state = failedState(result.reason, showing !== null);
+  try {
+    if (result.status === "rejected") throw result.reason;
+    render(result.value);
+    showing = result.value;
+  } catch (err) {
+    console.error("Ops updates error:", err.message);
+    const state = failedState(err, showing !== null);
+    rowEl.dataset.state    = state;
+    offersEl.dataset.state = state;
+    if (showing === null) rowEl.hidden = false;
   }
   return showing?.file === "fresh" ? showing.images : [];
 }

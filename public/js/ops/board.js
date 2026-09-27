@@ -182,6 +182,7 @@ function tally(fine) {
 
 function show() {
   boardEl.dataset.state = "ready";
+  incidentsEl.dataset.state = "ready";
   boardEl.hidden = false;
 }
 
@@ -227,4 +228,5 @@ export function hideBoard() {
 /** The request failed; whatever is drawn stays, marked as old. */
 export function boardFailed(state) {
   boardEl.dataset.state = state;
+  incidentsEl.dataset.state = state;
 }
