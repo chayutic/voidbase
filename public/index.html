@@ -253,6 +253,21 @@
       </div>
 
       <div class="deals__list" id="dealsList"></div>
+      <!-- Stubs one row per pinned game before first paint, for the same
+           reason the <head> script applies the theme: deals.js builds
+           the real rows after it, and the list grew as they landed. -->
+      <script>
+        {
+          let count = 0;
+          try {
+            const pinned = JSON.parse(localStorage.getItem("pinnedGames"));
+            if (Array.isArray(pinned)) count = pinned.length;
+          } catch (e) {}
+          document.currentScript.previousElementSibling.innerHTML = count
+            ? '<div class="deals__row" aria-hidden="true"><span class="deals__name">&nbsp;</span></div>'.repeat(count)
+            : '<div class="deals__empty">&nbsp;</div>';
+        }
+      </script>
 
     </section>
 
@@ -264,7 +279,17 @@
         <h2>New Arrivals</h2>
       </div>
 
-      <div class="arrivals__grid" id="arrivalsGrid" data-state="loading"></div>
+      <!-- The pending card is a poster card with nothing in it, so the
+           grid has a poster card's height before Jellyfin answers. -->
+      <div class="arrivals__grid" id="arrivalsGrid" data-state="loading">
+        <div class="arrivals__card arrivals__card--pending" aria-hidden="true">
+          <div class="arrivals__poster"></div>
+          <div class="arrivals__info">
+            <span class="arrivals__title">&nbsp;</span>
+            <span class="arrivals__meta">&nbsp;</span>
+          </div>
+        </div>
+      </div>
 
     </section>
 
@@ -284,6 +309,21 @@
       </div>
 
       <div class="stocks__grid" id="stocksGrid"></div>
+      <!-- Stubs the saved number of cards before first paint, as the
+           Deals script does rows. 6 is TICKER_MAX, and markets.js toggles
+           the same expanded-charts class afterwards. -->
+      <script>
+        {
+          const grid = document.currentScript.previousElementSibling;
+          let count = 6;
+          try {
+            const n = parseInt(localStorage.getItem("tickerCount"), 10);
+            if (!Number.isNaN(n)) count = Math.min(Math.max(n, 1), 6);
+            grid.classList.toggle("expanded-charts", localStorage.getItem("expandedCharts") === "true");
+          } catch (e) {}
+          grid.innerHTML = '<div class="stocks__card" aria-hidden="true"><div class="stocks__chart"></div></div>'.repeat(count);
+        }
+      </script>
     </section>
 
     <!-- ════ MEDIA AUTOMATION ════ -->

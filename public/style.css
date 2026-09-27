@@ -1126,7 +1126,8 @@ input:checked + .search__toggle-track::before {
   mask-image: linear-gradient(to right, black 60%, transparent 100%);
 }
 
-/* Library card — min-height matches the poster cards' computed height. */
+/* Library card. Beside a poster it stretches to the poster's height;
+   the min-height is a floor for an empty library, with none beside it. */
 .arrivals__card--library {
   flex: 0 0 120px;
   align-items: center;
@@ -1182,10 +1183,32 @@ input:checked + .search__toggle-track::before {
   text-align: center;
 }
 
-.arrivals__error {
-  font-size: var(--text-body);
+/* ── Pending card ── */
+
+.arrivals__card--pending {
+  pointer-events: none;
+  cursor: default;
+}
+
+/* The margin puts the library card where six posters will leave it,
+   so they arrive without moving it. */
+.arrivals__grid[data-state="loading"] .arrivals__card--pending {
+  visibility: hidden;
+  margin-inline-end: calc(5 * (120px + var(--gap)));
+}
+
+.arrivals__card--pending .arrivals__poster {
+  display: grid;
+  place-items: center;
+  padding: 0.6rem;
+  font-size: var(--text-micro);
   color: var(--text-secondary);
-  padding: 0.2rem 0;
+  text-transform: none;
+  letter-spacing: var(--track-normal);
+}
+
+.arrivals__card--pending .arrivals__poster::after {
+  content: "Could not load recent media.";
 }
 
 /* ======================================================

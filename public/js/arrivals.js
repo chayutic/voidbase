@@ -125,21 +125,18 @@ async function fetchArrivals() {
 
     if (!Array.isArray(items)) throw new Error("Bad response");
 
-    arrivalsGrid.innerHTML = "";
-    items.slice(0, ARRIVALS_LIMIT).forEach(item => {
-      arrivalsGrid.appendChild(createArrivalCard(item));
-    });
+    const cards = items.slice(0, ARRIVALS_LIMIT).map(createArrivalCard);
+    arrivalsGrid.querySelector(".arrivals__card--pending").replaceWith(...cards);
     arrivalsGrid.dataset.state = "ready";
 
   } catch (err) {
     console.error("Arrivals fetch error:", err);
-    arrivalsGrid.innerHTML = `<div class="arrivals__error">Could not load recent media.</div>`;
     arrivalsGrid.dataset.state = failedState(err, false);
   }
-  arrivalsGrid.appendChild(createLibraryCard());
 }
 
 export function initArrivals() {
   if (!arrivalsGrid) return;
+  arrivalsGrid.appendChild(createLibraryCard());
   fetchArrivals();
 }

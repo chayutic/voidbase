@@ -106,7 +106,7 @@ check("storage-direct", "All persisted state goes through store.js", (hit) => {
   // The inline pre-paint scripts are the one sanctioned exception: they
   // run before any module can load. They must read the same keys
   // store.js writes, or the preference resets on every load.
-  const PRE_PAINT_KEYS = new Set([KEYS.theme, KEYS.guestMode, KEYS.statusInfo, KEYS.force90d, KEYS.sectionLayout, KEYS.notesSidebarCollapsed]);
+  const PRE_PAINT_KEYS = new Set([KEYS.theme, KEYS.guestMode, KEYS.statusInfo, KEYS.force90d, KEYS.sectionLayout, KEYS.notesSidebarCollapsed, KEYS.pinnedGames, KEYS.tickerCount, KEYS.expandedCharts]);
   for (const f of HTML) {
     const src = stripHtmlComments(read(f));
     for (const m of src.matchAll(/\b(localStorage|sessionStorage)\b(\.getItem\("([^"]*)"\))?/g)) {
