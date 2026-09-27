@@ -23,8 +23,10 @@
        before the browser decides whether to run the transition. -->
   <style>@view-transition { navigation: auto; }</style>
 
-  <!-- Geist's latin subset is the only face this page uses. -->
+  <!-- The latin subsets of Geist and of the wordmark's Josefin Sans,
+       the only faces this page uses. -->
   <link rel="preload" as="font" type="font/woff2" crossorigin href="/js/vendor/fonts/v5_gyByhwUxId8gMEwcGFU.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="/js/vendor/fonts/v34_Qw3PZQNVED7rKGKxtqIqX5E-AVSJrOCfjY46_N_XbMZhLw.woff2">
 
   <link rel="stylesheet" href="/js/vendor/fonts.css">
 
@@ -37,6 +39,10 @@
   <link rel="modulepreload" href="/js/theme.js">
   <link rel="modulepreload" href="/js/settings.js">
   <link rel="modulepreload" href="/js/ops/health.js">
+  <link rel="modulepreload" href="/js/ops/seen.js">
+  <link rel="modulepreload" href="/js/ops/format.js">
+  <link rel="modulepreload" href="/js/ops/rows.js">
+  <link rel="modulepreload" href="/js/ops/board.js">
   <link rel="modulepreload" href="/js/store.js">
   <link rel="modulepreload" href="/js/config.js">
   <link rel="modulepreload" href="/js/request.js">
@@ -44,15 +50,45 @@
 
 <body class="ops">
 
+  <!-- ════ HEADER ════
+       Mirrors the dashboard's, in style.css, with the health topline
+       where its AQI sits. -->
   <header class="ops__header">
-    <h1>Ops</h1>
+    <h1>VOIDBASE</h1>
+
+    <div class="ops__separator"></div>
+
+    <div class="ops__meta">
+      <div>Ops</div>
+
+      <div class="ops__health" id="opsHealth" data-state="loading">
+        <div class="ops__topline">
+          <span class="ops__dot" aria-hidden="true"></span>
+          <span id="opsTopline"></span>
+        </div>
+        <div class="ops__health-line" id="opsHealthLine"></div>
+      </div>
+    </div>
   </header>
 
   <main class="ops__layout">
 
-    <section class="ops__health" id="opsHealth" data-state="loading">
-      <span class="ops__dot" aria-hidden="true"></span>
-      <p class="ops__health-line" id="opsHealthLine"></p>
+    <!-- ════ BOARD ════ -->
+    <section class="ops__board" id="opsBoard" data-state="loading" hidden>
+      <h2>Health</h2>
+      <div class="ops__card">
+        <ul class="ops__rows" id="opsRows"></ul>
+        <details class="ops__fold" id="opsFold">
+          <summary class="ops__row ops__fold-line" data-status="ok">
+            <span class="ops__dot" aria-hidden="true"></span>
+            <span id="opsFoldLine"></span>
+            <svg class="ops__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="m9 6 6 6-6 6"/>
+            </svg>
+          </summary>
+          <ul class="ops__rows" id="opsOkRows"></ul>
+        </details>
+      </div>
     </section>
 
   </main>

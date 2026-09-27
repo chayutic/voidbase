@@ -26,6 +26,9 @@ export const KEYS = {
   // Notes
   notesSidebarCollapsed: "notesSidebarCollapsed",
 
+  // Ops
+  opsSeen:        "opsSeen",
+
   // Search / Turbo Mode
   turboEnabled:   "turboEnabled",
   turboNewTab:    "turboNewTab",

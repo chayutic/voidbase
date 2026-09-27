@@ -2,8 +2,9 @@
    OPS
    ======================================================
    The private homelab page. Status dots key off `data-file`, what
-   health.json says, never `data-state`, which is the request's own
-   and still waits on the error-state design.
+   health.json says, and `data-status`, a row's worst check; never
+   `data-state`, which is the request's own and still waits on the
+   error-state design.
 ====================================================== */
 
 @layer components {
@@ -11,24 +12,108 @@
 /* ── Header ── */
 
 .ops__header {
-  flex: none;
-  height: 3.5rem;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 0 1rem;
-  border-bottom: 1px solid var(--border-color);
+  padding: 4rem 1rem 1.5rem;
   background: var(--surface-dark);
+  border-bottom: 1px solid var(--border-color);
+  color: var(--header-text);
 }
 
 .ops__header h1 {
   margin: 0;
+  padding: .8rem 0 0 0;
+  font-family: var(--font-header);
+  font-weight: 700;
+  font-size: var(--text-display);
+  letter-spacing: var(--track-normal);
+  text-align: center;
+}
+
+.ops__separator {
+  width: 120px;
+  height: 1px;
+  background: var(--text-secondary);
+  margin: 0.8rem 0 1.2rem;
+}
+
+.ops__meta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
   font-size: var(--text-headline);
   font-weight: 200;
   letter-spacing: var(--track-wide);
-  line-height: 1.6;
   text-transform: uppercase;
+}
+
+.ops__health {
+  display: contents;
+}
+
+.ops__topline,
+.ops__health-line {
+  min-block-size: 1lh;
+  font-size: var(--text-body);
+  font-weight: 400;
+  text-align: center;
   color: var(--text-secondary);
+}
+
+/* Inline, not the AQI row's flex: a topline that wraps on a phone
+   would strand its dot at the edge. */
+.ops__topline .ops__dot {
+  display: inline-block;
+  margin-inline-end: 0.35rem;
+  vertical-align: 0.05em;
+}
+
+.ops__health:is(
+  [data-file="fresh"]:is([data-overall="warn"], [data-overall="fail"]),
+  [data-file="stale"],
+  [data-file="missing"]
+) .ops__topline {
+  color: var(--text-primary);
+}
+
+/* ── Status dots ── */
+
+/* Hollow until something has been said: unknown, muted, or a schema
+   this page can't read. */
+.ops__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1px solid var(--text-secondary);
+}
+
+:is(
+  .ops__row[data-status="ok"],
+  .ops__health[data-file="fresh"][data-overall="ok"]
+) .ops__dot {
+  border: none;
+  background: var(--text-secondary);
+  opacity: 0.5;
+}
+
+:is(
+  .ops__row[data-status="warn"],
+  .ops__health[data-file="fresh"][data-overall="warn"]
+) .ops__dot {
+  border: none;
+  background: var(--orange-highlights);
+}
+
+:is(
+  .ops__row[data-status="fail"],
+  .ops__health[data-file="fresh"][data-overall="fail"],
+  .ops__health[data-file="stale"],
+  .ops__health[data-file="missing"]
+) .ops__dot {
+  border: none;
+  background: var(--red-highlights);
 }
 
 /* ── Layout ── */
@@ -38,48 +123,158 @@
   margin: 2.4rem auto 6rem;
 }
 
-/* ── Collector line ── */
+/* ── Board ── */
 
-.ops__health {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.75rem 1rem;
+.ops__board {
+  container-type: inline-size;
+}
+
+.ops__board h2 {
+  margin: 0 0 calc(var(--gap) * 0.75);
+  font-family: var(--font-title);
+  font-weight: 200;
+  font-size: var(--text-headline);
+  line-height: 1;
+  letter-spacing: var(--track-wide);
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.ops__card {
+  padding: 0.25rem;
   border: 1px solid var(--border-color);
   border-radius: var(--radius);
   background: var(--surface-glass);
 }
 
-.ops__health-line {
+.ops__rows {
   margin: 0;
-  min-height: 1lh;
+  padding: 0;
+  list-style: none;
+}
+
+.ops__rows:empty {
+  display: none;
+}
+
+.ops__rows > li + li,
+.ops__rows:not(:empty) + .ops__fold,
+.ops__fold-line + .ops__rows {
+  border-top: 1px solid var(--border-color);
+}
+
+.ops__row {
+  display: grid;
+  grid-template-columns: 8px minmax(0, 10rem) minmax(0, 1fr) 5.5rem;
+  align-items: center;
+  gap: var(--gap);
+  padding: 0.6rem 0.75rem;
+  border-radius: var(--radius-xs);
   line-height: 1.4;
+}
+
+.ops__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.ops__detail {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   color: var(--text-secondary);
 }
 
-/* Hollow until health.json has said something: unknown, like a
-   schema this page can't read. */
-.ops__dot {
-  flex: none;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  border: 1px solid var(--text-secondary);
+.ops__since {
+  justify-self: end;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-secondary);
 }
 
-.ops__health[data-file="fresh"] .ops__dot {
-  border: none;
-  background: var(--text-secondary);
-  opacity: 0.5;
+/* The one accent on the board besides links: this changed since the
+   last visit. */
+.ops__row[data-lit],
+.ops__fold[data-lit] > .ops__fold-line {
+  background: oklch(from var(--accent) l c h / 0.2);
 }
 
-.ops__health:is([data-file="stale"], [data-file="missing"]) .ops__dot {
-  border: none;
-  background: var(--red-highlights);
-}
-
-.ops__health:is([data-file="stale"], [data-file="missing"]) .ops__health-line {
+.ops__row[data-lit] .ops__since {
   color: var(--text-primary);
+}
+
+/* ── Ok fold ── */
+
+.ops__fold-line {
+  cursor: pointer;
+  list-style: none;
+  color: var(--text-secondary);
+}
+
+.ops__fold-line:hover {
+  background: var(--surface-glass-hover);
+}
+
+.ops__fold-line > :nth-child(2) {
+  grid-column: 2 / 4;
+}
+
+.ops__chevron {
+  justify-self: end;
+  width: 0.85rem;
+  height: 0.85rem;
+  transition: transform var(--transition-normal);
+}
+
+.ops__fold[open] .ops__chevron {
+  transform: rotate(90deg);
+}
+
+/* ── Narrow ── */
+
+@container (max-width: 30rem) {
+  .ops__row {
+    grid-template-columns: 8px minmax(0, 7rem) minmax(0, 1fr);
+  }
+
+  .ops__since {
+    display: none;
+  }
+
+  .ops__fold-line {
+    grid-template-columns: 8px minmax(0, 1fr) auto;
+  }
+
+  .ops__fold-line > :nth-child(2) {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 425px) {
+  :root {
+    --text-display: 3rem;
+  }
+
+  .ops__header {
+    padding: 3rem 1rem 1rem;
+  }
+
+  .ops__separator {
+    width: 100px;
+    margin: 0.5rem 0 0.8rem;
+  }
+
+  .ops__meta {
+    font-size: var(--text-subhead);
+    gap: 0.25rem;
+  }
+
+  .ops__topline .ops__dot {
+    width: 6px;
+    height: 6px;
+  }
 }
 
 } /* @layer components */

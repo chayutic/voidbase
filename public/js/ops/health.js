@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════
-//  HEALTH — whether the collector is still writing health.json
+//  HEALTH — the header's topline, the collector line, the board
 // ═══════════════════════════════════════════════════════════════
 //
 //  Reads GET /ops/api/health. The server decides staleness against its
@@ -7,49 +7,65 @@
 //  what it was told. `data-file` on the region carries the verdict:
 //  fresh, stale, missing or schema (lib/ops-status.js).
 
-import { getJSON, failedState } from "../request.js";
+import { getJSON, failedState }               from "../request.js";
+import { ago, stamp, count }                  from "./format.js";
+import { buildRows, tally }                   from "./rows.js";
+import { renderBoard, hideBoard, boardFailed } from "./board.js";
+import { shown }                              from "./seen.js";
 
-const regionEl = document.getElementById("opsHealth");
-const lineEl   = document.getElementById("opsHealthLine");
+const regionEl  = document.getElementById("opsHealth");
+const toplineEl = document.getElementById("opsTopline");
+const lineEl    = document.getElementById("opsHealthLine");
 
 const REFRESH_MS = 60_000;
 
-const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const REGISTRY_GONE = {
+  stale:   "services.json is out of date",
+  missing: "services.json is missing",
+  schema:  "services.json is on a schema this page can't read",
+};
 
 let latestRequest = 0;
 let showingData   = false;
 
-function ago(ms) {
-  const mins = Math.floor(ms / 60_000);
-  if (mins < 1)   return "just now";
-  if (mins < 60)  return `${mins} min ago`;
-  const hours = Math.floor(mins / 60);
-  if (hours < 48) return `${hours} h ago`;
-  return `${Math.floor(hours / 24)} days ago`;
+function topline(rows) {
+  if (!rows.length) return "health.json lists no checks";
+  const t = tally(rows);
+  const said = [];
+  if (t.fail)    said.push(`${t.fail} down`);
+  if (t.warn)    said.push(count(t.warn, "warning"));
+  if (t.unknown) said.push(`${t.unknown} unknown`);
+  if (t.muted)   said.push(`${t.muted} muted`);
+  const lead = t.fail || t.warn ? "Needs attention"
+             : t.unknown        ? "Nothing failing"
+             :                    "All services healthy";
+  return said.length ? `${lead} (${said.join(", ")})` : lead;
 }
 
-function stamp(iso) {
-  const d = new Date(iso);
-  const time = `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
-  return `${d.getDate()} ${MONTHS[d.getMonth()]} · ${time}`;
-}
-
-function describe(data) {
+function describe(data, rows) {
   const age = Date.parse(data.checked) - Date.parse(data.generated);
 
   switch (data.file) {
-    case "fresh":
-      return `Collector ran ${ago(age)}.`;
+    case "fresh": {
+      const gone = REGISTRY_GONE[data.servicesFile];
+      return {
+        topline: topline(rows),
+        detail: `Collector ran ${ago(age)}` + (gone ? `. ${gone}, so services come from health.json alone` : ""),
+      };
+    }
     case "stale":
-      if (!data.generated) return "The collector stopped. health.json doesn't say when.";
-      if (age < 0) return `health.json is dated ${stamp(data.generated)}, which hasn't happened yet.`;
-      return `The collector stopped ${ago(age)}. Last run ${stamp(data.generated)}; nothing newer is known.`;
+      if (!data.generated) return { topline: "Collector stopped", detail: "health.json doesn't say when" };
+      if (age < 0) return { topline: "Status unknown", detail: `health.json is dated ${stamp(data.generated)}, which hasn't happened yet` };
+      return { topline: `Collector stopped ${ago(age)}`, detail: `Last run ${stamp(data.generated)}. Nothing newer is known` };
     case "missing":
-      return "health.json is missing. The collector has never run, or status/ isn't mounted.";
+      return { topline: "No health.json", detail: "The collector has never run, or status/ isn't mounted" };
     case "schema":
-      return data.schema == null
-        ? "health.json has no schema, so this page won't guess at it."
-        : `health.json is on schema ${data.schema}, which this page can't read yet.`;
+      return {
+        topline: "Unknown schema",
+        detail: data.schema == null
+          ? "health.json has no schema, so this page won't guess at it"
+          : `health.json is on schema ${data.schema}, which this page can't read yet`,
+      };
   }
   return null;
 }
@@ -57,11 +73,13 @@ function describe(data) {
 async function fetchHealth() {
   const seq = ++latestRequest;
   let data = null;
+  let rows = null;
   let text = null;
   let error;
   try {
     data = await getJSON("/ops/api/health");
-    text = describe(data);
+    if (data.file === "fresh") rows = buildRows(data.checks, data.services);
+    text = describe(data, rows);
     if (!text) throw new Error(`Unknown file state "${data.file}"`);
   } catch (err) {
     console.error("Ops health error:", err.message);
@@ -74,12 +92,24 @@ async function fetchHealth() {
     showingData = true;
     regionEl.dataset.state = "ready";
     regionEl.dataset.file  = data.file;
-    lineEl.textContent     = text;
+    if (rows) regionEl.dataset.overall = data.overall;
+    else delete regionEl.dataset.overall;
+    toplineEl.textContent = text.topline;
+    lineEl.textContent    = text.detail;
+
+    if (rows) {
+      renderBoard(rows, data.checked);
+      shown(data.generated);
+    } else {
+      hideBoard();
+    }
     return;
   }
 
-  regionEl.dataset.state = failedState(error, showingData);
-  if (!showingData) lineEl.textContent = "Couldn't check on the collector.";
+  const state = failedState(error, showingData);
+  regionEl.dataset.state = state;
+  boardFailed(state);
+  if (!showingData) toplineEl.textContent = "Couldn't check on the collector";
 }
 
 export function initHealth() {
