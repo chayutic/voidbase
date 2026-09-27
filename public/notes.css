@@ -507,7 +507,7 @@ body.notes {
   color: var(--text-secondary);
 }
 
-.markdown li:has(> input[type="checkbox"]:checked, > p:first-child > input[type="checkbox"]:checked) strong {
+.markdown li:has(> input[type="checkbox"]:checked, > p:first-child > input[type="checkbox"]:checked) :is(strong, a) {
   color: inherit;
 }
 
