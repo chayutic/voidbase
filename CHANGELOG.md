@@ -19,6 +19,7 @@
 - **The dock tooltip, the footer meta and the Customizer's title are tracked a little tighter.** They were spaced like buttons, which none of them is
 
 ### Fixed
+- **A malformed JSON body got an HTML error page back**, with a stack trace outside production. It gets `{"error":"Bad request"}` now, like every other refusal, and anything a route throws gets a plain 500 in JSON
 - **Two cards could hold the same ticker.** Renaming one to a symbol you already have is refused now, including one hidden past Ticker Count, and the browser says why. Click away and the old name comes back
 - **A duplicate or seventh Turbo preset did nothing, silently**, and left the text sitting in the add row. It says why now. So does renaming a preset to one that exists. The browser's own message is standing in until the error-state design gives these a look
 - **A ticked task only greyed its first bit of bold.** The rest stayed full brightness. And a task list with blank lines between items lost it entirely: bullets came back, and every checkbox piled up in the top-left corner of the note. Only the phone view and the moment before the editor loads draw tasks at all, which is how it lasted

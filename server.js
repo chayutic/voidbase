@@ -534,6 +534,15 @@ app.get("/jellyfin/image/:itemId", async (req, res) => {
 
 app.use(notFound);
 
+// Without this, a malformed JSON body gets finalhandler's HTML page,
+// with a stack trace unless NODE_ENV is production.
+app.use((err, req, res, next) => {
+  if (res.headersSent) return next(err);
+  const status = err.status >= 400 && err.status < 500 ? err.status : 500;
+  if (status === 500) console.error("Unhandled error:", err);
+  res.status(status).json({ error: status === 500 ? "Server error" : "Bad request" });
+});
+
 notesStore.init()
   .then(dir => console.log(`Notes directory: ${dir}`))
   .catch(err => console.error("Notes directory unavailable:", err.message));
