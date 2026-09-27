@@ -2,8 +2,9 @@
 //  BOARD — the rows, worst first, with ok folded into one line
 // ═══════════════════════════════════════════════════════════════
 //
-//  Drawn only from a fresh health.json. Anything else hides the board
-//  and empties it, since last-known states are not current ones.
+//  Checks are drawn only from a fresh health.json, since last-known
+//  states are not current ones. Anything else leaves the registry's
+//  names and links, folded, every state unknown.
 
 import { ago, stamp, count } from "./format.js";
 import { isNew }               from "./seen.js";
@@ -11,6 +12,7 @@ import { isNew }               from "./seen.js";
 const boardEl    = document.getElementById("opsBoard");
 const rowsEl     = document.getElementById("opsRows");
 const foldEl     = document.getElementById("opsFold");
+const summaryEl  = document.getElementById("opsFoldSummary");
 const foldLineEl = document.getElementById("opsFoldLine");
 const okRowsEl   = document.getElementById("opsOkRows");
 
@@ -24,9 +26,10 @@ function rowEl(row, now) {
   dot.className = "ops__dot";
   dot.setAttribute("aria-hidden", "true");
 
-  const name = document.createElement("span");
+  const name = document.createElement(row.url ? "a" : "span");
   name.className = "ops__name";
   name.textContent = row.name;
+  if (row.url) name.href = row.url;
 
   const detail = document.createElement("span");
   detail.className = "ops__detail";
@@ -57,24 +60,34 @@ function foldLabel(services, hosts) {
   return `${said.join(", ")} ok`;
 }
 
+function draw(open, folded, status, label) {
+  rowsEl.replaceChildren(...open);
+  okRowsEl.replaceChildren(...folded);
+  foldEl.hidden = !folded.length;
+  summaryEl.dataset.status = status;
+  foldLineEl.textContent = label;
+  boardEl.dataset.state = "ready";
+  boardEl.hidden = false;
+}
+
 /** `checked` is the server's clock, which ages every `since`. */
 export function renderBoard(rows, checked) {
   const now = Date.parse(checked);
-  const open = rows.filter((r) => r.state !== "ok").map((r) => rowEl(r, now));
-  const ok   = rows.filter((r) => r.state === "ok");
+  const ok = rows.filter((r) => r.state === "ok");
 
-  rowsEl.replaceChildren(...open);
-  okRowsEl.replaceChildren(...ok.map((r) => rowEl(r, now)));
-
-  foldEl.hidden = !ok.length;
-  foldEl.toggleAttribute("data-lit", ok.some((r) => isNew(r.since)));
-  foldLineEl.textContent = foldLabel(
-    ok.filter((r) => !r.host).length,
-    ok.filter((r) => r.host).length,
+  draw(
+    rows.filter((r) => r.state !== "ok").map((r) => rowEl(r, now)),
+    ok.map((r) => rowEl(r, now)),
+    "ok",
+    foldLabel(ok.filter((r) => !r.host).length, ok.filter((r) => r.host).length),
   );
+  foldEl.toggleAttribute("data-lit", ok.some((r) => isNew(r.since)));
+}
 
-  boardEl.dataset.state = "ready";
-  boardEl.hidden = false;
+/** health.json said nothing current: the registry's rows, all folded. */
+export function renderRegistry(rows) {
+  draw([], rows.map((r) => rowEl(r, NaN)), "unknown", `${count(rows.length, "service")}, state unknown`);
+  foldEl.removeAttribute("data-lit");
 }
 
 export function hideBoard() {

@@ -7,11 +7,11 @@
 //  what it was told. `data-file` on the region carries the verdict:
 //  fresh, stale, missing or schema (lib/ops-status.js).
 
-import { getJSON, failedState }               from "../request.js";
-import { ago, stamp, count }                  from "./format.js";
-import { buildRows, tally }                   from "./rows.js";
-import { renderBoard, hideBoard, boardFailed } from "./board.js";
-import { shown }                              from "./seen.js";
+import { getJSON, failedState }                               from "../request.js";
+import { ago, stamp, count }                                  from "./format.js";
+import { buildRows, registryRows, tally }                     from "./rows.js";
+import { renderBoard, renderRegistry, hideBoard, boardFailed } from "./board.js";
+import { shown }                                              from "./seen.js";
 
 const regionEl  = document.getElementById("opsHealth");
 const toplineEl = document.getElementById("opsTopline");
@@ -78,7 +78,7 @@ async function fetchHealth() {
   let error;
   try {
     data = await getJSON("/ops/api/health");
-    if (data.file === "fresh") rows = buildRows(data.checks, data.services);
+    if (data.file === "fresh") rows = buildRows(data.checks, data.services, data.servicesFile === "fresh");
     text = describe(data, rows);
     if (!text) throw new Error(`Unknown file state "${data.file}"`);
   } catch (err) {
@@ -101,7 +101,9 @@ async function fetchHealth() {
       renderBoard(rows, data.checked);
       shown(data.generated);
     } else {
-      hideBoard();
+      const known = registryRows(data.services);
+      if (known.length) renderRegistry(known);
+      else hideBoard();
     }
     return;
   }

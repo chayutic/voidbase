@@ -55,9 +55,9 @@ function detailOf(check, service, containers) {
   return said.length ? `${said.join(" ")}: ${check.detail}` : check.detail;
 }
 
-function serviceRow(name, containers, checks) {
+function serviceRow(name, containers, checks, url) {
   if (!checks.length) {
-    return { name, state: "unknown", detail: "no checks", since: null, more: 0, host: false };
+    return { name, state: "unknown", detail: "no checks", since: null, more: 0, host: false, url };
   }
   const w = worst(checks);
   const count = containers ?? new Set(checks.filter((c) => PER_CONTAINER.has(c.kind)).map(subject)).size;
@@ -68,6 +68,7 @@ function serviceRow(name, containers, checks) {
     since: w.since ?? null,
     more: checks.filter((c) => c !== w && stateOf(c) !== "ok").length,
     host: false,
+    url,
   };
 }
 
@@ -80,19 +81,31 @@ function hostRow(check) {
     since: check.since ?? null,
     more: 0,
     host: true,
+    url: null,
   };
+}
+
+function sorted(rows) {
+  return rows.sort((a, b) =>
+    RANK[b.state] - RANK[a.state] || time(b.since) - time(a.since) || a.name.localeCompare(b.name));
+}
+
+function checkable(s) {
+  return Array.isArray(s.containers) && s.containers.length > 0;
 }
 
 /**
  * Worst first: fail, warn, then muted and unknown together, then ok;
- * ties by the newest `since`. `services` is the registry, or null when
- * services.json isn't fresh, in which case the checks alone decide
- * which services exist.
+ * ties by the newest `since`. `services` is the registry, which decides
+ * which services exist only when `fresh`; otherwise the checks alone
+ * do, and the registry only lends its links.
  */
-export function buildRows(checks, services) {
+export function buildRows(checks, services, fresh) {
   const folds = new Map();
-  for (const s of services ?? []) {
-    folds.set(s.name, { containers: Array.isArray(s.containers) ? s.containers.length : null, checks: [] });
+  if (fresh) {
+    for (const s of services ?? []) {
+      folds.set(s.name, { containers: Array.isArray(s.containers) ? s.containers.length : null, checks: [] });
+    }
   }
 
   const rows = [];
@@ -106,14 +119,24 @@ export function buildRows(checks, services) {
     folds.get(c.service).checks.push(c);
   }
 
+  const links = new Map((services ?? []).map((s) => [s.name, s.url ?? null]));
   for (const [name, fold] of folds) {
     // A registry entry with no containers has nothing to check.
     if (!fold.checks.length && !fold.containers) continue;
-    rows.push(serviceRow(name, fold.containers, fold.checks));
+    rows.push(serviceRow(name, fold.containers, fold.checks, links.get(name) ?? null));
   }
 
-  return rows.sort((a, b) =>
-    RANK[b.state] - RANK[a.state] || time(b.since) - time(a.since) || a.name.localeCompare(b.name));
+  return sorted(rows);
+}
+
+/**
+ * The registry alone, for when health.json can't say anything: every
+ * state unknown, nothing but names and links.
+ */
+export function registryRows(services) {
+  return sorted((services ?? []).filter(checkable).map((s) => ({
+    name: s.name, state: "unknown", detail: "", since: null, more: 0, host: false, url: s.url ?? null,
+  })));
 }
 
 export function tally(rows) {

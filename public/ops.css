@@ -180,6 +180,12 @@
   font-weight: 600;
 }
 
+a.ops__name:hover {
+  color: var(--accent-bright);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 .ops__detail {
   overflow: hidden;
   text-overflow: ellipsis;
