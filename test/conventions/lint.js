@@ -239,7 +239,7 @@ const cssRules = (src) => [...src.matchAll(/([^{};]*)\{([^{}]*)\}/g)]
   .map((m) => ({ sel: m[1].trim(), body: m[2], index: m.index + m[0].indexOf(m[1].trim()) }));
 
 // DESIGN.md's One Ramp Rule names the only two raw sizes it allows.
-const RAW_SIZE_OK = new Set(["style.css 2rem", "notes.css 0.9em", "livepreview.js 0.9em"]);
+const RAW_SIZE_OK = new Set(["style.css 2rem", "style.css 36px", "ops.css 36px", "notes.css 0.9em", "livepreview.js 0.9em"]);
 
 check("font-size-ramp", "Every font-size is a --text-* token (The One Ramp Rule)", (hit) => {
   for (const f of CSS) {

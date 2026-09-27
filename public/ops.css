@@ -68,20 +68,47 @@
   color: var(--text-secondary);
 }
 
-/* Inline, not the AQI row's flex: a topline that wraps on a phone
-   would strand its dot at the edge. */
-.ops__topline .ops__dot {
-  display: inline-block;
-  margin-inline-end: 0.35rem;
-  vertical-align: 0.05em;
-}
-
 .ops__health:is(
   [data-file="fresh"]:is([data-overall="warn"], [data-overall="fail"]),
   [data-file="stale"],
   [data-file="missing"]
 ) .ops__topline {
   color: var(--text-primary);
+}
+
+/* A glyph, not a box, as on the dashboard's health line: text snaps
+   to whole pixels and a box doesn't, so a box dot drifts off centre
+   as the row's position changes. Hollow until something has been
+   said. */
+.ops__topline-dot {
+  display: inline-block;
+  margin-inline-end: 0.45rem;
+  font-size: 36px;
+  line-height: 0;
+  letter-spacing: 0;
+  vertical-align: -6px;
+  color: transparent;
+  -webkit-text-stroke: 1px var(--text-secondary);
+}
+
+.ops__topline-dot::before {
+  content: "\2022";
+}
+
+.ops__health[data-file="fresh"][data-overall="ok"] .ops__topline-dot {
+  color: var(--text-secondary);
+  -webkit-text-stroke: 0;
+  opacity: 0.5;
+}
+
+.ops__health[data-file="fresh"][data-overall="warn"] .ops__topline-dot {
+  color: var(--orange-highlights);
+  -webkit-text-stroke: 0;
+}
+
+.ops__health:is([data-file="fresh"][data-overall="fail"], [data-file="stale"], [data-file="missing"]) .ops__topline-dot {
+  color: var(--red-highlights);
+  -webkit-text-stroke: 0;
 }
 
 /* ── Status dots ── */
@@ -95,29 +122,18 @@
   border: 1px solid var(--text-secondary);
 }
 
-:is(
-  .ops__row[data-status="ok"],
-  .ops__health[data-file="fresh"][data-overall="ok"]
-) .ops__dot {
+.ops__row[data-status="ok"] .ops__dot {
   border: none;
   background: var(--text-secondary);
   opacity: 0.5;
 }
 
-:is(
-  .ops__row[data-status="warn"],
-  .ops__health[data-file="fresh"][data-overall="warn"]
-) .ops__dot {
+.ops__row[data-status="warn"] .ops__dot {
   border: none;
   background: var(--orange-highlights);
 }
 
-:is(
-  .ops__row[data-status="fail"],
-  .ops__health[data-file="fresh"][data-overall="fail"],
-  .ops__health[data-file="stale"],
-  .ops__health[data-file="missing"]
-) .ops__dot {
+.ops__row[data-status="fail"] .ops__dot {
   border: none;
   background: var(--red-highlights);
 }
@@ -281,11 +297,6 @@ a.ops__name:hover {
   .ops__meta {
     font-size: var(--text-subhead);
     gap: 0.25rem;
-  }
-
-  .ops__topline .ops__dot {
-    width: 6px;
-    height: 6px;
   }
 }
 

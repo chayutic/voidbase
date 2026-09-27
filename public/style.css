@@ -231,46 +231,66 @@ h4 {
 
 /* ── Health line ── */
 
-.header__health-link:hover {
+.header__health:is([data-status="warn"], [data-status="fail"]) .header__health-link {
+  color: var(--text-primary);
+}
+
+.header__health .header__health-link:hover {
   color: var(--accent-bright);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
 
-/* Inline, not the AQI row's flex: a line that wraps on a phone would
-   strand its dot at the edge. */
+/* A glyph, not a box: text snaps to whole pixels and a box doesn't, so
+   a box dot drifts off centre as the row's position changes.
+   Inline-block keeps the link's hover underline off it. */
 .header__health-dot {
   display: inline-block;
-  margin-inline-end: 0.35rem;
-  vertical-align: 0.05em;
+  margin-inline-end: 0.45rem;
+  font-size: 36px;
+  line-height: 0;
+  letter-spacing: 0;
+  vertical-align: -6px;
+  color: transparent;
+  -webkit-text-stroke: 1px var(--text-secondary);
 }
 
-.header__health:is([data-status="warn"], [data-status="fail"]) .header__health-link {
-  color: var(--text-primary);
+.header__health-dot::before {
+  content: "\2022";
 }
 
-/* ── Status dots ── */
+.header__health[data-status="ok"] .header__health-dot {
+  color: var(--text-secondary);
+  -webkit-text-stroke: 0;
+  opacity: 0.5;
+}
+
+.header__health[data-status="warn"] .header__health-dot {
+  color: var(--orange-highlights);
+  -webkit-text-stroke: 0;
+}
+
+.header__health[data-status="fail"] .header__health-dot {
+  color: var(--red-highlights);
+  -webkit-text-stroke: 0;
+}
+
+/* ── Card status dot ── */
 
 /* Hollow for unknown, as on /ops. */
-:is(.header__health-dot, .card__dot) {
+.card__dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
   border: 1px solid var(--text-secondary);
 }
 
-.header__health[data-status="ok"] .header__health-dot {
-  border: none;
-  background: var(--text-secondary);
-  opacity: 0.5;
-}
-
-:is(.header__health[data-status="warn"] .header__health-dot, .card[data-status="warn"] .card__dot) {
+.card[data-status="warn"] .card__dot {
   border: none;
   background: var(--orange-highlights);
 }
 
-:is(.header__health[data-status="fail"] .header__health-dot, .card[data-status="fail"] .card__dot) {
+.card[data-status="fail"] .card__dot {
   border: none;
   background: var(--red-highlights);
 }
