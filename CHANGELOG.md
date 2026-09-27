@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Added
+- **`/ops` says whether the collector is still running.** It writes the homelab's health every five minutes. Fifteen minutes without a write and the page says when it stopped, and holds back everything it last knew, since none of it is current any more. A missing file says so, and so does a schema the page doesn't know, rather than having a guess at it. The board itself is next
 - **A `--track-wider` convention check.** The widest tracking is for buttons, and every rule using it has to style one. A class the check can't find in any page's markup fails as well, rather than getting the benefit of the doubt
 
 ### Changed

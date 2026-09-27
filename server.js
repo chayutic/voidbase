@@ -169,8 +169,10 @@ app.use("/js/vendor", express.static("public/js/vendor", {
   immutable: true,
 }));
 
-// Static would otherwise serve the notes page around the auth gate.
+// Static would otherwise serve these pages at a second URL, and the
+// notes page around its auth gate.
 app.get("/notes.html", (req, res) => res.redirect(301, "/notes"));
+app.get("/ops.html",   (req, res) => res.redirect(301, "/ops"));
 
 // Everything else is edited in place and bind-mounted, so it must stay
 // revalidated. ETag still means a 304 rather than a re-download.

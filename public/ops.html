@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ops — Voidbase</title>
+
+  <!-- Applies the saved theme before first paint. Must stay inline and
+       blocking: a deferred module runs after the default palette is
+       already on screen. -->
+  <script>
+    {
+      const root = document.documentElement;
+      root.dataset.theme = "violet";
+      try {
+        root.dataset.theme = localStorage.getItem("theme") || "violet";
+      } catch (e) {}
+    }
+  </script>
+
+  <!-- View transition opt-in. Must stay inline and precede every
+       external stylesheet: the incoming document has to be opted in
+       before the browser decides whether to run the transition. -->
+  <style>@view-transition { navigation: auto; }</style>
+
+  <!-- Geist's latin subset is the only face this page uses. -->
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="/js/vendor/fonts/v5_gyByhwUxId8gMEwcGFU.woff2">
+
+  <link rel="stylesheet" href="/js/vendor/fonts.css">
+
+  <link rel="stylesheet" href="/theme.css" />
+  <link rel="stylesheet" href="/settings.css" />
+  <link rel="stylesheet" href="/ops.css" />
+
+  <!-- The whole import graph of js/ops/main.js. Kept equal to the graph
+       by `npm run lint:conventions`. -->
+  <link rel="modulepreload" href="/js/theme.js">
+  <link rel="modulepreload" href="/js/settings.js">
+  <link rel="modulepreload" href="/js/ops/health.js">
+  <link rel="modulepreload" href="/js/store.js">
+  <link rel="modulepreload" href="/js/config.js">
+  <link rel="modulepreload" href="/js/request.js">
+</head>
+
+<body class="ops">
+
+  <header class="ops__header">
+    <h1>Ops</h1>
+  </header>
+
+  <main class="ops__layout">
+
+    <section class="ops__health" id="opsHealth" data-state="loading">
+      <span class="ops__dot" aria-hidden="true"></span>
+      <p class="ops__health-line" id="opsHealthLine"></p>
+    </section>
+
+  </main>
+
+
+  <!-- ════ DASHBOARD BUTTON ════
+       The notes page has the same one, in the same corner. -->
+  <a class="nav-trigger" href="/" aria-label="Go to dashboard">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="3" width="7" height="7" rx="1"/>
+      <rect x="14" y="3" width="7" height="7" rx="1"/>
+      <rect x="14" y="14" width="7" height="7" rx="1"/>
+      <rect x="3" y="14" width="7" height="7" rx="1"/>
+    </svg>
+  </a>
+
+
+  <!-- ════ SETTINGS BUTTON ════ -->
+  <button class="settings-trigger" id="settingsTrigger" aria-label="Open settings">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="3"/>
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+    </svg>
+  </button>
+
+
+  <!-- ════ SETTINGS PANEL ════
+       Same markup and same ids as the notes page, Layout Customizer
+       omitted for the same reason. -->
+  <div class="settings-panel" id="settingsPanel">
+
+    <div class="settings-panel__header">Control Panel</div>
+
+    <div class="settings__section">
+      <div class="settings__section-label">Theme</div>
+      <div class="swatch-row">
+        <button class="theme__swatch" data-theme="violet" aria-label="Violet"></button>
+        <button class="theme__swatch" data-theme="blue"   aria-label="Blue"></button>
+        <button class="theme__swatch" data-theme="pink"   aria-label="Pink"></button>
+        <button class="theme__swatch" data-theme="green"  aria-label="Green"></button>
+        <button class="theme__swatch" data-theme="black"  aria-label="Black"></button>
+        <button class="theme__swatch" data-theme="white"  aria-label="White"></button>
+        <span class="swatch-name" id="swatchName"></span>
+      </div>
+    </div>
+
+    <div class="settings__section">
+      <div class="settings__section-label">Display</div>
+
+      <div class="settings__row">
+        <span>Status Info</span>
+        <label class="settings__toggle">
+          <input type="checkbox" id="statusInfoToggle" aria-label="Status Info" checked>
+          <span class="settings__toggle-track"></span>
+        </label>
+      </div>
+
+      <div class="settings__row">
+        <span>Guest Mode</span>
+        <label class="settings__toggle">
+          <input type="checkbox" id="guestModeToggle" aria-label="Guest Mode">
+          <span class="settings__toggle-track"></span>
+        </label>
+      </div>
+
+    </div>
+
+    <div class="settings__section">
+      <div class="settings__section-label">Widgets</div>
+
+      <div class="settings__row">
+        <span>Force 90D Low</span>
+        <label class="settings__toggle">
+          <input type="checkbox" id="force90dToggle" aria-label="Force 90D Low">
+          <span class="settings__toggle-track"></span>
+        </label>
+      </div>
+
+      <div class="settings__row">
+        <span>Expanded Charts</span>
+        <label class="settings__toggle">
+          <input type="checkbox" id="expandedChartsToggle" aria-label="Expanded Charts">
+          <span class="settings__toggle-track"></span>
+        </label>
+      </div>
+
+      <div class="settings__row">
+        <span>Ticker Count</span>
+        <div class="settings__stepper">
+          <button id="tickerMinus" aria-label="Fewer tickers">−</button>
+          <span id="tickerCount">6</span>
+          <button id="tickerPlus" aria-label="More tickers">+</button>
+        </div>
+      </div>
+
+      <div class="placeholder-row">Nuclear launch<span class="placeholder-pill">soon</span></div>
+    </div>
+
+    <div class="settings__version" id="settingsVersion"></div>
+
+  </div>
+
+  <script type="module" src="/js/ops/main.js"></script>
+
+</body>
+</html>

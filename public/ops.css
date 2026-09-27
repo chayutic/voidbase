@@ -1,0 +1,85 @@
+/* ======================================================
+   OPS
+   ======================================================
+   The private homelab page. Status dots key off `data-file`, what
+   health.json says, never `data-state`, which is the request's own
+   and still waits on the error-state design.
+====================================================== */
+
+@layer components {
+
+/* ── Header ── */
+
+.ops__header {
+  flex: none;
+  height: 3.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 1rem;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--surface-dark);
+}
+
+.ops__header h1 {
+  margin: 0;
+  font-size: var(--text-headline);
+  font-weight: 200;
+  letter-spacing: var(--track-wide);
+  line-height: 1.6;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+/* ── Layout ── */
+
+.ops__layout {
+  width: min(100% - 2rem, 56rem);
+  margin: 2.4rem auto 6rem;
+}
+
+/* ── Collector line ── */
+
+.ops__health {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  background: var(--surface-glass);
+}
+
+.ops__health-line {
+  margin: 0;
+  min-height: 1lh;
+  line-height: 1.4;
+  color: var(--text-secondary);
+}
+
+/* Hollow until health.json has said something: unknown, like a
+   schema this page can't read. */
+.ops__dot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1px solid var(--text-secondary);
+}
+
+.ops__health[data-file="fresh"] .ops__dot {
+  border: none;
+  background: var(--text-secondary);
+  opacity: 0.5;
+}
+
+.ops__health:is([data-file="stale"], [data-file="missing"]) .ops__dot {
+  border: none;
+  background: var(--red-highlights);
+}
+
+.ops__health:is([data-file="stale"], [data-file="missing"]) .ops__health-line {
+  color: var(--text-primary);
+}
+
+} /* @layer components */
