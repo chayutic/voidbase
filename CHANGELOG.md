@@ -20,6 +20,7 @@
 - **Express 5.** Nothing on either page should look any different. The one behaviour it did change: a port already in use now stops the server, where Express 5 would otherwise have logged "running" and carried on listening to nothing
 - **Markets' 1M chart has two points a day instead of one.** Midday and close for stocks, every twelve hours for crypto. Yahoo has nothing between hourly and daily, so the server asks for hourly and keeps the last bar of each half day
 - **The dock tooltip, the footer meta and the Customizer's title are tracked a little tighter.** They were spaced like buttons, which none of them is
+- **`package.json` no longer says 1.0.0.** It never was, and nothing read it. It has no version at all now, and is marked private, so the only version is the one in the footer
 
 ### Fixed
 - **The dashboard shuffled downwards while it loaded.** Game Deals, New Arrivals and Markets each started short and grew as their rows, posters and cards turned up, shoving everything below them down, by 230px on a phone. They start at their final height now. When Jellyfin doesn't answer, New Arrivals keeps that height too, and the library card keeps its full size instead of standing next to one line of text
