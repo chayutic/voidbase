@@ -21,7 +21,7 @@ const DAY_MS = 86_400_000;
 const DAYS = ["S", "M", "T", "W", "T", "F", "S"];
 
 let showing = false;
-let latest  = { events: [], services: null };
+let latest  = { events: [], services: null, state: "loading", file: null };
 
 // container:immich_machine_learning → "immich", by the registry when
 // it has one; anything it can't place goes by its id.
@@ -70,12 +70,12 @@ function render(data, services) {
   rowEl.hidden = false;
 
   if (data.file !== "fresh") {
-    latest = { events: [], services };
+    latest = { events: [], services, state: "ready", file: data.file };
     listEl.replaceChildren(phrase("unknown", "No events.log"));
     return;
   }
 
-  latest = { events: data.events, services };
+  latest = { events: data.events, services, state: "ready", file: data.file };
   const now = Date.parse(data.checked);
   const all = outages(data.events, services);
   const done = all.filter((o) => o.up);
@@ -102,6 +102,7 @@ export function showRecent(result, services) {
   } catch (err) {
     console.error("Ops recent error:", err.message);
     rowEl.dataset.state = failedState(err, showing);
+    latest.state = rowEl.dataset.state;
     if (!showing) rowEl.hidden = false;
   }
 }
@@ -130,6 +131,8 @@ function spans(service, now) {
 /** Seven day cells ending today, red on any day `service` was down. */
 export function ribbon(service, now) {
   const wrap  = el("div", "ops__ribbon");
+  wrap.dataset.state = latest.state;
+  if (latest.file) wrap.dataset.file = latest.file;
   const cells = el("div", "ops__ribbon-days");
   const names = el("div", "ops__ribbon-names");
   const today = new Date(now);

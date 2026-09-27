@@ -836,6 +836,23 @@ a.ops__service:hover {
   display: none;
 }
 
+.ops__ribbon[data-state="stale"] .ops__ribbon-days {
+  opacity: 0.5;
+}
+
+.ops__ribbon:is(:not([data-state="ready"], [data-state="stale"]), [data-file="missing"]) .ops__ribbon-day {
+  background: none;
+  box-shadow: inset 0 0 0 1px var(--border-color);
+}
+
+.ops__ribbon:not([data-state="ready"], [data-state="stale"]) .ops__ribbon-label::after {
+  content: " · No answer";
+}
+
+.ops__ribbon[data-file="missing"] .ops__ribbon-label::after {
+  content: " · No events.log";
+}
+
 /* ── Narrow ── */
 
 @container (max-width: 40rem) {
