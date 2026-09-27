@@ -1,6 +1,7 @@
 # Changelog — Voidbase
 
-## Unreleased
+## v0.8.0 — 2026-09-27
+*A page for what's wrong*
 
 ### Added
 - **`/ops` says whether the collector is still running.** It writes the homelab's health every five minutes. Fifteen minutes without a write and the page says when it stopped, and holds back everything it last knew, since none of it is current any more. A missing file says so, and so does a schema the page doesn't know, rather than having a guess at it
