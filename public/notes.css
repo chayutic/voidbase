@@ -192,10 +192,47 @@ body.notes {
 
 .notes__new-row:hover svg { color: var(--accent-bright); }
 
+/* ── Folder pills ── */
+
+.notes__folders {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  padding: 0 0.7rem 0.6rem;
+}
+
+.notes__folders[hidden] { display: none; }
+
+.notes__folder {
+  max-width: 100%;
+  overflow: hidden;
+  padding: 0.1rem 0.7rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-pill);
+  background: var(--surface-glass);
+  font: inherit;
+  font-size: var(--text-label);
+  line-height: 1.55;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+}
+
+.notes__folder:hover { color: var(--text-primary); }
+
+.notes__folder[aria-pressed="true"] {
+  background: var(--surface-glass-hover);
+  border-color: var(--border-hover);
+  color: var(--text-primary);
+}
+
 /* ── Collapsed rail ── */
 
 :root.notes-sidebar-collapsed .notes__search,
 :root.notes-sidebar-collapsed .notes__search-icon,
+:root.notes-sidebar-collapsed .notes__folders,
 :root.notes-sidebar-collapsed .notes__new-row,
 :root.notes-sidebar-collapsed .notes__list {
   display: none;
@@ -271,10 +308,32 @@ body.notes {
   color: var(--text-secondary);
 }
 
-.notes__row-excerpt {
+.notes__row-meta {
+  display: flex;
+  gap: 0.4rem;
+  max-width: 100%;
   font-size: var(--text-label);
   line-height: 1.55;
   color: var(--text-secondary);
+}
+
+.notes__row-excerpt {
+  flex: 1;
+  min-width: 0;
+}
+
+.notes__row-folder {
+  flex: none;
+  max-width: 50%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-weight: 600;
+}
+
+.notes__row-folder + .notes__row-excerpt::before {
+  content: "·";
+  margin-right: 0.4rem;
 }
 
 .notes__row-remove {
@@ -611,7 +670,8 @@ body.notes {
   }
 
   :root.notes-sidebar-collapsed .notes__new-row,
-  :root.notes-sidebar-collapsed .notes__list {
+  :root.notes-sidebar-collapsed .notes__list,
+  :root.notes-sidebar-collapsed .notes__folders:not([hidden]) {
     display: flex;
   }
 
@@ -634,6 +694,18 @@ body.notes {
   .notes__statusbar { padding: 0.4rem 1.1rem; }
 
   .notes__row-remove { opacity: 1; }
+
+  .notes__folders {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .notes__folder {
+    flex: none;
+    max-width: 12rem;
+    padding: 0.3rem 0.85rem;
+  }
 }
 
 /* ======================================================

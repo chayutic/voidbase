@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════
-//  SIDEBAR — note list, search, selection, create and delete
+//  SIDEBAR — notes, folders, search, selection, create, delete
 // ═══════════════════════════════════════════════════════════════
 //
 //  Rows are built with DOM methods, never innerHTML: titles, excerpts
@@ -16,6 +16,7 @@ import { displayTitle, isUntitled, formatCreated } from "./format.js";
 import { CLOSE } from "../icons.js";
 
 const listEl     = document.getElementById("notesList");
+const foldersEl  = document.getElementById("notesFolders");
 const newBtn     = document.getElementById("noteNew");
 const searchEl   = document.getElementById("notesSearch");
 const collapseBtn = document.getElementById("sidebarToggle");
@@ -23,6 +24,8 @@ const collapseBtn = document.getElementById("sidebarToggle");
 const SEARCH_DEBOUNCE_MS = 150;
 
 let notes       = [];   // full list, newest first
+let folders     = [];
+let viewed      = null; // folder name, or null for All
 let results     = null; // search results, or null when not searching
 let selectedId  = null;
 let searchTimer = null;
@@ -31,7 +34,12 @@ let onDelete    = () => {};
 let onError     = () => {};
 
 function visibleNotes() {
-  return results ?? notes;
+  if (results) return results;
+  return viewed === null ? notes : notes.filter(n => n.folder === viewed);
+}
+
+function showsFolders() {
+  return results !== null || viewed === null;
 }
 
 // ── Match highlighting ─────────────────────────────────────────
@@ -92,7 +100,17 @@ function buildRow(note, query) {
     excerpt.textContent = "Empty note";
   }
 
-  open.append(title, excerpt);
+  const meta = document.createElement("span");
+  meta.className = "notes__row-meta";
+  if (note.folder && showsFolders()) {
+    const folder = document.createElement("span");
+    folder.className   = "notes__row-folder";
+    folder.textContent = note.folder;
+    meta.appendChild(folder);
+  }
+  meta.appendChild(excerpt);
+
+  open.append(title, meta);
   open.addEventListener("click", () => select(note.id));
 
   const remove = document.createElement("button");
@@ -122,7 +140,9 @@ function render(emptyMessage) {
   if (!rows.length) {
     renderEmpty(emptyMessage ?? (results
       ? `Nothing matches “${query}”.`
-      : "No notes yet — start one above."));
+      : viewed === null
+        ? "No notes yet — start one above."
+        : `No notes in ${viewed} yet — start one above.`));
     return;
   }
 
@@ -155,6 +175,39 @@ export function updateRow(summary) {
 
   const excerpt = row.querySelector(".notes__row-excerpt");
   excerpt.textContent = note.excerpt || "Empty note";
+}
+
+// ── Folders ────────────────────────────────────────────────────
+
+function buildPill(label, folder) {
+  const pill = document.createElement("button");
+  pill.type        = "button";
+  pill.className   = "notes__folder";
+  pill.textContent = label;
+  pill.setAttribute("aria-pressed", String(folder === viewed));
+  pill.addEventListener("click", () => view(folder));
+  return pill;
+}
+
+function renderFolders() {
+  foldersEl.textContent = "";
+  foldersEl.hidden = !folders.length;
+  if (!folders.length) return;
+
+  foldersEl.append(buildPill("All", null), ...folders.map(f => buildPill(f, f)));
+}
+
+/** Show one folder's notes, or every note for null. The editor keeps its note. */
+function view(folder) {
+  viewed = folder;
+  store.set(KEYS.notesFolder, folder);
+
+  clearTimeout(searchTimer);
+  searchEl.value = "";
+  results = null;
+
+  renderFolders();
+  render();
 }
 
 // ── Selection ──────────────────────────────────────────────────
@@ -209,11 +262,17 @@ function clearSearch() {
 // ── Mutations ──────────────────────────────────────────────────
 
 export async function refresh({ keepSelection = true } = {}) {
-  ({ notes } = await api.listNotes());
+  ({ notes, folders } = await api.listNotes());
+
+  if (viewed !== null && !folders.includes(viewed)) {
+    viewed = null;
+    store.remove(KEYS.notesFolder);
+  }
 
   if (!keepSelection || !notes.some(n => n.id === selectedId)) {
-    selectedId = notes[0]?.id ?? null;
+    selectedId = visibleNotes()[0]?.id ?? null;
   }
+  renderFolders();
   render();
   return selectedId;
 }
@@ -223,7 +282,7 @@ async function createNote() {
   // rather than creating something the list then refuses to show.
   clearSearch();
 
-  const summary = await api.createNote("");
+  const summary = await api.createNote("", viewed ?? "");
   notes.unshift(summary);
   selectedId = summary.id;
   render();
@@ -271,6 +330,8 @@ export function initSidebar(handlers = {}) {
   onSelect = handlers.onSelect ?? onSelect;
   onDelete = handlers.onDelete ?? onDelete;
   onError  = handlers.onError  ?? onError;
+
+  viewed = store.str(KEYS.notesFolder, null);
 
   let collapsed = store.bool(KEYS.notesSidebarCollapsed, false);
   applyCollapsed(collapsed);

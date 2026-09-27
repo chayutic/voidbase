@@ -45,9 +45,9 @@ export function readNote(id) {
   return request(`/note/${id}`);
 }
 
-/** Create a note. Returns its summary, including the new id. */
-export function createNote(body = "") {
-  return request("/note", { method: "POST", ...jsonBody({ body }) });
+/** Create a note in a folder, "" for the root. Returns its summary, including the new id. */
+export function createNote(body = "", folder = "") {
+  return request("/note", { method: "POST", ...jsonBody({ body, folder }) });
 }
 
 /**
