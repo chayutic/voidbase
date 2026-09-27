@@ -16,7 +16,8 @@ const summaryEl  = document.getElementById("opsFoldSummary");
 const foldLineEl = document.getElementById("opsFoldLine");
 const okRowsEl   = document.getElementById("opsOkRows");
 
-function rowEl(row, now) {
+/** `row.aside`, when given, fills the last column in place of the age. */
+export function rowEl(row, now) {
   const li = document.createElement("li");
   li.className = "ops__row";
   li.dataset.status = row.state;
@@ -41,15 +42,17 @@ function rowEl(row, now) {
     detail.append(more);
   }
 
-  const since = document.createElement("time");
-  since.className = "ops__since";
-  if (row.since && !Number.isNaN(Date.parse(row.since))) {
-    since.dateTime    = row.since;
-    since.title       = stamp(row.since);
-    since.textContent = ago(now - Date.parse(row.since));
+  const aside = document.createElement(row.aside ? "span" : "time");
+  aside.className = "ops__aside";
+  if (row.aside) {
+    aside.textContent = row.aside;
+  } else if (row.since && !Number.isNaN(Date.parse(row.since))) {
+    aside.dateTime    = row.since;
+    aside.title       = stamp(row.since);
+    aside.textContent = ago(now - Date.parse(row.since));
   }
 
-  li.append(dot, name, detail, since);
+  li.append(dot, name, detail, aside);
   return li;
 }
 

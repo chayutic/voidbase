@@ -122,7 +122,7 @@
   border: 1px solid var(--text-secondary);
 }
 
-.ops__row[data-status="ok"] .ops__dot {
+.ops__row:is([data-status="ok"], [data-status="update"]) .ops__dot {
   border: none;
   background: var(--text-secondary);
   opacity: 0.5;
@@ -145,13 +145,17 @@
   margin: 2.4rem auto 6rem;
 }
 
-/* ── Board ── */
+/* ── Sections ── */
 
-.ops__board {
+.ops__section {
   container-type: inline-size;
 }
 
-.ops__board h2 {
+.ops__section + .ops__section {
+  margin-top: 2.4rem;
+}
+
+.ops__section h2 {
   margin: 0 0 calc(var(--gap) * 0.75);
   font-family: var(--font-title);
   font-weight: 200;
@@ -160,6 +164,23 @@
   letter-spacing: var(--track-wide);
   text-transform: uppercase;
   color: var(--text-secondary);
+}
+
+.ops__checked {
+  margin-inline-start: 0.75rem;
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  font-weight: 400;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.ops__checked::before {
+  content: "· ";
+}
+
+.ops__section[data-file]:not([data-file="fresh"]) .ops__checked {
+  color: var(--orange-highlights);
 }
 
 .ops__card {
@@ -215,7 +236,7 @@ a.ops__name:hover {
   color: var(--text-secondary);
 }
 
-.ops__since {
+.ops__aside {
   justify-self: end;
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
@@ -229,7 +250,7 @@ a.ops__name:hover {
   background: oklch(from var(--accent) l c h / 0.2);
 }
 
-.ops__row[data-lit] .ops__since {
+.ops__row[data-lit] .ops__aside {
   color: var(--text-primary);
 }
 
@@ -267,7 +288,7 @@ a.ops__name:hover {
     grid-template-columns: 8px minmax(0, 7rem) minmax(0, 1fr);
   }
 
-  .ops__since {
+  .ops__aside {
     display: none;
   }
 

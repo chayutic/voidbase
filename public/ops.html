@@ -44,6 +44,7 @@
   <link rel="modulepreload" href="/js/format.js">
   <link rel="modulepreload" href="/js/health-rows.js">
   <link rel="modulepreload" href="/js/ops/board.js">
+  <link rel="modulepreload" href="/js/ops/updates.js">
   <link rel="modulepreload" href="/js/store.js">
   <link rel="modulepreload" href="/js/config.js">
   <link rel="modulepreload" href="/js/request.js">
@@ -74,7 +75,7 @@
   <main class="ops__layout">
 
     <!-- ════ BOARD ════ -->
-    <section class="ops__board" id="opsBoard" data-state="loading" hidden>
+    <section class="ops__section" id="opsBoard" data-state="loading" hidden>
       <h2>Health</h2>
       <div class="ops__card">
         <ul class="ops__rows" id="opsRows"></ul>
@@ -87,6 +88,24 @@
             </svg>
           </summary>
           <ul class="ops__rows" id="opsOkRows"></ul>
+        </details>
+      </div>
+    </section>
+
+    <!-- ════ UPDATES ════ -->
+    <section class="ops__section" id="opsUpdates" data-state="loading" hidden>
+      <h2>Updates<span class="ops__checked" id="opsUpdatesChecked"></span></h2>
+      <div class="ops__card" id="opsUpdatesCard">
+        <ul class="ops__rows" id="opsUpdateRows"></ul>
+        <details class="ops__fold" id="opsUpdateFold">
+          <summary class="ops__row ops__fold-line" data-status="ok">
+            <span class="ops__dot" aria-hidden="true"></span>
+            <span id="opsUpdateFoldLine"></span>
+            <svg class="ops__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="m9 6 6 6-6 6"/>
+            </svg>
+          </summary>
+          <ul class="ops__rows" id="opsUpdateOkRows"></ul>
         </details>
       </div>
     </section>

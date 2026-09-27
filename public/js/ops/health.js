@@ -2,15 +2,18 @@
 //  HEALTH — the header's topline, the collector line, the board
 // ═══════════════════════════════════════════════════════════════
 //
-//  Reads GET /ops/api/health. The server decides staleness against its
-//  own clock and withholds a stale file's checks, so this only words
-//  what it was told. `data-file` on the region carries the verdict:
-//  fresh, stale, missing or schema (lib/ops-status.js).
+//  Reads GET /ops/api/health, and /ops/api/updates alongside it for
+//  the pending images the board and topline show. The server decides
+//  staleness against its own clock and withholds a stale file's
+//  checks, so this only words what it was told. `data-file` on the
+//  region carries the verdict: fresh, stale, missing or schema
+//  (lib/ops-status.js).
 
 import { getJSON, failedState }                               from "../request.js";
 import { ago, stamp, count }                                  from "../format.js";
 import { buildRows, registryRows, tally }                     from "../health-rows.js";
 import { renderBoard, renderRegistry, hideBoard, boardFailed } from "./board.js";
+import { showUpdates, pendingText, withUpdates }              from "./updates.js";
 import { shown }                                              from "./seen.js";
 
 const regionEl  = document.getElementById("opsHealth");
@@ -28,9 +31,12 @@ const REGISTRY_GONE = {
 let latestRequest = 0;
 let showingData   = false;
 
-function topline(rows) {
+// Updates never set the lead unless nothing else would: "All
+// services healthy" is implied by the absence of "Needs attention".
+function topline(rows, pending) {
   if (!rows.length) return "health.json lists no checks";
   const t = tally(rows);
+  const updates = pendingText(pending);
   const said = [];
   if (t.fail)    said.push(`${t.fail} down`);
   if (t.warn)    said.push(count(t.warn, "warning"));
@@ -38,18 +44,20 @@ function topline(rows) {
   if (t.muted)   said.push(`${t.muted} muted`);
   const lead = t.fail || t.warn ? "Needs attention"
              : t.unknown        ? "Nothing failing"
+             : updates          ? updates
              :                    "All services healthy";
+  if (updates && lead !== updates) said.push(updates);
   return said.length ? `${lead} (${said.join(", ")})` : lead;
 }
 
-function describe(data, rows) {
+function describe(data, rows, pending) {
   const age = Date.parse(data.checked) - Date.parse(data.generated);
 
   switch (data.file) {
     case "fresh": {
       const gone = REGISTRY_GONE[data.servicesFile];
       return {
-        topline: topline(rows),
+        topline: topline(rows, pending),
         detail: `Collector ran ${ago(age)}` + (gone ? `. ${gone}, so services come from health.json alone` : ""),
       };
     }
@@ -72,21 +80,25 @@ function describe(data, rows) {
 
 async function fetchHealth() {
   const seq = ++latestRequest;
+  const [health, updates] = await Promise.allSettled([getJSON("/ops/api/health"), getJSON("/ops/api/updates")]);
+  if (seq !== latestRequest) return;
+
+  const pending = showUpdates(updates);
+
   let data = null;
   let rows = null;
   let text = null;
   let error;
   try {
-    data = await getJSON("/ops/api/health");
+    if (health.status === "rejected") throw health.reason;
+    data = health.value;
     if (data.file === "fresh") rows = buildRows(data.checks, data.services, data.servicesFile === "fresh");
-    text = describe(data, rows);
+    text = describe(data, rows, pending);
     if (!text) throw new Error(`Unknown file state "${data.file}"`);
   } catch (err) {
     console.error("Ops health error:", err.message);
     error = err;
   }
-
-  if (seq !== latestRequest) return;
 
   if (!error) {
     showingData = true;
@@ -98,7 +110,7 @@ async function fetchHealth() {
     lineEl.textContent    = text.detail;
 
     if (rows) {
-      renderBoard(rows, data.checked);
+      renderBoard(withUpdates(rows, pending), data.checked);
       shown(data.generated);
     } else {
       const known = registryRows(data.services);
