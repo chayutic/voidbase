@@ -177,7 +177,24 @@ export function updateRow(summary) {
   excerpt.textContent = note.excerpt || "Empty note";
 }
 
+/**
+ * A note changed folder, so its label and which folder shows it both
+ * change. A folder the list hasn't seen yet means a fresh list.
+ */
+export function moveRow(summary) {
+  if (summary.folder && !folders.includes(summary.folder)) return refresh();
+
+  const merge = n => n.id === summary.id ? { ...n, ...summary } : n;
+  notes = notes.map(merge);
+  if (results) results = results.map(merge);
+  render();
+}
+
 // ── Folders ────────────────────────────────────────────────────
+
+export function folderNames() {
+  return folders;
+}
 
 function buildPill(label, folder) {
   const pill = document.createElement("button");

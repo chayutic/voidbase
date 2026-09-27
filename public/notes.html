@@ -49,11 +49,13 @@
   <link rel="modulepreload" href="/js/settings.js">
   <link rel="modulepreload" href="/js/notes/sidebar.js">
   <link rel="modulepreload" href="/js/notes/editor.js">
+  <link rel="modulepreload" href="/js/notes/move.js">
   <link rel="modulepreload" href="/js/store.js">
   <link rel="modulepreload" href="/js/config.js">
   <link rel="modulepreload" href="/js/notes/api.js">
   <link rel="modulepreload" href="/js/notes/format.js">
   <link rel="modulepreload" href="/js/icons.js">
+  <link rel="modulepreload" href="/js/inline-edit.js">
   <link rel="modulepreload" href="/js/notes/preview.js">
   <link rel="modulepreload" href="/js/notes/markdown.js">
   <link rel="modulepreload" href="/js/vendor/marked.esm.js">
@@ -120,6 +122,21 @@
 
       <div class="notes__statusbar">
         <span class="notes__status" id="noteStatus"></span>
+
+        <button class="notes__note-folder" id="noteFolder" type="button"
+                popovertarget="folderPicker" title="Move to another folder" hidden></button>
+        <div class="notes__picker" id="folderPicker" popover aria-label="Move to folder">
+          <div class="notes__picker-label">Move to</div>
+          <div class="notes__picker-list" id="folderPickerList"></div>
+          <label class="notes__picker-new">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            <input id="folderPickerNew" type="text" placeholder="New folder" aria-label="New folder"
+                   maxlength="64" autocomplete="off" spellcheck="false">
+          </label>
+        </div>
+
         <span class="notes__meta" id="noteMeta"></span>
       </div>
     </section>

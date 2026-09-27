@@ -9,6 +9,7 @@ import { initTheme }    from "../theme.js";
 import { initSettings } from "../settings.js";
 import * as sidebar    from "./sidebar.js";
 import * as editor     from "./editor.js";
+import * as move       from "./move.js";
 
 initTheme();
 
@@ -20,6 +21,15 @@ sidebar.initSidebar({
   onSelect: (id) => editor.load(id),
   onDelete: (nextId) => editor.load(nextId, { discard: true }),
   onError:  (message) => editor.reportError(message),
+});
+
+move.initMove({
+  folders:    () => sidebar.folderNames(),
+  // A save still in flight could land after the move, carrying the
+  // old folder back into the list.
+  beforeMove: () => editor.flush(),
+  onMoved:    (summary) => sidebar.moveRow(summary),
+  onError:    (message) => editor.reportError(message),
 });
 
 // Flush before the tab is hidden as well as on unload — on mobile a
@@ -36,6 +46,7 @@ async function start() {
       sidebar.refresh({ keepSelection: false }),
       editor.initEditor({
         onSaved: (summary) => sidebar.updateRow(summary),
+        onShown: (note) => move.show(note),
       }),
     ]);
 

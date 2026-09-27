@@ -31,6 +31,7 @@ let saveTimer = null;
 let saving    = Promise.resolve();
 let loadSeq   = 0;
 let onSaved   = () => {};
+let onShown   = () => {};
 
 // The active editing surface: "loading" | "cm6" | "fallback"
 let mode = "loading";
@@ -184,6 +185,7 @@ function showNothing() {
   setEditable(false);
   setStatus("");
   setMeta(null);
+  onShown(null);
 }
 
 /**
@@ -229,6 +231,7 @@ export async function load(id, { discard = false } = {}) {
   setEditable(true);
   setStatus("Saved", "saved");
   setMeta(note);
+  onShown(note);
   return true;
 }
 
@@ -241,6 +244,7 @@ export function focus() {
 
 export async function initEditor(handlers = {}) {
   onSaved = handlers.onSaved ?? onSaved;
+  onShown = handlers.onShown ?? onShown;
 
   // Fallback surface stays wired whether or not it is ever shown.
   fallbackEl.addEventListener("input", onEdit);

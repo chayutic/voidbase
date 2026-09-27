@@ -436,7 +436,6 @@ body.notes {
   flex: none;
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: var(--gap);
   padding: 0.4rem 1.75rem;
   border-top: 1px solid var(--border-color);
@@ -446,12 +445,157 @@ body.notes {
   color: var(--text-secondary);
 }
 
+.notes__status { margin-right: auto; }
+
 .notes__status[data-state="saving"] { color: var(--text-secondary); }
 .notes__status[data-state="saved"]  { color: var(--green-highlights); }
 .notes__status[data-state="dirty"]  { color: var(--orange-highlights); }
 .notes__status[data-state="error"]  { color: var(--red-highlights); }
 
 .notes__meta { font-variant-numeric: tabular-nums; }
+
+/* ── Folder button ── */
+
+/* margin-block cancels the border, so the bar is the same height with
+   a note open and without one. */
+.notes__note-folder {
+  anchor-name: --note-folder;
+  flex: none;
+  max-width: 12rem;
+  overflow: hidden;
+  margin-block: -1px;
+  padding: 0 0.6rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-pill);
+  background: var(--surface-glass);
+  font: inherit;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+}
+
+.notes__note-folder:hover { color: var(--text-primary); }
+
+.notes__note-folder:has(+ .notes__picker:popover-open) {
+  background: var(--surface-glass-hover);
+  border-color: var(--border-hover);
+  color: var(--text-primary);
+}
+
+/* ── Folder picker ── */
+
+.notes__picker {
+  position-anchor: --note-folder;
+  position-area: top span-left;
+  position-try-fallbacks: flip-block;
+  inset: auto;
+  width: max-content;
+  min-width: 11rem;
+  max-width: 16rem;
+  max-height: 50dvh;
+  overflow-y: auto;
+  margin: 0 0 0.4rem;
+  padding: 0.3rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  background: var(--panel-bg);
+  color: var(--text-primary);
+  font-size: var(--text-label);
+  line-height: 1.55;
+  opacity: 0;
+  transform: translateY(4px) scale(0.97);
+  transform-origin: bottom right;
+  transition:
+    opacity   var(--transition-normal),
+    transform var(--transition-normal),
+    overlay   var(--transition-normal) allow-discrete,
+    display   var(--transition-normal) allow-discrete;
+}
+
+.notes__picker:popover-open {
+  opacity: 1;
+  transform: none;
+}
+
+@starting-style {
+  .notes__picker:popover-open {
+    opacity: 0;
+    transform: translateY(4px) scale(0.97);
+  }
+}
+
+.notes__picker-label {
+  padding: 0.3rem 0.6rem 0.35rem;
+  letter-spacing: var(--track-wide);
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.notes__picker-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.notes__picker-item {
+  overflow: hidden;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-xs);
+  background: none;
+  font: inherit;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  text-align: left;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+}
+
+.notes__picker-item:hover {
+  background: var(--surface-glass);
+  color: var(--text-primary);
+}
+
+.notes__picker-item[aria-current="true"] {
+  background: var(--surface-glass-hover);
+  border-color: var(--border-hover);
+  color: var(--text-primary);
+}
+
+.notes__picker-new {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 0.3rem;
+  padding: 0.45rem 0.6rem 0.2rem;
+  border-top: 1px solid var(--border-color);
+  color: var(--text-secondary);
+}
+
+.notes__picker-new svg {
+  flex: none;
+  width: 12px;
+  height: 12px;
+  transition: color var(--transition-normal);
+}
+
+.notes__picker-new:focus-within svg { color: var(--accent); }
+
+.notes__picker-new input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: none;
+  color: var(--text-primary);
+  font: inherit;
+  caret-color: var(--accent);
+}
+
+.notes__picker-new input::placeholder { color: var(--text-secondary); }
 
 /* ======================================================
    PREVIEW — loading state and the mobile reading surface
@@ -706,6 +850,9 @@ body.notes {
     max-width: 12rem;
     padding: 0.3rem 0.85rem;
   }
+
+  .notes__picker-item { padding: 0.55rem 0.7rem; }
+  .notes__picker-new  { padding: 0.6rem 0.7rem 0.35rem; }
 }
 
 /* ======================================================

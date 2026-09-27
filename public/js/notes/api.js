@@ -19,6 +19,7 @@ async function request(path, options = {}) {
     } catch { /* non-JSON error body */ }
     const err = new Error(`${res.status} ${detail}`);
     err.status = res.status;
+    err.detail = detail;
     throw err;
   }
 
@@ -66,4 +67,14 @@ export function searchNotes(query) {
 
 export function deleteNote(id) {
   return request(`/note/${id}`, { method: "DELETE" });
+}
+
+/** Move a note to a folder, "" for the root. Keeps its id and mtime; returns its summary. */
+export function moveNote(id, folder) {
+  return request(`/note/${id}/move`, { method: "POST", ...jsonBody({ folder }) });
+}
+
+/** Returns { name }, as the server stored it. */
+export function createFolder(name) {
+  return request("/folder", { method: "POST", ...jsonBody({ name }) });
 }
