@@ -1,5 +1,10 @@
 # Changelog — Voidbase
 
+## Unreleased
+
+### Added
+- **`/ops` says how big each volume is, not just how much is on it.** "4.7 of 7.2 TB used", now that the collector writes the total down
+
 ## v0.8.0 — 2026-09-27
 *A page for what's wrong*
 

@@ -47,6 +47,14 @@ function size(bytes) {
   return `${gb >= 100 ? Math.round(gb) : gb.toFixed(1)} GB`;
 }
 
+// "4.7 of 7.2 TB", or "900 GB of 1.1 TB" when the units differ.
+function usedOf(used, total) {
+  const of = size(total);
+  const unit = of.slice(of.indexOf(" "));
+  const u = size(used);
+  return [el("b", null, u.endsWith(unit) ? u.slice(0, -unit.length) : u), ` of ${of}`];
+}
+
 function clampPct(n) {
   return Math.min(100, Math.max(0, n));
 }
@@ -160,7 +168,10 @@ function volumeEl(volume, disks, check) {
   head.append(el("span", "ops__vol-name", volume.name), reading);
 
   const said = el("p", "ops__vol-said");
-  if (volume.used_bytes != null) said.append(el("b", null, size(volume.used_bytes)), " used, ");
+  if (volume.used_bytes != null) {
+    if (Number.isFinite(check?.total_bytes)) said.append(...usedOf(volume.used_bytes, check.total_bytes), " used, ");
+    else said.append(el("b", null, size(volume.used_bytes)), " used, ");
+  }
   said.append(`${trend(volume.history)}. ${drivesSaid(disks)}`);
   box.append(head, said);
   return box;
