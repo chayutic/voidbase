@@ -145,9 +145,9 @@ export function showUpdates(result) {
   return showing?.file === "fresh" ? showing.images.filter(isPending) : [];
 }
 
-/** "2 updates available", or nothing. */
+/** "2 updates", or nothing. */
 export function pendingText(pending) {
-  return pending.length ? `${count(pending.length, "update")} available` : "";
+  return pending.length ? count(pending.length, "update") : "";
 }
 
 /**
