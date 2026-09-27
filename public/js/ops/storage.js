@@ -5,8 +5,8 @@
 //  disk.csv draws each volume's 90 days as an area on a fixed 0–100
 //  scale, so how much of the card is filled is how full the volume
 //  is. smart.json's disks sit under the volume they belong to, on
-//  its own 26-hour clock. Cards are made once and updated in place,
-//  so the fill rises on the first draw and never again.
+//  its own 26-hour clock. Fetched once per page load: none of it
+//  changes more than daily.
 
 import { failedState }     from "../request.js";
 import { ago, stamp, day } from "../format.js";
@@ -27,8 +27,6 @@ const VOLUMES = [
 
 const FULL_SPAN = 90;
 
-const cards = new Map();
-let made    = 0;
 let showing = false;
 
 // Binary units under decimal names, as UGOS shows them, so the two
@@ -194,23 +192,12 @@ function render(data, checks) {
     ...mounts.filter((m) => !VOLUMES.some((v) => v.mount === m.mount)).map((m) => ({ ...m, name: m.mount, roles: [] })),
   ].filter((v) => v.history.length);
 
-  for (const [mount, el] of cards) {
-    if (!volumes.some((v) => v.mount === mount)) {
-      el.remove();
-      cards.delete(mount);
-    }
-  }
-
-  for (const v of volumes) {
-    let el = cards.get(v.mount);
-    if (!el) {
-      el = cardEl(made++);
-      cards.set(v.mount, el);
-    }
-    volumesEl.append(el);
+  volumesEl.replaceChildren(...volumes.map((v, i) => {
+    const el = cardEl(i);
     drawVolume(el, v, checks?.find((c) => c.id === `disk:${v.mount}`));
     el.querySelector(".ops__disks").replaceChildren(...disks.filter((d) => v.roles.includes(d.role)).map(diskEl));
-  }
+    return el;
+  }));
 
   const placed = new Set(volumes.flatMap((v) => v.roles));
   const loose = disks.filter((d) => !placed.has(d.role));
@@ -222,9 +209,9 @@ function render(data, checks) {
 }
 
 /**
- * Draws the answer to GET /ops/api/storage, as a settled promise.
- * `checks` are a fresh health.json's, for each mount's thresholds
- * and state, or null.
+ * Draws the answer to GET /ops/api/storage, as a settled promise, and
+ * says whether it drew. `checks` are a fresh health.json's, for each
+ * mount's thresholds and state, or null.
  */
 export function showStorage(result, checks) {
   try {
@@ -235,4 +222,5 @@ export function showStorage(result, checks) {
     console.error("Ops storage error:", err.message);
     sectionEl.dataset.state = failedState(err, showing);
   }
+  return showing;
 }

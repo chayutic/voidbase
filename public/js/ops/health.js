@@ -5,7 +5,7 @@
 //  Reads GET /ops/api/health, and /ops/api/updates alongside it for
 //  the pending images the board and topline show. Recent and Storage
 //  come in the same round, since they take names and thresholds from
-//  health.json. The server decides staleness against its own clock
+//  health.json; Storage only until it has drawn once. The server decides staleness against its own clock
 //  and withholds a stale file's checks, so this only words what it
 //  was told. `data-file` on the
 //  region carries the verdict: fresh, stale, missing or schema
@@ -34,6 +34,7 @@ const REGISTRY_GONE = {
 
 let latestRequest = 0;
 let showingData   = false;
+let storageShown  = false;
 
 // Updates never set the lead unless nothing else would: "All
 // services healthy" is implied by the absence of "Needs attention".
@@ -88,14 +89,14 @@ async function fetchHealth() {
     getJSON("/ops/api/health"),
     getJSON("/ops/api/updates"),
     getJSON("/ops/api/recent"),
-    getJSON("/ops/api/storage"),
+    storageShown ? null : getJSON("/ops/api/storage"),
   ]);
   if (seq !== latestRequest) return;
 
   const pending = showUpdates(updates);
   const told = health.status === "fulfilled" ? health.value : null;
   showRecent(recent, told?.services);
-  showStorage(storage, told?.file === "fresh" ? told.checks : null);
+  if (!storageShown) storageShown = showStorage(storage, told?.file === "fresh" ? told.checks : null);
 
   let data = null;
   let rows = null;
