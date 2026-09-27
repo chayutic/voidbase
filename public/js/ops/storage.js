@@ -1,22 +1,20 @@
 // ═══════════════════════════════════════════════════════════════
-//  STORAGE — a tank per volume, its disks beneath
+//  STORAGE — the NAS from the front, and what it says in words
 // ═══════════════════════════════════════════════════════════════
 //
-//  disk.csv draws each volume's 90 days as an area on a fixed 0–100
-//  scale, so how much of the card is filled is how full the volume
-//  is. smart.json's disks sit under the volume they belong to, on
-//  its own 26-hour clock. Fetched once per page load: none of it
-//  changes more than daily.
+//  The array's drives stand in their bays, each filled to how full
+//  the array is; the SSD volume is the M.2 stick below. The readout says the same in sentences. disk.csv gives the
+//  levels, smart.json the drives on its own 26-hour clock. Fetched
+//  once per page load: none of it changes more than daily.
 
-import { failedState }     from "../request.js";
-import { ago, stamp, day } from "../format.js";
+import { failedState }      from "../request.js";
+import { ago, stamp, day }  from "../format.js";
+import { el, dot, capital } from "./dom.js";
 
-const sectionEl  = document.getElementById("opsStorage");
-const checkedEl  = document.getElementById("opsSmartChecked");
-const volumesEl  = document.getElementById("opsVolumes");
-const looseEl    = document.getElementById("opsLooseDisks");
-const looseRows  = document.getElementById("opsLooseRows");
-const noteEl     = document.getElementById("opsVolumesNote");
+const sectionEl = document.getElementById("opsStorage");
+const checkedEl = document.getElementById("opsSmartChecked");
+const chassisEl = document.getElementById("opsChassis");
+const noteEl    = document.getElementById("opsVolumesNote");
 
 // Which disks make up which volume isn't in the contract yet (asked
 // of ops), so it's here, by role.
@@ -25,7 +23,18 @@ const VOLUMES = [
   { mount: "/volume2", name: "SSD",   roles: ["volume2"] },
 ];
 
-const FULL_SPAN = 90;
+// The DXP4800 Plus's front. smart.json has no bay numbers, so drives
+// fill bays in its order.
+const BAYS = 4;
+
+const MODELS = {
+  "WDC WD40EFRX-68N32N0": "WD Red Plus 4 TB",
+  "WD Blue SN5000 1TB":   "WD Blue SN5000 1 TB",
+  "WD Blue SN5000 500GB": "WD Blue SN5000 500 GB",
+  "YSO128GTLCW-E3C-2":    "128 GB",
+};
+
+const COUNTS = ["", "", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight"];
 
 let showing = false;
 
@@ -42,122 +51,131 @@ function clampPct(n) {
   return Math.min(100, Math.max(0, n));
 }
 
-function paths(history) {
-  const ys = history.map(([, pct]) => 100 - clampPct(pct));
-  const points = ys.length === 1
-    ? [[0, ys[0]], [100, ys[0]]]
-    : ys.map((y, i) => [(i / (ys.length - 1)) * 100, y]);
-  const line = points.map(([x, y], i) => `${i ? "L" : "M"}${x.toFixed(2)},${y}`).join(" ");
-  return { line, fill: `${line} L100,100 L0,100 Z` };
+function modelOf(disk) {
+  return MODELS[disk.model] ?? disk.model ?? "";
 }
 
-function cardEl(index) {
-  const el = document.createElement("article");
-  el.className = "ops__volume";
-  el.innerHTML = `
-    <div class="ops__tank">
-      <div class="ops__tank-top">
-        <span class="ops__volume-name"></span>
-        <span class="ops__volume-mount"></span>
-        <span class="ops__volume-span"></span>
-      </div>
-      <div class="ops__tank-scale">
-        <span class="ops__threshold" data-level="warn" hidden></span>
-        <span class="ops__threshold" data-level="fail" hidden></span>
-        <svg class="ops__tank-plot" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-          <defs>
-            <linearGradient id="opsTank${index}" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="100">
-              <stop class="ops__tank-stop" offset="0"/>
-              <stop class="ops__tank-stop ops__tank-stop--end" offset="1"/>
-            </linearGradient>
-          </defs>
-          <path class="ops__tank-fill" fill="url(#opsTank${index})"/>
-          <path class="ops__tank-line"/>
-        </svg>
-        <div class="ops__tank-level">
-          <div class="ops__tank-reading">
-            <span class="ops__volume-pct"></span>
-            <span class="ops__volume-used"></span>
-          </div>
-        </div>
-      </div>
-    </div>
-    <ul class="ops__disks"></ul>`;
-  return el;
+// 21,865 h → "2 yr 6 mo"
+function age(hours) {
+  const months = Math.round(hours / 730);
+  if (months < 1) return `${Math.max(1, Math.round(hours / 24))} days`;
+  if (months < 12) return `${months} mo`;
+  const years = Math.floor(months / 12), rest = months % 12;
+  return rest ? `${years} yr ${rest} mo` : `${years} yr`;
 }
 
-// A threshold the fill has passed is said by its colour instead.
-function setThreshold(el, at, pct) {
-  el.hidden = !Number.isFinite(at) || at <= pct;
-  if (!el.hidden) el.style.setProperty("--at", clampPct(at));
+function statusOf(check) {
+  return check && (check.state === "warn" || check.state === "fail") ? check.state : null;
 }
 
-function drawVolume(el, volume, check) {
-  const q = (s) => el.querySelector(s);
-  const { line, fill } = paths(volume.history);
-  q(".ops__tank-fill").setAttribute("d", fill);
-  q(".ops__tank-line").setAttribute("d", line);
+// ── Drawing ────────────────────────────────────────────────────
 
-  const [first] = volume.history[0];
+function bayEl(disk, level, status) {
+  const bay = el("div", "ops__bay");
+  const body = el("div", "ops__bay-body");
+  if (disk) {
+    const fill = el("span", "ops__bay-fill");
+    if (status) fill.dataset.status = status;
+    fill.style.setProperty("--level", level);
+    const led = dot(disk.state);
+    led.classList.add("ops__bay-led");
+    body.append(fill, led, el("span", "ops__bay-grip"));
+    body.title = disk.model ?? "";
+  } else {
+    bay.classList.add("ops__bay--empty");
+    body.append(el("span", "ops__bay-empty", "empty"));
+  }
+  bay.append(body, el("span", "ops__bay-temp", disk?.temp_c == null ? "" : `${disk.temp_c}°`));
+  return bay;
+}
+
+function stickEl(name, level, status, disk) {
+  const stick = el("div", "ops__stick");
+  const body = el("div", "ops__stick-body");
+  const fill = el("span", "ops__stick-fill");
+  if (status) fill.dataset.status = status;
+  fill.style.setProperty("--level", level);
+  body.append(fill);
+  if (disk?.model) body.title = disk.model;
+  stick.append(body, el("span", null, name));
+  return stick;
+}
+
+function scaleEl(check) {
+  const scale = el("div", "ops__scale");
+  for (const at of [check?.warn, check?.fail]) {
+    if (!Number.isFinite(at)) continue;
+    const tick = el("span", null, String(at));
+    tick.style.setProperty("--at", clampPct(at));
+    scale.append(tick);
+  }
+  return scale;
+}
+
+// ── Sentences ──────────────────────────────────────────────────
+
+// "flat since 26 Sep", "up 4 points since 1 Jul".
+function trend(history) {
+  const [first, was] = history[0];
+  const [, now] = history.at(-1);
+  const moved = now - was;
+  const since = `since ${day(first)}`;
+  if (!moved) return `flat ${since}`;
+  return `${moved > 0 ? "up" : "down"} ${Math.abs(moved)} point${Math.abs(moved) === 1 ? "" : "s"} ${since}`;
+}
+
+function range(values) {
+  const lo = Math.min(...values), hi = Math.max(...values);
+  return lo === hi ? `${lo}°` : `${lo}–${hi}°`;
+}
+
+// "Three WD Red Plus 4 TB drives, 2 yr 6 mo old, 41–43°, SMART passed."
+function drivesSaid(disks) {
+  if (!disks.length) return "";
+  const models = [...new Set(disks.map(modelOf))];
+  const what = disks.length === 1  ? models[0]
+             : models.length === 1 ? `${COUNTS[disks.length] ?? disks.length} ${models[0]} drives`
+             :                       `${disks.length} drives`;
+  const said = [what];
+  const hours = disks.map((d) => d.power_on_hours).filter(Number.isFinite);
+  if (hours.length) said.push(`${age(Math.max(...hours))} old`);
+  const temps = disks.map((d) => d.temp_c).filter(Number.isFinite);
+  if (temps.length) said.push(range(temps));
+  const wear = disks.map((d) => d.wear_pct).filter(Number.isFinite);
+  if (wear.length) said.push(`${100 - Math.max(...wear)} % life left`);
+  const bad = disks.filter((d) => d.state !== "ok");
+  said.push(bad.length ? bad.map((d) => d.detail).join(", ") : "SMART passed");
+  return `${said.join(", ")}.`;
+}
+
+function volumeEl(volume, disks, check) {
   const [, pct] = volume.history.at(-1);
+  const box = el("div", "ops__vol");
+  const status = statusOf(check);
+  if (status) box.dataset.status = status;
 
-  if (check && (check.state === "warn" || check.state === "fail")) el.dataset.status = check.state;
-  else delete el.dataset.status;
-  setThreshold(q('[data-level="warn"]'), check?.warn, pct);
-  setThreshold(q('[data-level="fail"]'), check?.fail, pct);
-  el.style.setProperty("--level", clampPct(pct));
-  el.dataset.reading = pct >= 50 ? "below" : "above";
+  const head = el("div", "ops__vol-head");
+  const reading = el("span", "ops__vol-pct", `${pct} %`);
+  reading.append(el("small", null, "full"));
+  head.append(el("span", "ops__vol-name", volume.name), reading);
 
-  q(".ops__volume-name").textContent  = volume.name;
-  q(".ops__volume-mount").textContent = volume.name === volume.mount ? "" : volume.mount;
-  q(".ops__volume-span").textContent  = volume.history.length >= FULL_SPAN ? "90 days" : `since ${day(first)}`;
-  q(".ops__volume-pct").textContent   = `${pct} %`;
-  q(".ops__volume-used").textContent  = volume.used_bytes == null ? "" : `${size(volume.used_bytes)} used`;
+  const said = el("p", "ops__vol-said");
+  if (volume.used_bytes != null) said.append(el("b", null, size(volume.used_bytes)), " used, ");
+  said.append(`${trend(volume.history)}. ${drivesSaid(disks)}`);
+  box.append(head, said);
+  return box;
 }
 
-function cell(className, text) {
-  const span = document.createElement("span");
-  span.className = className;
-  span.textContent = text;
-  return span;
+// "Cache: WD Blue SN5000 1 TB, 42°, 100 % life left."
+function looseSaid(disk) {
+  const said = [modelOf(disk)];
+  if (Number.isFinite(disk.temp_c)) said.push(`${disk.temp_c}°`);
+  if (Number.isFinite(disk.wear_pct)) said.push(`${100 - disk.wear_pct} % life left`);
+  if (disk.state !== "ok") said.push(disk.detail);
+  return `${capital(disk.role)}: ${said.filter(Boolean).join(", ")}.`;
 }
 
-function diskEl(disk) {
-  const li = document.createElement("li");
-  li.className = "ops__disk";
-  li.dataset.status = disk.state;
-
-  const dot = document.createElement("span");
-  dot.className = "ops__dot";
-  dot.setAttribute("aria-hidden", "true");
-
-  const ok = disk.state === "ok";
-  const model = cell("ops__disk-model", ok ? disk.model ?? "" : disk.detail);
-  if (disk.model) model.title = disk.model;
-
-  li.append(
-    dot,
-    cell("ops__disk-label", disk.label),
-    model,
-    cell("ops__disk-num", disk.temp_c == null ? "" : `${disk.temp_c} °C`),
-    cell("ops__disk-num", disk.power_on_hours == null ? "" : `${disk.power_on_hours.toLocaleString("en-US")} h`),
-    cell("ops__disk-num", disk.wear_pct == null ? "" : `wear ${disk.wear_pct} %`),
-  );
-  return li;
-}
-
-// "raid 1", "raid 2": numbered when a role has several, as
-// public.json labels them.
-function labelled(disks) {
-  const of = new Map();
-  for (const d of disks) of.set(d.role, (of.get(d.role) ?? 0) + 1);
-  const seen = new Map();
-  return disks.map((d) => {
-    const n = (seen.get(d.role) ?? 0) + 1;
-    seen.set(d.role, n);
-    return { ...d, label: of.get(d.role) > 1 ? `${d.role} ${n}` : d.role };
-  });
-}
+// ── Render ─────────────────────────────────────────────────────
 
 function checkedText(smart, checked) {
   const age = Date.parse(checked) - Date.parse(smart.generated);
@@ -184,25 +202,39 @@ function render(data, checks) {
   else checkedEl.removeAttribute("title");
   sectionEl.hidden = false;
 
-  const disks = labelled(data.smart.disks ?? []);
-  const mounts = data.disk.mounts ?? [];
-  const known = VOLUMES.filter((v) => mounts.some((m) => m.mount === v.mount));
+  const disks = data.smart.disks ?? [];
+  const mounts = (data.disk.mounts ?? []).filter((m) => m.history.length);
   const volumes = [
-    ...known.map((v) => ({ ...v, ...mounts.find((m) => m.mount === v.mount) })),
+    ...VOLUMES.filter((v) => mounts.some((m) => m.mount === v.mount)).map((v) => ({ ...v, ...mounts.find((m) => m.mount === v.mount) })),
     ...mounts.filter((m) => !VOLUMES.some((v) => v.mount === m.mount)).map((m) => ({ ...m, name: m.mount, roles: [] })),
-  ].filter((v) => v.history.length);
+  ];
+  const checkOf = (v) => checks?.find((c) => c.id === `disk:${v.mount}`);
+  const levelOf = (v) => (v ? clampPct(v.history.at(-1)[1]) : 0);
 
-  volumesEl.replaceChildren(...volumes.map((v, i) => {
-    const el = cardEl(i);
-    drawVolume(el, v, checks?.find((c) => c.id === `disk:${v.mount}`));
-    el.querySelector(".ops__disks").replaceChildren(...disks.filter((d) => v.roles.includes(d.role)).map(diskEl));
-    return el;
-  }));
+  const array = volumes.find((v) => v.mount === "/home");
+  const ssd   = volumes.find((v) => v.mount === "/volume2");
+  const raid  = disks.filter((d) => d.role === "raid");
 
-  const placed = new Set(volumes.flatMap((v) => v.roles));
+  const rack = el("div", "ops__rack");
+  const bays = el("div", "ops__bays");
+  bays.append(scaleEl(checkOf(array)));
+  // With no drives known, every bay is drawn as one, unknown.
+  const drawn = raid.length ? raid : Array.from({ length: BAYS }, () => ({ state: "unknown" }));
+  if (array) {
+    for (let i = 0; i < Math.max(BAYS, drawn.length); i++) bays.append(bayEl(drawn[i], levelOf(array), statusOf(checkOf(array))));
+  }
+  const sticks = el("div", "ops__sticks");
+  if (ssd) sticks.append(stickEl(ssd.name, levelOf(ssd), statusOf(checkOf(ssd)), disks.find((d) => d.role === "volume2")));
+  rack.append(bays, sticks);
+
+  const readout = el("div", "ops__readout");
+  readout.append(...volumes.map((v) => volumeEl(v, disks.filter((d) => v.roles.includes(d.role) && d.role !== "cache"), checkOf(v))));
+  const placed = new Set(volumes.flatMap((v) => v.roles).filter((r) => r !== "cache"));
   const loose = disks.filter((d) => !placed.has(d.role));
-  looseRows.replaceChildren(...loose.map(diskEl));
-  looseEl.hidden = !loose.length;
+  if (loose.length) readout.append(el("p", "ops__readout-foot", loose.map(looseSaid).join(" ")));
+
+  chassisEl.replaceChildren(rack, readout);
+  chassisEl.hidden = !volumes.length && !disks.length;
   noteEl.textContent = data.disk.file !== "fresh" ? "no disk.csv, so no volumes"
                      : !volumes.length          ? "disk.csv has no rows yet"
                      :                            "";

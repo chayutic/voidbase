@@ -15,7 +15,7 @@ import { getJSON, failedState }                               from "../request.j
 import { ago, stamp, count }                                  from "../format.js";
 import { buildRows, registryRows, tally }                     from "../health-rows.js";
 import { renderBoard, renderRegistry, hideBoard, boardFailed } from "./board.js";
-import { showUpdates, pendingText, withUpdates }              from "./updates.js";
+import { showUpdates, pendingText, offered }                  from "./updates.js";
 import { showRecent }                                         from "./recent.js";
 import { showStorage }                                        from "./storage.js";
 import { shown }                                              from "./seen.js";
@@ -38,10 +38,10 @@ let storageShown  = false;
 
 // Updates never set the lead unless nothing else would: "All
 // services healthy" is implied by the absence of "Needs attention".
-function topline(rows, pending) {
+function topline(rows, images) {
   if (!rows.length) return "health.json lists no checks";
   const t = tally(rows);
-  const updates = pendingText(pending);
+  const updates = pendingText(images);
   const said = [];
   if (t.fail)    said.push(`${t.fail} down`);
   if (t.warn)    said.push(count(t.warn, "warning"));
@@ -55,14 +55,14 @@ function topline(rows, pending) {
   return said.length ? `${lead} (${said.join(", ")})` : lead;
 }
 
-function describe(data, rows, pending) {
+function describe(data, rows, images) {
   const age = Date.parse(data.checked) - Date.parse(data.generated);
 
   switch (data.file) {
     case "fresh": {
       const gone = REGISTRY_GONE[data.servicesFile];
       return {
-        topline: topline(rows, pending),
+        topline: topline(rows, images),
         detail: `Collector ran ${ago(age)}` + (gone ? `. ${gone}, so services come from health.json alone` : ""),
       };
     }
@@ -93,7 +93,7 @@ async function fetchHealth() {
   ]);
   if (seq !== latestRequest) return;
 
-  const pending = showUpdates(updates);
+  const images = showUpdates(updates);
   const told = health.status === "fulfilled" ? health.value : null;
   showRecent(recent, told?.services);
   if (!storageShown) storageShown = showStorage(storage, told?.file === "fresh" ? told.checks : null);
@@ -106,7 +106,7 @@ async function fetchHealth() {
     if (health.status === "rejected") throw health.reason;
     data = health.value;
     if (data.file === "fresh") rows = buildRows(data.checks, data.services, data.servicesFile === "fresh");
-    text = describe(data, rows, pending);
+    text = describe(data, rows, images);
     if (!text) throw new Error(`Unknown file state "${data.file}"`);
   } catch (err) {
     console.error("Ops health error:", err.message);
@@ -123,7 +123,7 @@ async function fetchHealth() {
     lineEl.textContent    = text.detail;
 
     if (rows) {
-      renderBoard(withUpdates(rows, pending), data.checked);
+      renderBoard(rows, data.checked, images, offered(images));
       shown(data.generated);
     } else {
       const known = registryRows(data.services);

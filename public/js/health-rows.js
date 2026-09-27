@@ -69,7 +69,19 @@ function serviceRow(name, containers, checks, url) {
     more: checks.filter((c) => c !== w && stateOf(c) !== "ok").length,
     host: false,
     url,
+    parts: count > 1 ? partsOf(checks, name) : [],
   };
+}
+
+// Each container's worst check: [{ name: "machine learning", state }].
+function partsOf(checks, service) {
+  const by = new Map();
+  for (const c of checks) {
+    if (!PER_CONTAINER.has(c.kind)) continue;
+    const had = by.get(subject(c));
+    if (!had || worse(c, had) > 0) by.set(subject(c), c);
+  }
+  return [...by].map(([container, c]) => ({ name: part(container, service), state: stateOf(c) }));
 }
 
 function hostRow(check) {

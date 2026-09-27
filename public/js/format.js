@@ -13,6 +13,15 @@ export function ago(ms) {
   return `${Math.floor(hours / 24)} days ago`;
 }
 
+/** How long something lasted: "5 min", "15 h", "3 days". */
+export function span(ms) {
+  const mins = Math.max(1, Math.round(ms / 60_000));
+  if (mins < 60) return `${mins} min`;
+  const hours = Math.round(mins / 60);
+  if (hours < 48) return `${hours} h`;
+  return `${Math.round(hours / 24)} days`;
+}
+
 export function stamp(iso) {
   const d = new Date(iso);
   const time = `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;

@@ -44,6 +44,8 @@
   <link rel="modulepreload" href="/js/format.js">
   <link rel="modulepreload" href="/js/health-rows.js">
   <link rel="modulepreload" href="/js/ops/board.js">
+  <link rel="modulepreload" href="/js/ops/icons.js">
+  <link rel="modulepreload" href="/js/ops/dom.js">
   <link rel="modulepreload" href="/js/ops/updates.js">
   <link rel="modulepreload" href="/js/ops/recent.js">
   <link rel="modulepreload" href="/js/ops/storage.js">
@@ -76,58 +78,40 @@
 
   <main class="ops__layout">
 
-    <!-- ════ BOARD ════ -->
+    <!-- ════ NEEDS ATTENTION ════ -->
+    <section class="ops__section ops__attention">
+      <h2>Needs attention</h2>
+      <div class="ops__incidents" id="opsIncidents"></div>
+      <div class="ops__offers" id="opsOffers"></div>
+    </section>
+
+    <!-- ════ OPERATIONAL ════ -->
     <section class="ops__section" id="opsBoard" data-state="loading" hidden>
-      <h2>Health</h2>
-      <div class="ops__card">
-        <ul class="ops__rows" id="opsRows"></ul>
-        <details class="ops__fold" id="opsFold">
-          <summary class="ops__row ops__fold-line" id="opsFoldSummary" data-status="ok">
-            <span class="ops__dot" aria-hidden="true"></span>
-            <span id="opsFoldLine"></span>
-            <svg class="ops__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="m9 6 6 6-6 6"/>
-            </svg>
-          </summary>
-          <ul class="ops__rows" id="opsOkRows"></ul>
-        </details>
-      </div>
-    </section>
-
-    <!-- ════ UPDATES ════ -->
-    <section class="ops__section" id="opsUpdates" data-state="loading" hidden>
-      <h2>Updates<span class="ops__checked" id="opsUpdatesChecked"></span></h2>
-      <div class="ops__card" id="opsUpdatesCard">
-        <ul class="ops__rows" id="opsUpdateRows"></ul>
-        <details class="ops__fold" id="opsUpdateFold">
-          <summary class="ops__row ops__fold-line" data-status="ok">
-            <span class="ops__dot" aria-hidden="true"></span>
-            <span id="opsUpdateFoldLine"></span>
-            <svg class="ops__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="m9 6 6 6-6 6"/>
-            </svg>
-          </summary>
-          <ul class="ops__rows" id="opsUpdateOkRows"></ul>
-        </details>
-      </div>
-    </section>
-
-    <!-- ════ RECENT ════ -->
-    <section class="ops__section" id="opsRecent" data-state="loading" hidden>
-      <h2>Recent<span class="ops__checked" id="opsRecentNote"></span></h2>
-      <div class="ops__card" id="opsRecentCard">
-        <ul class="ops__rows" id="opsRecentRows"></ul>
+      <h2 id="opsTrayTitle">Operational<span class="ops__checked" id="opsTrayNote"></span></h2>
+      <div class="ops__card ops__tray">
+        <ul class="ops__services" id="opsServices"></ul>
+        <div class="ops__foot">
+          <div class="ops__foot-row" id="opsMachine" hidden>
+            <span class="ops__foot-label">Host</span>
+            <ul class="ops__phrases" id="opsHostList"></ul>
+          </div>
+          <div class="ops__foot-row" id="opsUpdates" data-state="loading" hidden>
+            <span class="ops__foot-label">Updates</span>
+            <ul class="ops__phrases" id="opsUpdateList"></ul>
+          </div>
+          <div class="ops__foot-row" id="opsRecent" data-state="loading" hidden>
+            <span class="ops__foot-label">This week</span>
+            <ul class="ops__phrases" id="opsRecentList"></ul>
+          </div>
+        </div>
       </div>
     </section>
 
     <!-- ════ STORAGE ════ -->
     <section class="ops__section" id="opsStorage" data-state="loading" hidden>
       <h2>Storage<span class="ops__checked" id="opsSmartChecked"></span></h2>
-      <div class="ops__volumes" id="opsVolumes"></div>
+      <div class="ops__card ops__chassis" id="opsChassis"></div>
       <p class="ops__volumes-note" id="opsVolumesNote"></p>
-      <div class="ops__card" id="opsLooseDisks" hidden>
-        <ul class="ops__disks" id="opsLooseRows"></ul>
-      </div>
     </section>
 
   </main>
