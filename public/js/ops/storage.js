@@ -16,8 +16,8 @@ const checkedEl = document.getElementById("opsSmartChecked");
 const chassisEl = document.getElementById("opsChassis");
 const noteEl    = document.getElementById("opsVolumesNote");
 
-// Which disks make up which volume isn't in the contract yet (asked
-// of ops), so it's here, by role.
+// Which disks make up which volume, by role: contract § 3's roles to
+// mounts. smart.json doesn't say so per disk.
 const VOLUMES = [
   { mount: "/home",    name: "Array", roles: ["raid", "cache"] },
   { mount: "/volume2", name: "SSD",   roles: ["volume2"] },
