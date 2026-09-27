@@ -49,6 +49,12 @@
   text-transform: uppercase;
 }
 
+/* The clock arrives after first paint; an empty row would collapse
+   and push everything below it down when it lands. */
+.ops__clock {
+  min-block-size: 1lh;
+}
+
 .ops__health {
   display: contents;
 }

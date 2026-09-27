@@ -38,6 +38,7 @@
        by `npm run lint:conventions`. -->
   <link rel="modulepreload" href="/js/theme.js">
   <link rel="modulepreload" href="/js/settings.js">
+  <link rel="modulepreload" href="/js/clock.js">
   <link rel="modulepreload" href="/js/ops/health.js">
   <link rel="modulepreload" href="/js/ops/seen.js">
   <link rel="modulepreload" href="/js/ops/format.js">
@@ -51,15 +52,15 @@
 <body class="ops">
 
   <!-- ════ HEADER ════
-       Mirrors the dashboard's, in style.css, with the health topline
-       where its AQI sits. -->
+       Mirrors the dashboard's, in style.css, clock included, with the
+       health topline where its AQI sits. -->
   <header class="ops__header">
     <h1>VOIDBASE</h1>
 
     <div class="ops__separator"></div>
 
     <div class="ops__meta">
-      <div>Ops</div>
+      <div class="ops__clock" id="clockDate"></div>
 
       <div class="ops__health" id="opsHealth" data-state="loading">
         <div class="ops__topline">
