@@ -1,11 +1,11 @@
 // ═══════════════════════════════════════════════════════════════
-//  ROWS — health.json's checks folded into the board's rows
+//  HEALTH ROWS — health.json's checks folded into rows
 // ═══════════════════════════════════════════════════════════════
 //
 //  One row per service, carrying its worst check, and one per check
 //  with no `service` (the host's own: disk, raid, smart…). The fold is
 //  by the `service` field and nothing else, which is how dns and
-//  tailscale join theirs, and a kind this page has never heard of
+//  tailscale join theirs, and a kind neither page has heard of
 //  still lands somewhere.
 
 // Contract § 3's ranking. muted and unknown tie.

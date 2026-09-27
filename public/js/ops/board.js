@@ -6,7 +6,7 @@
 //  states are not current ones. Anything else leaves the registry's
 //  names and links, folded, every state unknown.
 
-import { ago, stamp, count } from "./format.js";
+import { ago, stamp, count } from "../format.js";
 import { isNew }               from "./seen.js";
 
 const boardEl    = document.getElementById("opsBoard");

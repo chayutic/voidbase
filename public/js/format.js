@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════
-//  FORMAT — time and count wording shared by the ops page
+//  FORMAT — time and count wording for the ops page and the cards
 // ═══════════════════════════════════════════════════════════════
 
 const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];

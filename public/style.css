@@ -120,6 +120,39 @@ h4 {
   color: var(--accent);
 }
 
+/* ── Card status ── */
+
+.card[data-service] {
+  position: relative;
+}
+
+.card__dot,
+.card__detail {
+  display: none;
+}
+
+.card[data-status] .card__dot {
+  display: block;
+  position: absolute;
+  inset-block-start: 0.75rem;
+  inset-inline-end: 0.75rem;
+}
+
+.card[data-status] h4 {
+  display: none;
+}
+
+.card[data-status] .card__detail {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-body);
+  font-size: var(--text-label);
+  color: var(--text-primary);
+}
+
 
 /* ======================================================
    HEADER
@@ -193,6 +226,53 @@ h4 {
   font-size: var(--text-body);
   font-weight: 400;
   color: var(--text-secondary);
+  text-align: center;
+}
+
+/* ── Health line ── */
+
+.header__health-link:hover {
+  color: var(--accent-bright);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* Inline, not the AQI row's flex: a line that wraps on a phone would
+   strand its dot at the edge. */
+.header__health-dot {
+  display: inline-block;
+  margin-inline-end: 0.35rem;
+  vertical-align: 0.05em;
+}
+
+.header__health:is([data-status="warn"], [data-status="fail"]) .header__health-link {
+  color: var(--text-primary);
+}
+
+/* ── Status dots ── */
+
+/* Hollow for unknown, as on /ops. */
+:is(.header__health-dot, .card__dot) {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1px solid var(--text-secondary);
+}
+
+.header__health[data-status="ok"] .header__health-dot {
+  border: none;
+  background: var(--text-secondary);
+  opacity: 0.5;
+}
+
+:is(.header__health[data-status="warn"] .header__health-dot, .card[data-status="warn"] .card__dot) {
+  border: none;
+  background: var(--orange-highlights);
+}
+
+:is(.header__health[data-status="fail"] .header__health-dot, .card[data-status="fail"] .card__dot) {
+  border: none;
+  background: var(--red-highlights);
 }
 
 /* ======================================================
@@ -1788,7 +1868,7 @@ input:checked + .search__toggle-track::before {
 }
 /* ── Guest mode — hide homelab sections ── */
 
-:root.guest-mode .section--homelab {
+:root.guest-mode :is(.section--homelab, .header__health) {
   display: none;
 }
 

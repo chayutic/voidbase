@@ -8,8 +8,8 @@
 //  fresh, stale, missing or schema (lib/ops-status.js).
 
 import { getJSON, failedState }                               from "../request.js";
-import { ago, stamp, count }                                  from "./format.js";
-import { buildRows, registryRows, tally }                     from "./rows.js";
+import { ago, stamp, count }                                  from "../format.js";
+import { buildRows, registryRows, tally }                     from "../health-rows.js";
 import { renderBoard, renderRegistry, hideBoard, boardFailed } from "./board.js";
 import { shown }                                              from "./seen.js";
 
