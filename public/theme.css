@@ -1,7 +1,8 @@
 /* ======================================================
    THEME — design tokens, theme variants, global reset
    ======================================================
-   Nothing page-specific belongs here. Typography lives with the
+   Plus the one component both pages share outside the Control
+   Panel: the refusal tip. Nothing page-specific belongs here. Typography lives with the
    page that owns it: notes needs room for Thai vowel and tone marks
    that the dashboard's line-height: 1 would clip.
 ====================================================== */
@@ -351,3 +352,47 @@ a {
   from { opacity: 1; }
   to   { opacity: 0; }
 }
+
+/* ======================================================
+   REFUSAL — inline-edit.js's reject(), on both pages
+   ======================================================
+   The tip is a manual popover in the top layer, because the fields it
+   points at sit inside overflow: hidden cards and inside the notes
+   folder picker, which is itself a popover.
+====================================================== */
+
+@layer components {
+
+/* :focus for the specificity: a refused field always has focus, and
+   the row inputs' own :focus rule would otherwise paint it accent. */
+input[aria-invalid="true"]:focus {
+  border-color: var(--red-highlights);
+  box-shadow: none;
+  caret-color: var(--red-highlights);
+}
+
+.refusal {
+  position-area: bottom span-right;
+  position-try-fallbacks: flip-block;
+  inset: auto;
+  margin: 0.35rem 0 0;
+  max-width: 16rem;
+  padding: 0.3rem 0.55rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xs);
+  background: var(--tooltip-bg);
+  color: var(--text-primary);
+  font-family: var(--font-title);
+  font-size: var(--text-label);
+  font-weight: 400;
+  line-height: 1.55;
+  letter-spacing: normal;
+  text-transform: none;
+  transition: opacity var(--transition-normal);
+}
+
+@starting-style {
+  .refusal:popover-open { opacity: 0; }
+}
+
+} /* @layer components */

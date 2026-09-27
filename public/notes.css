@@ -606,6 +606,7 @@ body.notes {
 }
 
 .notes__picker-new:focus-within svg { color: var(--accent); }
+.notes__picker-new:has([aria-invalid="true"]) svg { color: var(--red-highlights); }
 
 .notes__picker-new input {
   flex: 1;

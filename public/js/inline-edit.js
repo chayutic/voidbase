@@ -69,6 +69,7 @@ export function beginInlineEdit({
       }
     }
 
+    refusals.get(input)?.();
     if (hideWhileEditing) hideWhileEditing.style.display = "";
     restore(input);
   }
@@ -83,12 +84,43 @@ export function beginInlineEdit({
   input.addEventListener("blur", () => setTimeout(() => finish(true, true), 150));
 }
 
+// input → the function that takes its refusal down again
+const refusals = new WeakMap();
+let refusalCount = 0;
+
 /**
- * Refuse what `input` holds, with the browser's own validation message.
- * It clears on the next keystroke.
+ * Refuse what `input` holds: the field turns red and `message` shows in
+ * a tip under it. Both clear on the next keystroke, or when the field
+ * loses focus.
  */
 export function reject(input, message) {
+  refusals.get(input)?.();
+
+  const anchor = `--refusal-${++refusalCount}`;
+  const tip = document.createElement("div");
+  tip.className   = "refusal";
+  tip.popover     = "manual";
+  tip.role        = "alert";
+  tip.textContent = message;
+  tip.style.positionAnchor = anchor;
+
+  input.style.anchorName = anchor;
   input.setCustomValidity(message);
-  input.reportValidity();
-  input.addEventListener("input", () => input.setCustomValidity(""), { once: true });
+  input.setAttribute("aria-invalid", "true");
+  document.body.append(tip);
+  tip.showPopover();
+
+  function clear() {
+    refusals.delete(input);
+    input.removeEventListener("input", clear);
+    input.removeEventListener("blur", clear);
+    input.style.anchorName = "";
+    input.setCustomValidity("");
+    input.removeAttribute("aria-invalid");
+    tip.remove();
+  }
+
+  refusals.set(input, clear);
+  input.addEventListener("input", clear);
+  input.addEventListener("blur", clear);
 }
