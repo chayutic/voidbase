@@ -146,11 +146,11 @@ h4 {
   display: block;
   min-width: 0;
   overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
+  mask-image: linear-gradient(to right, black 60%, transparent 100%);
   font-family: var(--font-body);
   font-size: var(--text-label);
-  color: var(--text-primary);
+  color: var(--text-secondary);
 }
 
 
