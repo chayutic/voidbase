@@ -14,6 +14,7 @@ const aqDotEl  = document.querySelector(".header__aqi-dot");
 const REFRESH_MS = 10 * 60 * 1000;
 
 let latestRequest = 0;
+let showingReading = false;
 
 /**
  * WAQI band → CSS custom property. The bands are WAQI's own
@@ -42,10 +43,15 @@ async function fetchAirQuality() {
 
   if (seq !== latestRequest) return;
 
-  aqEl.dataset.state = data ? "ready" : failedState(error, false);
+  if (!data) {
+    aqEl.dataset.state = failedState(error, showingReading);
+    return;
+  }
 
-  aqInfoEl.textContent = data ? `AQI ${data.aqi} · PM2.5 ${data.pm25 ?? "N/A"}` : "AQI unavailable";
-  if (aqDotEl) aqDotEl.style.background = data ? `var(${aqColorVar(data.aqi)})` : "";
+  showingReading = true;
+  aqEl.dataset.state   = "ready";
+  aqInfoEl.textContent = `AQI ${data.aqi} · PM2.5 ${data.pm25 ?? "N/A"}`;
+  if (aqDotEl) aqDotEl.style.background = `var(${aqColorVar(data.aqi)})`;
 }
 
 export function initAirQuality() {

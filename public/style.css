@@ -222,6 +222,17 @@ h4 {
   /* Color set dynamically via JS using --aqi-* variables */
 }
 
+.header__aqi:is([data-state="unavailable"], [data-state="invalid"]) .header__aqi-dot {
+  border: 1px solid var(--text-secondary);
+}
+
+.header__aqi:is([data-state="unavailable"], [data-state="invalid"]) .header__aqi-text::after {
+  content: "AQI unavailable";
+}
+
+.header__aqi[data-state="stale"] { opacity: 0.5; }
+.header__aqi[data-state="unconfigured"] { visibility: hidden; }
+
 .header__location {
   font-size: var(--text-body);
   font-weight: 400;
@@ -230,6 +241,8 @@ h4 {
 }
 
 /* ── Health line ── */
+
+.header__health[data-state="stale"] { opacity: 0.5; }
 
 .header__health:is([data-status="warn"], [data-status="fail"]) .header__health-link {
   color: var(--text-primary);
@@ -849,7 +862,23 @@ input:checked + .search__toggle-track::before {
   color: var(--text-primary);
 }
 
-.deals__result-loading { cursor: default; }
+/* ── Search states ── */
+
+.deals__search-results:not([data-state="ready"])::before {
+  padding: 0.45rem 0.75rem;
+  font-size: var(--text-label);
+  color: var(--text-secondary);
+}
+
+.deals__search-results[data-state="loading"]::before { content: "Searching…"; }
+
+.deals__search-results:is([data-state="unavailable"], [data-state="invalid"])::before {
+  content: "IsThereAnyDeal isn't answering. Try again in a bit.";
+}
+
+.deals__search-results[data-state="unconfigured"]::before {
+  content: "Game deals aren't set up.";
+}
 
 .deals__result-note { font-size: var(--text-micro); }
 
@@ -1029,6 +1058,13 @@ input:checked + .search__toggle-track::before {
 .deals__row:hover .deals__remove { opacity: 1; }
 .deals__remove:hover { color: var(--red-highlights); }
 
+/* ── Row states ── */
+
+.deals__row:is([data-state="stale"], [data-state="unavailable"], [data-state="invalid"])
+  :is(.deals__col-review, .deals__col-price, .deals__col-discount, .deals__col-low) {
+  opacity: 0.5;
+}
+
 /* ======================================================
    NEW ARRIVALS
 ====================================================== */
@@ -1200,15 +1236,19 @@ input:checked + .search__toggle-track::before {
 .arrivals__card--pending .arrivals__poster {
   display: grid;
   place-items: center;
-  padding: 0.6rem;
-  font-size: var(--text-micro);
+  padding: 0.75rem;
+  font-size: var(--text-label);
   color: var(--text-secondary);
   text-transform: none;
   letter-spacing: var(--track-normal);
 }
 
-.arrivals__card--pending .arrivals__poster::after {
-  content: "Could not load recent media.";
+.arrivals__grid:is([data-state="unavailable"], [data-state="invalid"]) .arrivals__card--pending .arrivals__poster::after {
+  content: "Jellyfin isn't answering.";
+}
+
+.arrivals__grid[data-state="unconfigured"] .arrivals__card--pending {
+  visibility: hidden;
 }
 
 /* ======================================================
@@ -1402,6 +1442,32 @@ input:checked + .search__toggle-track::before {
 .stocks__edit svg { width: 14px; height: 14px; }
 .stocks__card:hover .stocks__edit { opacity: 1; }
 .stocks__edit:hover { color: var(--text-primary); }
+
+/* ── Card states ── */
+
+.stocks__card[data-state="stale"] :is(.stocks__chart, .stocks__overlay-bottom) {
+  opacity: 0.5;
+}
+
+.stocks__card:is([data-state="invalid"], [data-state="unavailable"]) :is(.stocks__price, .stocks__delta) {
+  display: none;
+}
+
+.stocks__card:is([data-state="invalid"], [data-state="unavailable"]) .stocks__overlay-bottom::before {
+  font-family: var(--font-title);
+  font-size: var(--text-label);
+  letter-spacing: var(--track-normal);
+  color: var(--text-secondary);
+}
+
+.stocks__card[data-state="unavailable"] .stocks__overlay-bottom::before { content: "No answer"; }
+
+.stocks__card[data-state="invalid"] .stocks__overlay-bottom::before {
+  content: "Unknown symbol";
+  color: var(--red-highlights);
+}
+
+.stocks__card[data-state="invalid"] .stocks__edit { opacity: 1; }
 
 .stocks__symbol-input {
   all: unset;

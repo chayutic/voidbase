@@ -85,7 +85,7 @@ async function searchGames() {
   const q = dealsSearchInput.value.trim();
   if (!q) return;
   const seq = ++searchSeq;
-  dealsSearchResults.innerHTML = `<div class="deals__result-item deals__result-loading">Searching…</div>`;
+  dealsSearchResults.innerHTML = "";
   dealsSearchResults.classList.add("visible");
   dealsSearchResults.dataset.state = "loading";
 
@@ -103,11 +103,7 @@ async function searchGames() {
   if (seq !== searchSeq) return;
 
   dealsSearchResults.dataset.state = results ? "ready" : failedState(error, false);
-
-  if (!results) {
-    dealsSearchResults.innerHTML = `<div class="deals__result-item">Search failed.</div>`;
-    return;
-  }
+  if (!results) return;
 
   if (!results.length) {
     dealsSearchResults.innerHTML = `<div class="deals__result-item">No results found.</div>`;
