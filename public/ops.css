@@ -141,7 +141,7 @@
 
 /* The one accent on the page besides links: this changed since the
    last visit. */
-[data-lit]:is(.ops__incident, .ops__service, .ops__phrase) {
+[data-lit]:is(.ops__incident, .ops__offer, .ops__service, .ops__phrase) {
   background: oklch(from var(--accent) l c h / 0.2);
 }
 

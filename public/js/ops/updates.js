@@ -8,7 +8,8 @@
 //  a stale one offers nothing.
 
 import { failedState }              from "../request.js";
-import { ago, stamp, count }        from "../format.js";
+import { ago, stamp, day, count }   from "../format.js";
+import { isNew }                    from "./seen.js";
 import { glyph, nameOf as labelOf } from "./icons.js";
 import { el, dot, capital, phrase } from "./dom.js";
 
@@ -60,11 +61,24 @@ function change(image) {
   return box;
 }
 
-function offerEl(image, several) {
+// `seen` is a bare date. One from the run on screen is timed by that
+// run's `generated`; read as a date, it would be UTC midnight.
+function seenAt(image, generated) {
+  const run = new Date(generated);
+  const runDay = `${run.getFullYear()}-${String(run.getMonth() + 1).padStart(2, "0")}-${String(run.getDate()).padStart(2, "0")}`;
+  return image.seen === runDay ? generated : image.seen;
+}
+
+function offerEl(image, several, data) {
   const card = el("article", "ops__offer");
   const icon = el("span", "ops__icon");
   icon.append(glyph(image.service ?? image.id));
-  card.append(icon, el("b", "ops__offer-name", `${nameOf(image, several)} can update`), change(image));
+  const said = change(image);
+  if (image.seen) {
+    said.append(` · since ${day(image.seen)}`);
+    card.toggleAttribute("data-lit", isNew(seenAt(image, data.generated)));
+  }
+  card.append(icon, el("b", "ops__offer-name", `${nameOf(image, several)} can update`), said);
   if (image.notes_url) {
     const notes = el("a", "ops__offer-notes", "Release notes ↗");
     notes.href = image.notes_url;
@@ -133,7 +147,7 @@ function render(data) {
   const ok      = images.filter((i) => i.status === "ok").length;
   const skipped = images.filter((i) => i.status === "skip").length;
 
-  offersEl.replaceChildren(...pending.map((i) => offerEl(i, several)));
+  offersEl.replaceChildren(...pending.map((i) => offerEl(i, several, data)));
 
   const items = [];
   if (ok)      items.push(phrase("ok", `${ok} up to date`));
