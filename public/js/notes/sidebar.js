@@ -209,7 +209,7 @@ function clearSearch() {
 // ── Mutations ──────────────────────────────────────────────────
 
 export async function refresh({ keepSelection = true } = {}) {
-  notes = await api.listNotes();
+  ({ notes } = await api.listNotes());
 
   if (!keepSelection || !notes.some(n => n.id === selectedId)) {
     selectedId = notes[0]?.id ?? null;

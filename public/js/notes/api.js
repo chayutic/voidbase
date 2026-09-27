@@ -32,7 +32,10 @@ function jsonBody(payload) {
   };
 }
 
-/** All notes, newest first. Summaries only — no bodies. */
+/**
+ * { folders, notes, conflicts }. Notes are summaries, newest first,
+ * each with its folder ("" for the root). No bodies.
+ */
 export function listNotes() {
   return request("/list");
 }
