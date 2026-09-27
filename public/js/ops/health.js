@@ -3,9 +3,11 @@
 // ═══════════════════════════════════════════════════════════════
 //
 //  Reads GET /ops/api/health, and /ops/api/updates alongside it for
-//  the pending images the board and topline show. The server decides
-//  staleness against its own clock and withholds a stale file's
-//  checks, so this only words what it was told. `data-file` on the
+//  the pending images the board and topline show. Recent and Storage
+//  come in the same round, since they take names and thresholds from
+//  health.json. The server decides staleness against its own clock
+//  and withholds a stale file's checks, so this only words what it
+//  was told. `data-file` on the
 //  region carries the verdict: fresh, stale, missing or schema
 //  (lib/ops-status.js).
 
@@ -14,6 +16,8 @@ import { ago, stamp, count }                                  from "../format.js
 import { buildRows, registryRows, tally }                     from "../health-rows.js";
 import { renderBoard, renderRegistry, hideBoard, boardFailed } from "./board.js";
 import { showUpdates, pendingText, withUpdates }              from "./updates.js";
+import { showRecent }                                         from "./recent.js";
+import { showStorage }                                        from "./storage.js";
 import { shown }                                              from "./seen.js";
 
 const regionEl  = document.getElementById("opsHealth");
@@ -80,10 +84,18 @@ function describe(data, rows, pending) {
 
 async function fetchHealth() {
   const seq = ++latestRequest;
-  const [health, updates] = await Promise.allSettled([getJSON("/ops/api/health"), getJSON("/ops/api/updates")]);
+  const [health, updates, recent, storage] = await Promise.allSettled([
+    getJSON("/ops/api/health"),
+    getJSON("/ops/api/updates"),
+    getJSON("/ops/api/recent"),
+    getJSON("/ops/api/storage"),
+  ]);
   if (seq !== latestRequest) return;
 
   const pending = showUpdates(updates);
+  const told = health.status === "fulfilled" ? health.value : null;
+  showRecent(recent, told?.services);
+  showStorage(storage, told?.file === "fresh" ? told.checks : null);
 
   let data = null;
   let rows = null;

@@ -45,6 +45,8 @@
   <link rel="modulepreload" href="/js/health-rows.js">
   <link rel="modulepreload" href="/js/ops/board.js">
   <link rel="modulepreload" href="/js/ops/updates.js">
+  <link rel="modulepreload" href="/js/ops/recent.js">
+  <link rel="modulepreload" href="/js/ops/storage.js">
   <link rel="modulepreload" href="/js/store.js">
   <link rel="modulepreload" href="/js/config.js">
   <link rel="modulepreload" href="/js/request.js">
@@ -107,6 +109,24 @@
           </summary>
           <ul class="ops__rows" id="opsUpdateOkRows"></ul>
         </details>
+      </div>
+    </section>
+
+    <!-- ════ RECENT ════ -->
+    <section class="ops__section" id="opsRecent" data-state="loading" hidden>
+      <h2>Recent<span class="ops__checked" id="opsRecentNote"></span></h2>
+      <div class="ops__card" id="opsRecentCard">
+        <ul class="ops__rows" id="opsRecentRows"></ul>
+      </div>
+    </section>
+
+    <!-- ════ STORAGE ════ -->
+    <section class="ops__section" id="opsStorage" data-state="loading" hidden>
+      <h2>Storage<span class="ops__checked" id="opsSmartChecked"></span></h2>
+      <div class="ops__volumes" id="opsVolumes"></div>
+      <p class="ops__volumes-note" id="opsVolumesNote"></p>
+      <div class="ops__card" id="opsLooseDisks" hidden>
+        <ul class="ops__disks" id="opsLooseRows"></ul>
       </div>
     </section>
 

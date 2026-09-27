@@ -19,6 +19,12 @@ export function stamp(iso) {
   return `${d.getDate()} ${MONTHS[d.getMonth()]} · ${time}`;
 }
 
+/** A `YYYY-MM-DD` date as "26 Sep", read as written rather than as UTC. */
+export function day(date) {
+  const [, m, d] = date.split("-").map(Number);
+  return `${d} ${MONTHS[m - 1]}`;
+}
+
 export function count(n, one, many = `${one}s`) {
   return `${n} ${n === 1 ? one : many}`;
 }

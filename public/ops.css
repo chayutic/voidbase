@@ -122,18 +122,19 @@
   border: 1px solid var(--text-secondary);
 }
 
-.ops__row:is([data-status="ok"], [data-status="update"]) .ops__dot {
+.ops__row:is([data-status="ok"], [data-status="update"]) .ops__dot,
+.ops__disk[data-status="ok"] .ops__dot {
   border: none;
   background: var(--text-secondary);
   opacity: 0.5;
 }
 
-.ops__row[data-status="warn"] .ops__dot {
+:is(.ops__row, .ops__disk)[data-status="warn"] .ops__dot {
   border: none;
   background: var(--orange-highlights);
 }
 
-.ops__row[data-status="fail"] .ops__dot {
+:is(.ops__row, .ops__disk)[data-status="fail"] .ops__dot {
   border: none;
   background: var(--red-highlights);
 }
@@ -177,6 +178,10 @@
 
 .ops__checked::before {
   content: "· ";
+}
+
+.ops__checked:empty {
+  display: none;
 }
 
 .ops__section[data-file]:not([data-file="fresh"]) .ops__checked {
@@ -279,6 +284,216 @@ a.ops__name:hover {
 
 .ops__fold[open] .ops__chevron {
   transform: rotate(90deg);
+}
+
+/* ── Storage ── */
+
+.ops__volumes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+  gap: var(--gap);
+}
+
+.ops__volumes-note {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.ops__volumes-note:empty {
+  display: none;
+}
+
+.ops__volumes-note + .ops__card,
+.ops__volumes:not(:empty) ~ .ops__card {
+  margin-top: var(--gap);
+}
+
+.ops__volume {
+  --tank: var(--accent);
+  container-type: inline-size;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  background: var(--surface-glass);
+}
+
+.ops__volume[data-status="warn"] {
+  --tank: var(--orange-highlights);
+}
+
+.ops__volume[data-status="fail"] {
+  --tank: var(--red-highlights);
+}
+
+.ops__tank {
+  display: flex;
+  flex-direction: column;
+  height: 10rem;
+}
+
+.ops__tank-top {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 0.7rem 0.8rem 0.4rem;
+}
+
+.ops__volume-name {
+  font-family: var(--font-title);
+  font-weight: 700;
+  letter-spacing: var(--track-normal);
+}
+
+.ops__volume-mount,
+.ops__volume-span,
+.ops__volume-used {
+  font-size: var(--text-label);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-secondary);
+}
+
+.ops__volume-span {
+  margin-inline-start: auto;
+}
+
+/* The scale runs 0–100 from the card's foot to the strip above, so
+   the share of it filled is the share of the volume used. */
+.ops__tank-scale {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* The fill and its reading rise as one piece, so they must share an
+   animation. */
+.ops__tank-plot,
+.ops__tank-level {
+  position: absolute;
+  inset: 0;
+  animation: ops-rise 1.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.ops__tank-plot {
+  width: 100%;
+  height: 100%;
+}
+
+@keyframes ops-rise {
+  from { transform: translateY(100%); }
+}
+
+/* The gradient spans the whole scale rather than the fill, so a
+   fuller volume glows brighter at its surface. */
+.ops__tank-stop {
+  stop-color: var(--tank);
+  stop-opacity: 0.7;
+}
+
+.ops__tank-stop--end {
+  stop-opacity: 0;
+}
+
+.ops__tank-line {
+  fill: none;
+  stroke: var(--tank);
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+}
+
+.ops__threshold {
+  position: absolute;
+  inset-inline: 0;
+  bottom: calc(var(--at) * 1%);
+  border-top: 1px dashed oklch(from var(--text-secondary) l c h / 0.25);
+}
+
+.ops__threshold[data-level="fail"] {
+  border-top-color: oklch(from var(--text-secondary) l c h / 0.45);
+}
+
+/* Above the surface on the lower half, hanging inside the fill on
+   the upper, which keeps it clear of the thresholds either way. */
+.ops__tank-reading {
+  position: absolute;
+  left: 0.8rem;
+  right: 0.8rem;
+  bottom: calc(var(--level) * 1% + 0.35rem);
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  text-shadow: var(--shadow-sm);
+}
+
+.ops__volume[data-reading="below"] .ops__tank-reading {
+  top: calc((100 - var(--level)) * 1% + 0.35rem);
+  bottom: auto;
+}
+
+.ops__volume-pct {
+  font-family: var(--font-title);
+  font-size: var(--text-title);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: var(--track-normal);
+  font-variant-numeric: tabular-nums;
+}
+
+/* One grid for every disk under a volume, so the numbers line up
+   down the card whatever each disk reports. */
+.ops__disks {
+  display: grid;
+  grid-template-columns: 8px auto minmax(0, 1fr) auto auto auto;
+  column-gap: 0.75rem;
+  margin: 0;
+  padding: 0.35rem 1rem;
+  list-style: none;
+  border-top: 1px solid var(--border-color);
+}
+
+.ops__card > .ops__disks {
+  border-top: none;
+}
+
+.ops__disks:empty {
+  display: none;
+}
+
+.ops__disk {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: subgrid;
+  align-items: center;
+  padding-block: 0.35rem;
+  line-height: 1.4;
+}
+
+.ops__disk-label {
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.ops__disk-model {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-secondary);
+}
+
+.ops__disk-num {
+  justify-self: end;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-secondary);
+}
+
+@container (max-width: 24rem) {
+  .ops__disks {
+    grid-template-columns: 8px auto minmax(0, 1fr) auto;
+  }
+
+  .ops__disk > :nth-child(n + 5) {
+    display: none;
+  }
 }
 
 /* ── Narrow ── */
