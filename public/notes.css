@@ -228,6 +228,17 @@ body.notes {
   color: var(--text-primary);
 }
 
+.notes__folder-input {
+  field-sizing: content;
+  min-width: 4ch;
+  outline: none;
+  background: var(--surface-glass-hover);
+  border-color: var(--accent);
+  color: var(--text-primary);
+  caret-color: var(--accent);
+  cursor: text;
+}
+
 /* ── Collapsed rail ── */
 
 :root.notes-sidebar-collapsed .notes__search,
@@ -372,6 +383,18 @@ body.notes {
   text-align: center;
   color: var(--text-secondary);
 }
+
+.notes__empty-action {
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: color var(--transition-fast);
+}
+
+.notes__empty-action:hover { color: var(--red-highlights); }
 
 /* ======================================================
    EDITOR

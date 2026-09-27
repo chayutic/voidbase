@@ -14,6 +14,7 @@ import * as store from "../store.js";
 import { KEYS }   from "../store.js";
 import { displayTitle, isUntitled, formatCreated } from "./format.js";
 import { CLOSE } from "../icons.js";
+import { beginInlineEdit } from "../inline-edit.js";
 
 const listEl     = document.getElementById("notesList");
 const foldersEl  = document.getElementById("notesFolders");
@@ -32,6 +33,7 @@ let searchTimer = null;
 let onSelect    = () => {};
 let onDelete    = () => {};
 let onError     = () => {};
+let onRenamed   = () => {};
 
 function visibleNotes() {
   if (results) return results;
@@ -124,11 +126,22 @@ function buildRow(note, query) {
   return row;
 }
 
-function renderEmpty(message) {
+function renderEmpty(message, action = null) {
   const empty = document.createElement("p");
   empty.className   = "notes__empty";
   empty.textContent = message;
+  if (action) empty.append(" · ", action);
   listEl.appendChild(empty);
+}
+
+function renderEmptyFolder(folder) {
+  const remove = document.createElement("button");
+  remove.type        = "button";
+  remove.className   = "notes__empty-action";
+  remove.textContent = "Delete folder";
+  remove.addEventListener("click", () => deleteFolder(folder));
+
+  renderEmpty(`No notes in ${folder}`, remove);
 }
 
 function render(emptyMessage) {
@@ -138,11 +151,10 @@ function render(emptyMessage) {
   const rows = visibleNotes();
 
   if (!rows.length) {
-    renderEmpty(emptyMessage ?? (results
-      ? `Nothing matches “${query}”.`
-      : viewed === null
-        ? "No notes yet — start one above."
-        : `No notes in ${viewed} yet — start one above.`));
+    if (emptyMessage) renderEmpty(emptyMessage);
+    else if (results) renderEmpty(`Nothing matches “${query}”.`);
+    else if (viewed === null) renderEmpty("No notes yet — start one above.");
+    else renderEmptyFolder(viewed);
     return;
   }
 
@@ -196,14 +208,79 @@ export function folderNames() {
   return folders;
 }
 
+function renamable(folder) {
+  return folder !== null && folder === viewed && results === null;
+}
+
 function buildPill(label, folder) {
   const pill = document.createElement("button");
   pill.type        = "button";
   pill.className   = "notes__folder";
   pill.textContent = label;
   pill.setAttribute("aria-pressed", String(folder === viewed));
-  pill.addEventListener("click", () => view(folder));
+  if (renamable(folder)) pill.title = `Rename ${folder}`;
+  pill.addEventListener("click", () => {
+    if (renamable(folder)) startRename(pill, folder);
+    else view(folder);
+  });
   return pill;
+}
+
+function startRename(pill, folder) {
+  beginInlineEdit({
+    target:    pill,
+    value:     folder,
+    className: "notes__folder notes__folder-input",
+    maxLength: 64,
+    onCommit:  (next) => renameFolder(folder, next),
+    restore:   () => renderFolders(),
+  });
+}
+
+/** Resolves to the server's refusal, or "" once it's handled. */
+async function renameFolder(from, to) {
+  let name;
+  try {
+    ({ name } = await api.renameFolder(from, to));
+  } catch (err) {
+    if (err.status === 400 || err.status === 409) return err.detail;
+    console.error("Folder rename failed:", err);
+    onError("Could not rename that folder");
+    if (err.status === 404) await refreshQuietly();
+    return "";
+  }
+
+  // Before the refresh, which would otherwise find the viewed folder
+  // gone and fall back to All.
+  if (viewed === from) {
+    viewed = name;
+    store.set(KEYS.notesFolder, name);
+  }
+  onRenamed(from, name);
+  await refreshQuietly();
+  return "";
+}
+
+async function deleteFolder(folder) {
+  try {
+    await api.deleteFolder(folder);
+  } catch (err) {
+    if (err.status === 409) {
+      // A note may have landed in it since the list was fetched; if
+      // not, it holds something the app never shows.
+      await refreshQuietly();
+      if (viewed === folder && !visibleNotes().length) {
+        render(`${folder} has files in it that Notes doesn't show, so it stays.`);
+      }
+      return;
+    }
+    if (err.status !== 404) {
+      console.error("Folder delete failed:", err);
+      onError("Could not delete that folder");
+      return;
+    }
+  }
+  await refreshQuietly();
 }
 
 function renderFolders() {
@@ -294,6 +371,11 @@ export async function refresh({ keepSelection = true } = {}) {
   return selectedId;
 }
 
+/** For after a folder change that has already landed. */
+function refreshQuietly() {
+  return refresh().catch(err => console.error("Notes refresh failed:", err));
+}
+
 async function createNote() {
   // A new note can never match the active query, so drop out of search
   // rather than creating something the list then refuses to show.
@@ -344,9 +426,10 @@ function applyCollapsed(collapsed) {
 // ── Init ───────────────────────────────────────────────────────
 
 export function initSidebar(handlers = {}) {
-  onSelect = handlers.onSelect ?? onSelect;
-  onDelete = handlers.onDelete ?? onDelete;
-  onError  = handlers.onError  ?? onError;
+  onSelect  = handlers.onSelect  ?? onSelect;
+  onDelete  = handlers.onDelete  ?? onDelete;
+  onError   = handlers.onError   ?? onError;
+  onRenamed = handlers.onRenamed ?? onRenamed;
 
   viewed = store.str(KEYS.notesFolder, null);
 

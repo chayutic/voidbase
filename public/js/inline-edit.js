@@ -2,9 +2,10 @@
 //  INLINE EDIT — swap a label for a text field, commit once
 // ═══════════════════════════════════════════════════════════════
 //
-//  Two features rename things in place: a ticker symbol and a Turbo
-//  preset. What they share is not the markup — it is the commit
-//  protocol, which is easy to get subtly wrong in three places at once.
+//  Three features rename things in place: a ticker symbol, a Turbo
+//  preset and a notes folder. What they share is not the markup — it
+//  is the commit protocol, which is easy to get subtly wrong in three
+//  places at once.
 
 /**
  * Replace `target` with a text input and take a value from it exactly
@@ -14,6 +15,8 @@
  *
  * `onCommit` fires only when the value actually changed. `validate`
  * returns a message to refuse the new value with, or "" to accept it.
+ * For a refusal only a server can make, `onCommit` may return a
+ * promise of one; the field waits, read-only, and refuses in place.
  */
 export function beginInlineEdit({
   target,
@@ -39,7 +42,7 @@ export function beginInlineEdit({
 
   let settled = false;
 
-  function finish(commit, fromBlur = false) {
+  async function finish(commit, fromBlur = false) {
     if (settled) return;
 
     const next    = transform(input.value);
@@ -53,7 +56,18 @@ export function beginInlineEdit({
     }
 
     settled = true;
-    if (changed && !problem) onCommit(next);
+    if (changed && !problem) {
+      input.readOnly = true;
+      const refusal = await onCommit(next);
+      input.readOnly = false;
+      // Focus gone while it waited means the blur that would have
+      // settled it has already been spent.
+      if (refusal && !fromBlur && document.activeElement === input) {
+        settled = false;
+        reject(input, refusal);
+        return;
+      }
+    }
 
     if (hideWhileEditing) hideWhileEditing.style.display = "";
     restore(input);

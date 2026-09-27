@@ -18,9 +18,10 @@ initTheme();
 initSettings();
 
 sidebar.initSidebar({
-  onSelect: (id) => editor.load(id),
-  onDelete: (nextId) => editor.load(nextId, { discard: true }),
-  onError:  (message) => editor.reportError(message),
+  onSelect:  (id) => editor.load(id),
+  onDelete:  (nextId) => editor.load(nextId, { discard: true }),
+  onError:   (message) => editor.reportError(message),
+  onRenamed: (from, to) => move.folderRenamed(from, to),
 });
 
 move.initMove({

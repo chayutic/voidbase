@@ -39,6 +39,10 @@ export function show(summary) {
   buttonEl.textContent = label(note.folder);
 }
 
+export function folderRenamed(from, to) {
+  if (note?.folder === from) show({ ...note, folder: to });
+}
+
 // ── Picker ─────────────────────────────────────────────────────
 
 function renderList() {

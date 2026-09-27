@@ -78,3 +78,13 @@ export function moveNote(id, folder) {
 export function createFolder(name) {
   return request("/folder", { method: "POST", ...jsonBody({ name }) });
 }
+
+/** Returns { name }, as the server stored it. */
+export function renameFolder(from, to) {
+  return request("/folder", { method: "PUT", ...jsonBody({ from, to }) });
+}
+
+/** 409 unless the folder is empty on disk, not just of notes. */
+export function deleteFolder(name) {
+  return request("/folder", { method: "DELETE", ...jsonBody({ name }) });
+}
