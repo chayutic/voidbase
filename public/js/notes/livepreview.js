@@ -159,12 +159,12 @@ export const hideMarkers = ViewPlugin.fromClass(
  * line-height stays >= 1.5 to leave room for Thai vowel and tone marks.
  */
 const markdownHighlight = HighlightStyle.define([
-  { tag: tags.heading1, fontSize: "var(--text-title)", fontWeight: "var(--body-semi)", lineHeight: "1.5" },
-  { tag: tags.heading2, fontSize: "var(--text-headline)", fontWeight: "var(--body-semi)", lineHeight: "1.5" },
-  { tag: tags.heading3, fontSize: "var(--text-subhead)", fontWeight: "var(--body-semi)", lineHeight: "1.5" },
-  { tag: tags.heading4, fontSize: "var(--text-body)", fontWeight: "var(--body-semi)", fontStyle: "italic", lineHeight: "1.5" },
-  { tag: tags.heading5, fontSize: "var(--text-body)", fontWeight: "var(--body-semi)", fontStyle: "italic", lineHeight: "1.5", color: "var(--text-secondary)" },
-  { tag: tags.heading6, fontSize: "var(--text-body)", fontWeight: "var(--body-semi)", fontStyle: "italic", lineHeight: "1.5", color: "var(--text-secondary)" },
+  { tag: tags.heading1, fontSize: "var(--text-title)", fontWeight: "var(--body-semi)", lineHeight: "var(--leading-body)" },
+  { tag: tags.heading2, fontSize: "var(--text-headline)", fontWeight: "var(--body-semi)", lineHeight: "var(--leading-body)" },
+  { tag: tags.heading3, fontSize: "var(--text-subhead)", fontWeight: "var(--body-semi)", lineHeight: "var(--leading-body)" },
+  { tag: tags.heading4, fontSize: "var(--text-body)", fontWeight: "var(--body-semi)", fontStyle: "italic", lineHeight: "var(--leading-body)" },
+  { tag: tags.heading5, fontSize: "var(--text-body)", fontWeight: "var(--body-semi)", fontStyle: "italic", lineHeight: "var(--leading-body)", color: "var(--text-secondary)" },
+  { tag: tags.heading6, fontSize: "var(--text-body)", fontWeight: "var(--body-semi)", fontStyle: "italic", lineHeight: "var(--leading-body)", color: "var(--text-secondary)" },
 
   { tag: tags.strong,        fontWeight: "var(--body-semi)" },
   { tag: tags.emphasis,      fontStyle: "italic" },
@@ -196,7 +196,7 @@ const editorTheme = EditorView.theme({
     fontFamily: "var(--notes-font)",
     // Thai stacks marks above and below the baseline; this is the same
     // leading the rendered preview uses.
-    lineHeight: "1.75",
+    lineHeight: "var(--leading-prose)",
     padding: "var(--notes-pad)",
     overflow: "auto",
   },

@@ -278,6 +278,25 @@ check("font-weight-ladder", "Every font-weight is a --body-* or --display-* toke
   }
 });
 
+// 0 is not leading: it collapses a bullet glyph's line box onto its dot.
+check("leading", "Every line-height is a --leading-* token, or 0", (hit) => {
+  for (const f of CSS) {
+    if (f === THEME_CSS) continue;
+    const src = stripCssComments(read(f));
+    for (const m of src.matchAll(/line-height\s*:\s*([^;}]+)/g)) {
+      if (/^(var\(--leading-[a-z]+\)|0)$/.test(m[1].trim())) continue;
+      hit(f, lineOf(src, m.index), m[1].trim());
+    }
+  }
+  for (const f of JS) {
+    const src = stripJsComments(read(f));
+    for (const m of src.matchAll(/lineHeight\s*[:=]\s*["'`]([^"'`]+)["'`]/g)) {
+      if (/^var\(--leading-[a-z]+\)$/.test(m[1])) continue;
+      hit(f, lineOf(src, m.index), m[1]);
+    }
+  }
+});
+
 // A class found in no page's markup fails too: the check cannot see
 // what element a JS-built node is, and unseen must not read as a pass.
 check("track-wider", "Every --track-wider site is a <button> (The Three-Track Rule)", (hit) => {

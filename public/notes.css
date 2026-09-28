@@ -45,7 +45,7 @@ body.notes {
   overflow: hidden;
   font-family: var(--notes-font);
   font-size: var(--text-body);
-  line-height: 1.6;
+  line-height: var(--leading-body);
   color: var(--text-primary);
 }
 
@@ -128,7 +128,7 @@ body.notes {
   border-radius: var(--radius) var(--radius) 0 0;
   background: none;
   font: inherit;
-  line-height: 1.6;
+  line-height: var(--leading-body);
   white-space: nowrap;
   text-overflow: ellipsis;
   color: var(--text-secondary);
@@ -175,7 +175,7 @@ body.notes {
   border-radius: var(--radius-xs);
   background: none;
   font: inherit;
-  line-height: 1.6;
+  line-height: var(--leading-body);
   white-space: nowrap;
   color: var(--text-secondary);
   cursor: pointer;
@@ -195,7 +195,7 @@ body.notes {
   border-radius: var(--radius-xs);
   font: inherit;
   font-size: var(--text-micro);
-  line-height: 1.6;
+  line-height: var(--leading-body);
   color: var(--text-secondary);
 }
 
@@ -255,7 +255,7 @@ body.notes {
   color: var(--text-primary);
   font-family: inherit;
   font-size: var(--text-body);
-  line-height: 1.75;
+  line-height: var(--leading-prose);
   tab-size: 4;
 }
 
@@ -277,7 +277,7 @@ body.notes {
   border-radius: 0 0 var(--radius) var(--radius);
   background: var(--surface-dark);
   font-size: var(--text-micro);
-  line-height: 1.5625;
+  line-height: var(--leading-body);
   letter-spacing: var(--track-normal);
   color: var(--text-secondary);
 }
@@ -371,7 +371,7 @@ body.notes {
   background: var(--panel-bg);
   color: var(--text-primary);
   font-size: var(--text-label);
-  line-height: 1.55;
+  line-height: var(--leading-body);
   opacity: 0;
   transform: translateY(4px) scale(0.97);
   transform-origin: bottom left;
@@ -557,7 +557,7 @@ body.notes {
   caret-color: var(--accent);
   font-family: inherit;
   font-size: var(--text-subhead);
-  line-height: 1.6;
+  line-height: var(--leading-body);
 }
 
 .notes__search::placeholder { color: var(--text-secondary); }
@@ -583,7 +583,7 @@ body.notes {
   background: var(--surface-glass);
   font: inherit;
   font-size: var(--text-label);
-  line-height: 1.55;
+  line-height: var(--leading-body);
   white-space: nowrap;
   text-overflow: ellipsis;
   color: var(--text-secondary);
@@ -663,7 +663,7 @@ body.notes {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  line-height: 1.55;
+  line-height: var(--leading-body);
 }
 
 .notes__row-title { font-weight: var(--body-semi); }
@@ -682,7 +682,7 @@ body.notes {
   align-items: flex-end;
   max-width: 10rem;
   font-size: var(--text-micro);
-  line-height: 1.6;
+  line-height: var(--leading-body);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
   color: var(--text-secondary);
@@ -712,7 +712,7 @@ body.notes {
   margin: 0;
   padding: 1rem 0.75rem;
   font-size: var(--text-label);
-  line-height: 1.6;
+  line-height: var(--leading-body);
   text-align: center;
   color: var(--text-secondary);
 }
@@ -764,7 +764,7 @@ body.notes {
   margin: 1.6em 0 0.6em;
   font-family: var(--notes-font);
   font-weight: var(--body-semi);
-  line-height: 1.5;
+  line-height: var(--leading-body);
   color: var(--text-primary);
 }
 
@@ -783,7 +783,7 @@ body.notes {
 
 .markdown p {
   margin: 0 0 1em;
-  line-height: 1.75;
+  line-height: var(--leading-prose);
 }
 
 .markdown strong { font-weight: var(--body-semi); color: var(--text-primary); }
@@ -808,7 +808,7 @@ body.notes {
 
 .markdown li {
   margin-bottom: 0.3em;
-  line-height: 1.7;
+  line-height: var(--leading-prose);
 }
 
 .markdown li::marker { color: var(--text-secondary); }
@@ -876,7 +876,7 @@ body.notes {
   border-radius: var(--radius);
   background: var(--surface-dark);
   overflow-x: auto;
-  line-height: 1.6;
+  line-height: var(--leading-body);
 }
 
 .markdown pre code {
@@ -899,7 +899,7 @@ body.notes {
 .markdown td {
   padding: 0.4rem 0.6rem;
   border: 1px solid var(--border-color);
-  line-height: 1.6;
+  line-height: var(--leading-body);
   text-align: left;
 }
 

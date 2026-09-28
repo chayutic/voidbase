@@ -90,6 +90,12 @@
   --body-bold:          700;
   --display-black:      700;
 
+  /* ── Leading, Voidport's names ── */
+  --leading-none:       1;
+  --leading-snug:       1.35;
+  --leading-body:       1.55;
+  --leading-prose:      1.7;
+
   /* ── Layout ── */
   --radius:             8px;
   --radius-xs:          4px;
@@ -394,7 +400,7 @@ input[aria-invalid="true"]:focus {
   font-family: var(--font-title);
   font-size: var(--text-label);
   font-weight: var(--body-normal);
-  line-height: 1.55;
+  line-height: var(--leading-body);
   letter-spacing: normal;
   text-transform: none;
   transition: opacity var(--transition-normal);

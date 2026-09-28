@@ -254,7 +254,7 @@
   border: 1px solid var(--border-color);
   color: var(--text-secondary);
   font-size: var(--text-subhead);
-  line-height: 1;
+  line-height: var(--leading-none);
   transition: border-color var(--transition-normal), color var(--transition-normal);
 }
 

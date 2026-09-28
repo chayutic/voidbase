@@ -172,7 +172,7 @@
   font-family: var(--font-title);
   font-weight: var(--body-thin);
   font-size: var(--text-headline);
-  line-height: 1;
+  line-height: var(--leading-none);
   letter-spacing: var(--track-wide);
   text-transform: uppercase;
   color: var(--text-secondary);
@@ -318,7 +318,7 @@ button:where(.ops__service, .ops__name, .ops__offer-name) {
   margin: 0;
   font-size: var(--text-subhead);
   font-weight: var(--body-semi);
-  line-height: 1.4;
+  line-height: var(--leading-snug);
 }
 
 .ops__incident-name .ops__open {
@@ -326,7 +326,7 @@ button:where(.ops__service, .ops__name, .ops__offer-name) {
 }
 
 .ops__incident-say {
-  line-height: 1.5;
+  line-height: var(--leading-body);
 }
 
 .ops__incident-when {
@@ -469,7 +469,7 @@ button:where(.ops__service, .ops__name, .ops__offer-name) {
   width: 100%;
   padding: 0.55rem 0.7rem;
   border-radius: var(--radius-xs);
-  line-height: 1.4;
+  line-height: var(--leading-snug);
   text-align: start;
 }
 
@@ -804,7 +804,7 @@ button:where(.ops__service, .ops__name, .ops__offer-name) {
 .ops__vol-pct {
   font-size: var(--text-title);
   font-weight: var(--body-semi);
-  line-height: 1;
+  line-height: var(--leading-none);
   letter-spacing: var(--track-normal);
   font-variant-numeric: tabular-nums;
 }
@@ -829,7 +829,7 @@ button:where(.ops__service, .ops__name, .ops__offer-name) {
 .ops__readout-foot {
   max-width: 36rem;
   margin: 0.35rem 0 0;
-  line-height: 1.6;
+  line-height: var(--leading-body);
   color: var(--text-secondary);
 }
 
@@ -929,7 +929,7 @@ button:where(.ops__service, .ops__name, .ops__offer-name) {
   margin: 0;
   font-size: var(--text-subhead);
   font-weight: var(--body-semi);
-  line-height: 1.4;
+  line-height: var(--leading-snug);
 }
 
 .ops__detail-state {
@@ -1012,7 +1012,7 @@ button:where(.ops__service, .ops__name, .ops__offer-name) {
   margin-inline: -0.45rem;
   padding: 0.3rem 0.45rem;
   border-radius: var(--radius-xs);
-  line-height: 1.5;
+  line-height: var(--leading-body);
 }
 
 .ops__detail-row > .ops__dot {

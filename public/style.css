@@ -17,7 +17,7 @@ h2 {
   font-family: var(--font-title);
   font-weight: var(--body-thin);
   font-size: var(--text-headline);
-  line-height: 1;
+  line-height: var(--leading-none);
   letter-spacing: var(--track-wide);
   margin: 0 0 calc(var(--gap) * 0.75);
   text-transform: uppercase;
@@ -733,7 +733,7 @@ input:checked + .search__toggle-track::before {
 }
 
 .deals__header {
-  line-height: 1;
+  line-height: var(--leading-none);
   margin-bottom: calc(var(--gap) * 0.75);
 }
 
@@ -791,7 +791,7 @@ input:checked + .search__toggle-track::before {
   flex: 1.25;
   font-family: var(--font-body);
   font-size: var(--text-label);
-  line-height: 1;
+  line-height: var(--leading-none);
   color: var(--text-primary);
   background: var(--surface-glass);
   border: 1px solid var(--border-color);
@@ -824,7 +824,7 @@ input:checked + .search__toggle-track::before {
   font-size: var(--text-micro);
   font-weight: var(--body-semi);
   text-transform: uppercase;
-  line-height: 1;
+  line-height: var(--leading-none);
   letter-spacing: var(--track-wider);
   padding: 0 0.8rem;
   border-radius: var(--radius-pill);
@@ -1019,7 +1019,7 @@ input:checked + .search__toggle-track::before {
 .deals__review-modifier {
   font-size: var(--text-micro);
   font-weight: var(--body-bold);
-  line-height: 1;
+  line-height: var(--leading-none);
   display: inline-flex;
   align-items: center;
   gap: 0.05rem;
@@ -1261,7 +1261,7 @@ input:checked + .search__toggle-track::before {
 ====================================================== */
 
 .stocks__header {
-  line-height: 1;
+  line-height: var(--leading-none);
   margin-bottom: calc(var(--gap) * 0.75);
 }
 
@@ -1496,7 +1496,7 @@ input:checked + .search__toggle-track::before {
 ====================================================== */
 
 .utilities__header {
-  line-height: 1;
+  line-height: var(--leading-none);
   margin-bottom: calc(var(--gap) * 0.75);
 }
 
