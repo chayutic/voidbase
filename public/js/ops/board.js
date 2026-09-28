@@ -43,6 +43,7 @@ function nameEl(row, className) {
   if (row.host) return el("span", className, label(row));
   const name = el("button", className, label(row));
   name.type = "button";
+  name.dataset.service = row.name;
   name.addEventListener("click", () => openDetail(row.name, row.url));
   return name;
 }
@@ -114,6 +115,7 @@ function serviceEl(row, now, versions) {
   const li = el("li", "ops__tile");
   const tile = el("button", "ops__service");
   tile.type = "button";
+  tile.dataset.service = row.name;
   tile.addEventListener("click", () => openDetail(row.name, row.url));
   tile.dataset.status = row.state;
   tile.toggleAttribute("data-lit", isNew(row.since));

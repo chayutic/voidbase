@@ -66,6 +66,7 @@ function offerEl(image, several, data) {
   const name = el(image.service ? "button" : "b", "ops__offer-name", `${nameOf(image, several)} can update`);
   if (image.service) {
     name.type = "button";
+    name.dataset.service = image.service;
     name.addEventListener("click", () => openDetail(image.service));
   }
   card.append(icon, name, said);

@@ -30,6 +30,8 @@ const ABOUT = { probe: "public URL", dns: "DNS" };
 const OPEN = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg>`;
 
 let asked = 0;
+let opener = null;
+let shown = "";
 
 // ── Pieces ─────────────────────────────────────────────────────
 
@@ -239,11 +241,12 @@ function strip(data, now) {
   return box;
 }
 
-// Transitions at one moment are one line: a mute touches every check.
+// Transitions at one moment are one line: a mute touches every check,
+// whatever state each was in.
 function grouped(events) {
   const groups = new Map();
   for (const e of events) {
-    const key = `${e.time}\t${e.from}\t${e.to}`;
+    const key = e.to === "muted" ? `${e.time}\tmuted` : `${e.time}\t${e.from}\t${e.to}`;
     if (!groups.has(key)) groups.set(key, { ...e, ids: [], details: [] });
     const g = groups.get(key);
     g.ids.push(e.id);
@@ -325,6 +328,8 @@ function render(data) {
 /** Opens `service`'s detail. `url`, its UI, saves the header waiting. */
 export function openDetail(service, url) {
   const seq = ++asked;
+  opener = document.activeElement;
+  shown = service;
   iconEl.replaceChildren(glyph(service));
   nameEl.textContent = nameOf(service);
   stateEl.replaceChildren();
@@ -360,6 +365,12 @@ export function initDetail() {
   closeEl.innerHTML = CLOSE;
   openEl.insertAdjacentHTML("afterbegin", OPEN);
   closeEl.addEventListener("click", () => dialogEl.close());
+
+  // A refresh while it's up redraws whatever opened it, and the dialog
+  // hands focus back to the one that's gone, which drops it on <body>.
+  dialogEl.addEventListener("close", () => {
+    if (opener && !opener.isConnected) document.querySelector(`[data-service="${CSS.escape(shown)}"]`)?.focus();
+  });
 
   // The box fills the dialog, so only the backdrop hits the dialog
   // itself. A drag that starts inside and ends out there is a text
