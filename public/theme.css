@@ -273,8 +273,8 @@ body::before {
   --border-color:       oklch(0 0 0 / 0.10);
   --border-hover:       oklch(0 0 0 / 0.30);
   /* Light theme: selection sits behind dark text. */
-  --selection-bg:      oklch(0.78 0.03 265 / 0.8);
-  --selection-bg-blur: oklch(0.78 0.03 265 / 0.45);
+  --selection-bg:      oklch(0.78 0.03 var(--theme-hue) / 0.8);
+  --selection-bg-blur: oklch(0.78 0.03 var(--theme-hue) / 0.45);
   --panel-bg:       oklch(0.90 0 0);
   --panel-bg-hover: oklch(0.86 0 0);
   --trigger-bg:     oklch(0.89 0 0);
