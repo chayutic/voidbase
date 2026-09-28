@@ -123,9 +123,8 @@ function scaleEl(check) {
 // ── Sentences ──────────────────────────────────────────────────
 
 // "flat since 26 Sep", "up 4 points since 1 Jul".
-function trend(history) {
+function trend(history, now) {
   const [first, was] = history[0];
-  const [, now] = history.at(-1);
   const moved = now - was;
   const since = `since ${day(first)}`;
   if (!moved) return `flat ${since}`;
@@ -157,7 +156,7 @@ function drivesSaid(disks) {
 }
 
 function volumeEl(volume, disks, check) {
-  const [, pct] = volume.history.at(-1);
+  const { pct, used } = volume.now;
   const box = el("div", "ops__vol");
   const status = statusOf(check);
   if (status) box.dataset.status = status;
@@ -168,11 +167,11 @@ function volumeEl(volume, disks, check) {
   head.append(el("span", "ops__vol-name", volume.name), reading);
 
   const said = el("p", "ops__vol-said");
-  if (volume.used_bytes != null) {
-    if (Number.isFinite(check?.total_bytes)) said.append(...usedOf(volume.used_bytes, check.total_bytes), " used, ");
-    else said.append(el("b", null, size(volume.used_bytes)), " used, ");
+  if (used != null) {
+    if (Number.isFinite(check?.total_bytes)) said.append(...usedOf(used, check.total_bytes), " used, ");
+    else said.append(el("b", null, size(used)), " used, ");
   }
-  said.append(`${trend(volume.history)}. ${drivesSaid(disks)}`);
+  said.append(`${trend(volume.history, pct)}. ${drivesSaid(disks)}`);
   box.append(head, said);
   return box;
 }
@@ -202,6 +201,14 @@ function checkedText(smart, checked) {
   return null;
 }
 
+// disk.csv's last row is the day's first run; the check is this
+// one. Percent and bytes come from the same place, so they agree.
+function nowOf(volume, check) {
+  if (Number.isFinite(check?.value) && Number.isFinite(check.used_bytes)) return { pct: check.value, used: check.used_bytes };
+  const [, pct] = volume.history.at(-1);
+  return { pct, used: volume.used_bytes };
+}
+
 function render(data, checks) {
   const text = checkedText(data.smart, data.checked);
   if (!text) throw new Error(`Unknown file state "${data.smart.file}"`);
@@ -220,7 +227,8 @@ function render(data, checks) {
     ...mounts.filter((m) => !VOLUMES.some((v) => v.mount === m.mount)).map((m) => ({ ...m, name: m.mount, roles: [] })),
   ];
   const checkOf = (v) => checks?.find((c) => c.id === `disk:${v.mount}`);
-  const levelOf = (v) => (v ? clampPct(v.history.at(-1)[1]) : 0);
+  for (const v of volumes) v.now = nowOf(v, checkOf(v));
+  const levelOf = (v) => (v ? clampPct(v.now.pct) : 0);
 
   const array = volumes.find((v) => v.mount === "/home");
   const ssd   = volumes.find((v) => v.mount === "/volume2");
