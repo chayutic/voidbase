@@ -9,6 +9,7 @@ import * as library from "./library.js";
 import { displayTitle } from "./format.js";
 
 const pinBtn    = document.getElementById("notePin");
+const moveHint  = document.getElementById("noteMoveHint");
 const deleteBtn = document.getElementById("noteDelete");
 
 let current  = null;   // id of the open note
@@ -22,6 +23,7 @@ export function render() {
   pinBtn.hidden = deleteBtn.hidden = current === null;
   pinBtn.setAttribute("aria-pressed", String(on));
   pinBtn.title = on ? "Unpin" : "Pin as a tab";
+  moveHint.hidden = !on || library.pinned().length < 2;
 }
 
 /** The note now in the editor, or null for none. */

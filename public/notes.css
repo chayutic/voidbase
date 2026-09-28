@@ -317,6 +317,8 @@ body.notes {
   font-variant-numeric: tabular-nums;
 }
 
+.notes__move-hint { white-space: nowrap; }
+
 .notes__pin[aria-pressed="true"] { color: var(--accent-bright); }
 .notes__pin[aria-pressed="true"] svg { fill: currentColor; }
 
@@ -932,7 +934,8 @@ body.notes {
   }
 
   .notes__switch span,
-  .notes__kbd { display: none; }
+  .notes__kbd,
+  .notes__move-hint { display: none; }
 
   .notes__icon-btn {
     width: 2.5rem;

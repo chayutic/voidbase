@@ -4,7 +4,8 @@
 //
 //  Every pin is a tab, oldest pin first. The open note always has a
 //  tab: an unpinned one gets the single temporary tab at the end, in
-//  italics, which the next unpinned note replaces.
+//  italics, which the next unpinned note replaces. Alt+Left and
+//  Alt+Right move the open note's tab, when it is a pin.
 
 import * as library from "./library.js";
 import { displayTitle, isUntitled } from "./format.js";
@@ -13,8 +14,9 @@ const stripEl = document.getElementById("noteTabs");
 
 let active   = null;
 let temp     = null;
-let scrolled = null;   // the active id the strip last scrolled to
+let scrolled = null;   // the active tab's id and place, as last scrolled to
 let onSelect = () => {};
+let onError  = () => {};
 
 function ids() {
   const pins = library.pinned();
@@ -32,6 +34,9 @@ function buildTab(note) {
   tab.classList.toggle("is-temp", note.id === temp);
   tab.classList.toggle("untitled", isUntitled(note));
   if (note.id === active) tab.setAttribute("aria-current", "true");
+  if (note.id === active && library.isPinned(note.id)) {
+    tab.setAttribute("aria-keyshortcuts", "Alt+ArrowLeft Alt+ArrowRight");
+  }
   tab.addEventListener("click", () => {
     if (note.id !== active) onSelect(note.id);
   });
@@ -49,8 +54,9 @@ export function render() {
 
   stripEl.replaceChildren(...ids().map(library.get).filter(Boolean).map(buildTab));
 
-  if (active !== scrolled) {
-    scrolled = active;
+  const place = `${active}@${ids().indexOf(active)}`;
+  if (place !== scrolled) {
+    scrolled = place;
     stripEl.querySelector('[aria-current="true"]')?.scrollIntoView({ block: "nearest", inline: "nearest" });
   }
   markOverflow();
@@ -70,8 +76,24 @@ export function neighbour(id) {
   return list[at - 1] ?? list[at + 1] ?? null;
 }
 
+const MOVES = { ArrowLeft: -1, ArrowRight: 1 };
+
+function moveKey(e) {
+  if (!e.altKey || e.ctrlKey || e.metaKey || e.shiftKey || !(e.key in MOVES)) return;
+  if (!active || !library.isPinned(active) || e.target.closest?.("dialog, [popover]")) return;
+  // Alt+Left is also Back: kept even at the end of the row, or it leaves the page.
+  e.preventDefault();
+  library.movePin(active, MOVES[e.key]).catch(err => {
+    console.error("Tab move failed:", err);
+    onError("Could not save the tab order");
+  });
+}
+
 export function initTabs(handlers = {}) {
   onSelect = handlers.onSelect ?? onSelect;
+  onError  = handlers.onError  ?? onError;
+
+  document.addEventListener("keydown", moveKey);
 
   stripEl.addEventListener("scroll", markOverflow, { passive: true });
   new ResizeObserver(markOverflow).observe(stripEl);

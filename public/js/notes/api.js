@@ -75,6 +75,11 @@ export function setPinned(id, pinned) {
   return request(`/note/${id}/pin`, { method: "PUT", ...jsonBody({ pinned }) });
 }
 
+/** The same pins, rearranged. 409 if the pins themselves changed elsewhere. */
+export function orderPins(pins) {
+  return request("/pins", { method: "PUT", ...jsonBody({ pins }) });
+}
+
 /** Move a note to a folder, "" for the root. Keeps its id and mtime; returns its summary. */
 export function moveNote(id, folder) {
   return request(`/note/${id}/move`, { method: "POST", ...jsonBody({ folder }) });

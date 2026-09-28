@@ -4,6 +4,7 @@
 
 ### Added
 - **Notes has tabs.** Pin a note and it becomes a tab along the top, in the order you pinned them. The pins live with the notes, so the phone and the desktop agree. Whatever's open always gets a tab: an unpinned note borrows the one italic tab at the end until the next one takes it. And the page opens on whatever you had open last, not the newest note
+- **Alt+← and Alt+→ move the open note's tab** along the row. The band says so while it's a pin and there's somewhere to move it, because I'd forget otherwise
 - **Ctrl+K opens every note.** Search, the folder pills and New note all moved in there. Arrows and Enter work, and typing something that isn't there offers a new note already titled with it
 - **`/ops` says how big each volume is, not just how much is on it.** "4.7 of 7.2 TB used", now that the collector writes the total down. And how full it is now, not as of this morning's first run
 - **An update on `/ops` says how long it's been waiting**, "since 26 Sep", and one that turned up since your last visit is lit like everything else that changed

@@ -61,6 +61,44 @@ export async function setPinned(id, on) {
   onChange();
 }
 
+let ordering  = false;   // an order save is in flight
+let reordered = false;   // and the order moved again since it left
+
+/**
+ * Swap a pin with its neighbour, `by` -1 or 1, on screen at once. The
+ * save follows, one at a time, so a quick run of moves can't land out
+ * of order. Rejects if the save fails, once the pins are the server's
+ * again.
+ */
+export async function movePin(id, by) {
+  const at = pins.indexOf(id);
+  const to = at + by;
+  if (at === -1 || to < 0 || to >= pins.length) return;
+
+  pins = pins.with(at, pins[to]).with(to, id);
+  onChange();
+  await saveOrder();
+}
+
+async function saveOrder() {
+  if (ordering) {
+    reordered = true;
+    return;
+  }
+  ordering = true;
+  try {
+    do {
+      reordered = false;
+      await api.orderPins(pins);
+    } while (reordered);
+  } catch (err) {
+    await refreshQuietly();
+    throw err;
+  } finally {
+    ordering = false;
+  }
+}
+
 /**
  * Resolves to { name } as the server stored it, or { refusal }. The
  * caller refreshes, once it has moved whatever pointed at the old name.

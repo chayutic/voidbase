@@ -71,7 +71,10 @@ library.initLibrary({
   },
 });
 
-tabs.initTabs({ onSelect: open });
+tabs.initTabs({
+  onSelect: open,
+  onError:  (message) => editor.reportError(message),
+});
 
 switcher.initSwitcher({
   onOpen:    open,
