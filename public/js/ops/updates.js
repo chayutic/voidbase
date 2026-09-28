@@ -7,11 +7,12 @@
 //  in the tray's footer. Only a fresh file's images reach the page, so
 //  a stale one offers nothing.
 
-import { failedState }              from "../request.js";
-import { ago, stamp, day, count }   from "../format.js";
-import { isNew }                    from "./seen.js";
-import { glyph, nameOf as labelOf } from "./icons.js";
-import { el, dot, capital, phrase } from "./dom.js";
+import { failedState }                                      from "../request.js";
+import { ago, stamp, day, count }                           from "../format.js";
+import { isNew }                                            from "./seen.js";
+import { glyph, nameOf as labelOf }                         from "./icons.js";
+import { el, dot, capital, phrase, version, versionChange } from "./dom.js";
+import { openDetail }                                       from "./detail.js";
 
 const offersEl = document.getElementById("opsOffers");
 const rowEl    = document.getElementById("opsUpdates");
@@ -38,27 +39,11 @@ function nameOf(image, several) {
   return `${labelOf(image.service)} ${(rest || image.id).replace(/[-_]+/g, " ")}`;
 }
 
-/** "release-4.0.20.3014" and "v3.5.2" → bare numbers; a digest is none. */
-export function version(running) {
-  if (!running || running.startsWith("sha256:")) return null;
-  return running.replace(/^(release-|v(?=\d))/, "");
-}
-
-// 2.3.2243 → 2.3.2363 with "2363" picked out.
 function change(image) {
-  const box = el("span", "ops__change");
-  const from = version(image.running), to = version(image.latest);
-  if (image.detail || !from || !to) {
-    box.textContent = image.detail || "update available";
-    return box;
+  if (image.detail || !version(image.running) || !version(image.latest)) {
+    return el("span", "ops__change", image.detail || "update available");
   }
-  const a = from.split("."), b = to.split(".");
-  let i = 0;
-  while (i < b.length - 1 && a[i] === b[i]) i++;
-  const kept = b.slice(0, i).join(".");
-  box.append(el("span", null, from), el("span", "ops__change-arrow", "→"),
-    el("span", null, kept ? `${kept}.` : ""), el("b", null, b.slice(i).join(".")));
-  return box;
+  return versionChange(image.running, image.latest);
 }
 
 // `seen` is a bare date. One from the run on screen is timed by that
@@ -78,7 +63,12 @@ function offerEl(image, several, data) {
     said.append(` · since ${day(image.seen)}`);
     card.toggleAttribute("data-lit", isNew(seenAt(image, data.generated)));
   }
-  card.append(icon, el("b", "ops__offer-name", `${nameOf(image, several)} can update`), said);
+  const name = el(image.service ? "button" : "b", "ops__offer-name", `${nameOf(image, several)} can update`);
+  if (image.service) {
+    name.type = "button";
+    name.addEventListener("click", () => openDetail(image.service));
+  }
+  card.append(icon, name, said);
   if (image.notes_url) {
     const notes = el("a", "ops__offer-notes", "Release notes ↗");
     notes.href = image.notes_url;

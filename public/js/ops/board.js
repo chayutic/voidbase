@@ -6,12 +6,12 @@
 //  states are not current ones. Anything else leaves the registry's
 //  names and links in the tray, every state unknown.
 
-import { stamp, count, span }       from "../format.js";
-import { isNew }                    from "./seen.js";
-import { glyph, nameOf }            from "./icons.js";
-import { el, dot, capital, phrase } from "./dom.js";
-import { ribbon }                   from "./recent.js";
-import { version }                  from "./updates.js";
+import { stamp, count, span }                from "../format.js";
+import { isNew }                             from "./seen.js";
+import { glyph, nameOf }                     from "./icons.js";
+import { el, dot, capital, phrase, version } from "./dom.js";
+import { ribbon }                            from "./recent.js";
+import { openDetail, openIcon }              from "./detail.js";
 
 const boardEl     = document.getElementById("opsBoard");
 const incidentsEl = document.getElementById("opsIncidents");
@@ -38,9 +38,12 @@ function label(row) {
   return [HOST_NAMES[kind] ?? capital(kind), ...rest].join(" ");
 }
 
+// A service's name opens its detail; a host check's is only a name.
 function nameEl(row, className) {
-  const name = el(row.url ? "a" : "span", className, label(row));
-  if (row.url) name.href = row.url;
+  if (row.host) return el("span", className, label(row));
+  const name = el("button", className, label(row));
+  name.type = "button";
+  name.addEventListener("click", () => openDetail(row.name, row.url));
   return name;
 }
 
@@ -75,6 +78,7 @@ function incidentEl(row, now) {
   const body = el("div", "ops__incident-body");
   const title = el("h3", "ops__incident-name");
   title.append(nameEl(row, "ops__name"));
+  if (row.url) title.append(openIcon(row.name, row.url));
   const say = said(row);
   body.append(title, el("p", "ops__incident-say", capital(say || "state unknown")));
 
@@ -107,11 +111,12 @@ function incidentEl(row, now) {
 }
 
 function serviceEl(row, now, versions) {
-  const li = el("li");
-  const link = el(row.url ? "a" : "div", "ops__service");
-  if (row.url) link.href = row.url;
-  link.dataset.status = row.state;
-  link.toggleAttribute("data-lit", isNew(row.since));
+  const li = el("li", "ops__tile");
+  const tile = el("button", "ops__service");
+  tile.type = "button";
+  tile.addEventListener("click", () => openDetail(row.name, row.url));
+  tile.dataset.status = row.state;
+  tile.toggleAttribute("data-lit", isNew(row.since));
 
   const said = [];
   const v = versions.get(row.name);
@@ -121,8 +126,9 @@ function serviceEl(row, now, versions) {
 
   const sub = el("small", "ops__service-said", capital(said.join(" · ")));
   if (row.since) sub.title = `Up since ${stamp(row.since)}`;
-  link.append(icon(row), el("b", "ops__service-name", nameOf(row.name)), sub, dot(row.state));
-  li.append(link);
+  tile.append(icon(row), el("b", "ops__service-name", nameOf(row.name)), sub, dot(row.state));
+  li.append(tile);
+  if (row.url) li.append(openIcon(row.name, row.url));
   return li;
 }
 

@@ -122,7 +122,7 @@
   border: 1px solid var(--text-secondary);
 }
 
-.ops__dot:is([data-status="ok"], [data-status="warn"], [data-status="fail"]) {
+.ops__dot:is([data-status="ok"], [data-status="warn"], [data-status="fail"], [data-status="change"]) {
   border: none;
 }
 
@@ -139,9 +139,14 @@
   background: var(--red-highlights);
 }
 
+/* A version that moved, or can: in the detail only. */
+.ops__dot[data-status="change"] {
+  background: var(--text-primary);
+}
+
 /* The one accent on the page besides links: this changed since the
    last visit. */
-[data-lit]:is(.ops__incident, .ops__offer, .ops__service, .ops__phrase) {
+[data-lit]:is(.ops__incident, .ops__offer, .ops__service, .ops__phrase, .ops__detail-row) {
   background: oklch(from var(--accent) l c h / 0.2);
 }
 
@@ -220,10 +225,50 @@
   font-weight: 600;
 }
 
-a:is(.ops__name, .ops__offer-notes):hover {
+button:where(.ops__service, .ops__name, .ops__offer-name) {
+  all: unset;
+  outline: revert;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+
+:is(button.ops__name, button.ops__offer-name, a.ops__offer-notes, .ops__detail-open):hover {
   color: var(--accent-bright);
   text-decoration: underline;
   text-underline-offset: 2px;
+}
+
+/* The service's own UI, beside whatever opens its detail. Touch has
+   no hover to find it by, so there it lives only in the detail. */
+.ops__open {
+  display: inline-grid;
+  place-items: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: var(--radius-xs);
+  color: var(--text-secondary);
+  opacity: 0;
+  transition: opacity var(--transition-normal);
+}
+
+.ops__open svg {
+  width: 0.95rem;
+  height: 0.95rem;
+}
+
+:is(.ops__tile, .ops__incident):hover .ops__open,
+.ops__open:focus-visible {
+  opacity: 1;
+}
+
+.ops__open:hover {
+  color: var(--accent-bright);
+}
+
+@media (hover: none) {
+  .ops__open {
+    display: none;
+  }
 }
 
 /* ── Needs attention ── */
@@ -287,10 +332,17 @@ a:is(.ops__name, .ops__offer-notes):hover {
 }
 
 .ops__incident-name {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
   margin: 0;
   font-size: var(--text-subhead);
   font-weight: 600;
   line-height: 1.4;
+}
+
+.ops__incident-name .ops__open {
+  margin-block: -0.1rem;
 }
 
 .ops__incident-say {
@@ -429,19 +481,38 @@ a:is(.ops__name, .ops__offer-notes):hover {
   display: none;
 }
 
+.ops__tile {
+  position: relative;
+}
+
 .ops__service {
   position: relative;
   display: grid;
   grid-template-columns: 1.3rem minmax(0, 1fr);
   column-gap: 0.75rem;
   align-items: center;
+  width: 100%;
   padding: 0.55rem 0.7rem;
   border-radius: var(--radius-xs);
   line-height: 1.4;
+  text-align: start;
 }
 
-a.ops__service:hover {
+.ops__tile:hover .ops__service {
   background: var(--surface-glass-hover);
+}
+
+.ops__tile > .ops__open {
+  position: absolute;
+  top: 50%;
+  right: 0.45rem;
+  translate: 0 -50%;
+}
+
+@media (hover: hover) {
+  .ops__tile:has(> .ops__open) .ops__service {
+    padding-inline-end: 2.2rem;
+  }
 }
 
 .ops__service .ops__icon {
@@ -806,7 +877,255 @@ a.ops__service:hover {
   display: none;
 }
 
+/* ── Service detail ── */
+
+.ops__detail {
+  width: min(40rem, 100vw - 2rem);
+  max-width: none;
+  padding: 0;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  background: var(--panel-bg);
+  color: var(--text-primary);
+  opacity: 0;
+  transform: translateY(10px) scale(0.97);
+  transition:
+    opacity   var(--transition-normal),
+    transform var(--transition-normal),
+    overlay   var(--transition-normal) allow-discrete,
+    display   var(--transition-normal) allow-discrete;
+}
+
+.ops__detail[open] {
+  opacity: 1;
+  transform: none;
+}
+
+.ops__detail::backdrop {
+  background: oklch(from var(--surface-dark) l c h / 0.55);
+  backdrop-filter: blur(6px);
+  opacity: 0;
+  transition:
+    opacity var(--transition-normal),
+    overlay var(--transition-normal) allow-discrete,
+    display var(--transition-normal) allow-discrete;
+}
+
+.ops__detail[open]::backdrop {
+  opacity: 1;
+}
+
+@starting-style {
+  .ops__detail[open] {
+    opacity: 0;
+    transform: translateY(10px) scale(0.97);
+  }
+
+  .ops__detail[open]::backdrop {
+    opacity: 0;
+  }
+}
+
+.ops__detail-box {
+  display: flex;
+  flex-direction: column;
+  max-height: min(85dvh, 52rem);
+}
+
+.ops__detail-head {
+  display: grid;
+  grid-template-columns: 1.8rem minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 1rem 0.9rem 1rem 1.2rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.ops__detail-head .ops__icon {
+  width: 1.8rem;
+  height: 1.8rem;
+}
+
+.ops__detail-name {
+  margin: 0;
+  font-size: var(--text-subhead);
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.ops__detail-state {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-block-size: 1lh;
+  margin: 0.1rem 0 0;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-secondary);
+}
+
+.ops__detail-open {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: var(--text-label);
+  color: var(--text-secondary);
+}
+
+.ops__detail-open svg {
+  width: 0.9rem;
+  height: 0.9rem;
+}
+
+.ops__detail-open[hidden] {
+  display: none;
+}
+
+.ops__detail-close {
+  all: unset;
+  outline: revert;
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--radius-xs);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.ops__detail-close:hover {
+  color: var(--text-primary);
+}
+
+.ops__detail-close svg {
+  width: 0.95rem;
+  height: 0.95rem;
+}
+
+.ops__detail-body {
+  container-type: inline-size;
+  display: grid;
+  gap: 1.5rem;
+  padding: 1.1rem 1.2rem 1.3rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.ops__detail-label {
+  margin: 0 0 0.5rem;
+  font-size: var(--text-label);
+  font-weight: 400;
+  color: var(--text-secondary);
+}
+
+.ops__detail-list {
+  display: grid;
+  gap: 0.15rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ops__detail-row {
+  display: grid;
+  grid-template-columns: 8px minmax(0, 1fr) auto;
+  align-items: start;
+  column-gap: 0.75rem;
+  margin-inline: -0.45rem;
+  padding: 0.3rem 0.45rem;
+  border-radius: var(--radius-xs);
+  line-height: 1.5;
+}
+
+.ops__detail-row > .ops__dot {
+  margin-top: calc((1lh - 8px) / 2);
+}
+
+.ops__detail-text {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 0.6rem;
+  min-width: 0;
+}
+
+.ops__detail-said,
+.ops__detail-text .ops__change {
+  color: var(--text-secondary);
+}
+
+.ops__detail-when {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: var(--text-secondary);
+}
+
+.ops__detail-row .ops__offer-notes {
+  white-space: nowrap;
+}
+
+.ops__detail-note {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.ops__strip {
+  margin-bottom: 0.9rem;
+}
+
+.ops__strip-days {
+  display: grid;
+  grid-template-columns: repeat(30, minmax(0, 1fr));
+  gap: 2px;
+}
+
+.ops__strip-day {
+  position: relative;
+  height: 1.1rem;
+  border-radius: var(--radius-xs);
+  background: var(--surface-glass-hover);
+}
+
+.ops__strip-day[data-status="warn"] {
+  background: var(--orange-highlights);
+}
+
+.ops__strip-day[data-status="fail"] {
+  background: var(--red-highlights);
+}
+
+.ops__strip-day[data-deploy]::after {
+  content: "";
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--text-primary);
+  translate: -50% 0;
+}
+
+.ops__strip-ends {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.8rem;
+  font-size: var(--text-micro);
+  color: var(--text-secondary);
+}
+
 /* ── Data states ── */
+
+.ops__detail-body[data-state="loading"] {
+  min-height: 14rem;
+}
+
+.ops__detail-body:is([data-state="unavailable"], [data-state="invalid"])::before {
+  content: "No answer";
+  color: var(--text-secondary);
+}
+
+.ops__detail-body[data-state="invalid"]::before {
+  content: "Nothing knows this service";
+}
 
 /* Host has no request of its own: it is health's, like the board. */
 .ops__health[data-state="stale"] :is(.ops__topline, .ops__health-line),
@@ -905,6 +1224,17 @@ a.ops__service:hover {
     grid-template-columns: minmax(0, 1fr);
     gap: 1.6rem;
     padding: 1.2rem;
+  }
+}
+
+@container (max-width: 30rem) {
+  .ops__detail-row {
+    grid-template-columns: 8px minmax(0, 1fr);
+  }
+
+  .ops__detail-row > :last-child:not(.ops__detail-text) {
+    grid-column: 2;
+    justify-self: start;
   }
 }
 

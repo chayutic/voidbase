@@ -37,8 +37,8 @@ function subject(check) {
   return at === -1 ? "" : check.id.slice(at + 1);
 }
 
-// immich_machine_learning in immich → "machine learning".
-function part(container, service) {
+/** immich_machine_learning in immich → "machine learning". */
+export function part(container, service) {
   const rest = container.startsWith(service) ? container.slice(service.length).replace(/^[-_]/, "") : container;
   return (rest || container).replace(/[-_]+/g, " ");
 }

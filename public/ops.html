@@ -48,6 +48,8 @@
   <link rel="modulepreload" href="/js/ops/dom.js">
   <link rel="modulepreload" href="/js/ops/updates.js">
   <link rel="modulepreload" href="/js/ops/recent.js">
+  <link rel="modulepreload" href="/js/ops/detail.js">
+  <link rel="modulepreload" href="/js/icons.js">
   <link rel="modulepreload" href="/js/ops/storage.js">
   <link rel="modulepreload" href="/js/store.js">
   <link rel="modulepreload" href="/js/config.js">
@@ -115,6 +117,23 @@
     </section>
 
   </main>
+
+
+  <!-- ════ SERVICE DETAIL ════ -->
+  <dialog class="ops__detail" id="opsDetail" aria-labelledby="opsDetailName">
+    <div class="ops__detail-box">
+      <header class="ops__detail-head">
+        <span class="ops__icon" id="opsDetailIcon"></span>
+        <div class="ops__detail-title">
+          <h2 class="ops__detail-name" id="opsDetailName"></h2>
+          <p class="ops__detail-state" id="opsDetailState"></p>
+        </div>
+        <a class="ops__detail-open" id="opsDetailOpen" hidden>Open</a>
+        <button class="ops__detail-close" id="opsDetailClose" type="button" aria-label="Close"></button>
+      </header>
+      <div class="ops__detail-body" id="opsDetailBody" data-state="loading"></div>
+    </div>
+  </dialog>
 
 
   <!-- ════ DASHBOARD BUTTON ════
