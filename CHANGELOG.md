@@ -1,6 +1,6 @@
 # Changelog — Voidbase
 
-## Unreleased
+## v0.9.0 — 2026-09-28
 
 ### Added
 - **Notes has tabs.** Pin a note and it becomes a tab along the top, in the order you pinned them. The pins live with the notes, so the phone and the desktop agree. Whatever's open always gets a tab: an unpinned note borrows the one italic tab at the end until the next one takes it. And the page opens on whatever you had open last, not the newest note
