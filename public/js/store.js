@@ -24,8 +24,8 @@ export const KEYS = {
   force90d:       "force90d",
 
   // Notes
-  notesSidebarCollapsed: "notesSidebarCollapsed",
-  notesFolder:           "notesFolder",
+  notesOpen:   "notesOpen",
+  notesFolder: "notesFolder",
 
   // Ops
   opsSeen:        "opsSeen",

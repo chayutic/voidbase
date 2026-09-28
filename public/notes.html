@@ -5,16 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Notes — Voidbase</title>
 
-  <!-- Applies the saved theme and sidebar state before first paint.
-       Must stay inline and blocking: a deferred module runs after the
-       default palette and layout are already on screen. -->
+  <!-- Applies the saved theme before first paint. Must stay inline and
+       blocking: a deferred module runs after the default palette is
+       already on screen. -->
   <script>
     {
       const root = document.documentElement;
       root.dataset.theme = "violet";
       try {
         root.dataset.theme = localStorage.getItem("theme") || "violet";
-        root.classList.toggle("notes-sidebar-collapsed", localStorage.getItem("notesSidebarCollapsed") === "true");
       } catch (e) {}
     }
   </script>
@@ -47,7 +46,10 @@
        `npm run lint:conventions`. -->
   <link rel="modulepreload" href="/js/theme.js">
   <link rel="modulepreload" href="/js/settings.js">
-  <link rel="modulepreload" href="/js/notes/sidebar.js">
+  <link rel="modulepreload" href="/js/notes/library.js">
+  <link rel="modulepreload" href="/js/notes/tabs.js">
+  <link rel="modulepreload" href="/js/notes/switcher.js">
+  <link rel="modulepreload" href="/js/notes/band.js">
   <link rel="modulepreload" href="/js/notes/editor.js">
   <link rel="modulepreload" href="/js/notes/move.js">
   <link rel="modulepreload" href="/js/store.js">
@@ -66,44 +68,26 @@
 
 <body class="notes">
 
-  <header class="notes__header">
-    <h1>Notes</h1>
-  </header>
+  <main class="notes__stage">
 
-  <main class="notes__layout">
+    <nav class="notes__tabs" aria-label="Pinned notes">
+      <div class="notes__tab-strip" id="noteTabs"></div>
 
-    <aside class="notes__sidebar">
-
-      <div class="notes__sidebar-head">
-        <div class="notes__searchbar">
-          <svg class="notes__search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/>
-          </svg>
-          <input class="notes__search" id="notesSearch" aria-label="Search notes" type="text"
-                 placeholder="Search notes…" autocomplete="off" spellcheck="false">
-
-          <button class="notes__collapse" id="sidebarToggle" type="button"
-                  aria-controls="notesList" aria-expanded="true"
-                  aria-label="Collapse note list" title="Collapse note list">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="15 18 9 12 15 6"/>
-            </svg>
-          </button>
-        </div>
-
-        <div class="notes__folders" id="notesFolders" role="group" aria-label="Folders" hidden></div>
-
-        <!-- Sits exactly where the note it creates will land. -->
-        <button class="notes__new-row" id="noteNew" type="button">
+      <div class="notes__tabs-rest">
+        <button class="notes__icon-btn" id="noteNew" type="button" aria-label="New note" title="New note">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
           </svg>
-          <span>New note</span>
+        </button>
+        <button class="notes__switch" id="switcherOpen" type="button" aria-keyshortcuts="Control+K">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/>
+          </svg>
+          <span>All notes</span>
+          <kbd class="notes__kbd">Ctrl K</kbd>
         </button>
       </div>
-
-      <div class="notes__list" id="notesList"></div>
-    </aside>
+    </nav>
 
     <section class="notes__pane">
 
@@ -121,7 +105,7 @@
                 placeholder="Start typing. A first line like “# Groceries” becomes the title."></textarea>
 
       <div class="notes__statusbar">
-        <span class="notes__status" id="noteStatus"></span>
+        <span class="notes__status" id="noteStatus"><span id="noteStatusText"></span></span>
 
         <button class="notes__note-folder" id="noteFolder" type="button"
                 popovertarget="folderPicker" title="Move to another folder" hidden></button>
@@ -138,10 +122,39 @@
         </div>
 
         <span class="notes__meta" id="noteMeta"></span>
+
+        <button class="notes__icon-btn notes__pin" id="notePin" type="button" aria-label="Pin" aria-pressed="false" hidden>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/>
+          </svg>
+        </button>
+        <button class="notes__icon-btn notes__delete" id="noteDelete" type="button" aria-label="Delete note" title="Delete note" hidden>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+          </svg>
+        </button>
       </div>
     </section>
 
   </main>
+
+
+  <!-- ════ SWITCHER ════ -->
+  <dialog class="notes__switcher" id="noteSwitcher" aria-label="All notes">
+    <div class="notes__switcher-box">
+      <label class="notes__searchbar">
+        <svg class="notes__search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/>
+        </svg>
+        <input class="notes__search" id="notesSearch" aria-label="Search notes" type="text"
+               placeholder="Search notes…" autocomplete="off" spellcheck="false">
+      </label>
+
+      <div class="notes__folders" id="notesFolders" role="group" aria-label="Folders" hidden></div>
+
+      <div class="notes__list" id="notesList"></div>
+    </div>
+  </dialog>
 
 
   <!-- ════ DASHBOARD BUTTON ════

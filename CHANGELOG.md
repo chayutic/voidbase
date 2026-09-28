@@ -3,6 +3,8 @@
 ## Unreleased
 
 ### Added
+- **Notes has tabs.** Pin a note and it becomes a tab along the top, in the order you pinned them. The pins live with the notes, so the phone and the desktop agree. Whatever's open always gets a tab: an unpinned note borrows the one italic tab at the end until the next one takes it. And the page opens on whatever you had open last, not the newest note
+- **Ctrl+K opens every note.** Search, the folder pills and New note all moved in there. Arrows and Enter work, and typing something that isn't there offers a new note already titled with it
 - **`/ops` says how big each volume is, not just how much is on it.** "4.7 of 7.2 TB used", now that the collector writes the total down. And how full it is now, not as of this morning's first run
 - **An update on `/ops` says how long it's been waiting**, "since 26 Sep", and one that turned up since your last visit is lit like everything else that changed
 - **The search bar has the cursor when the dashboard opens.** Just start typing
@@ -10,6 +12,8 @@
 - **A service on `/ops` opens into its detail now**, instead of straight into the service. Every container and how long it's been up, each image and its version, and the last 30 days: a strip with the bad days in red and orange and a dot under any day it was updated, then everything that happened, newest first. Mutes and unmutes are in there too, and anything since your last visit is lit. The tray tiles, the name on an incident card and the name on an update offer all open it. The service itself is an Open link in the header, or an arrow that turns up beside the name on hover. On a phone there's no hover, so it's only the link. Updates only get recorded from today, so the dots start empty
 
 ### Changed
+- **Notes is one page in the middle of the window**, not a sidebar and a pane under a header that said "Notes", which I knew. It starts far enough down that a tall monitor doesn't put the first line on the top edge. Saved or not, the folder, when it was edited, pin and delete all sit along its foot, and saving says so with the same dot as everything else instead of a green word
+- **Notes on a phone is the same page**, tabs and all, instead of a squeezed sidebar over the note. Still read-only there. The note doesn't drop down the screen when the list arrives any more either, since there's no list above it
 - **The health line has the header row to itself.** "Bangkok · UTC+7" only shows where the line doesn't: through the tunnel, and in Guest Mode. I know where I live
 - **Every status dot is the same dot now**, one size and one distance from its words, on the dashboard and `/ops` alike. The air quality dot shrank on a phone and sat closer to its reading than the health line under it did, and `/ops` had three different gaps of its own
 - **`/ops` section titles are just titles again.** Nothing else on the site hangs a note off a heading. The service count is gone, since nobody needed it, and when SMART last looked moved into the storage sentences: "SMART passed 8 h ago", or orange if it's stopped looking

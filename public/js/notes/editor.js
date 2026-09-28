@@ -19,6 +19,7 @@ const mountEl    = document.getElementById("noteEditor");
 const previewEl  = document.getElementById("notePreview");
 const fallbackEl = document.getElementById("noteFallback");
 const statusEl   = document.getElementById("noteStatus");
+const statusText = document.getElementById("noteStatusText");
 const metaEl     = document.getElementById("noteMeta");
 
 const SAVE_DEBOUNCE_MS = 600;
@@ -42,8 +43,9 @@ let extensions = null;
 // ── Status line ────────────────────────────────────────────────
 
 function setStatus(text, state = "") {
-  statusEl.textContent = text;
+  statusText.textContent = text;
   statusEl.dataset.state = state;
+  statusEl.title = state === "error" ? text : "";
 }
 
 function setMeta(note) {
@@ -81,7 +83,7 @@ function isDirty() {
 }
 
 function onEdit() {
-  setStatus("Unsaved changes", "dirty");
+  setStatus("Unsaved", "dirty");
   clearTimeout(saveTimer);
   saveTimer = setTimeout(() => save(), SAVE_DEBOUNCE_MS);
 }
@@ -102,7 +104,7 @@ async function saveNow() {
       lastSaved = payload;
       baseMtime = summary.mtime;
       const dirty = isDirty();
-      setStatus(dirty ? "Unsaved changes" : "Saved", dirty ? "dirty" : "saved");
+      setStatus(dirty ? "Unsaved" : "Saved", dirty ? "dirty" : "saved");
       setMeta(summary);
     }
     onSaved(summary);
@@ -235,9 +237,15 @@ export async function load(id, { discard = false } = {}) {
   return true;
 }
 
-export function focus() {
-  if (mode === "cm6" && view) view.focus();
-  else if (mode === "fallback" && !fallbackEl.disabled) fallbackEl.focus();
+/** `atEnd` puts the caret after the last character, for a note just made with a title. */
+export function focus({ atEnd = false } = {}) {
+  if (mode === "cm6" && view) {
+    if (atEnd) view.dispatch({ selection: { anchor: view.state.doc.length } });
+    view.focus();
+  } else if (mode === "fallback" && !fallbackEl.disabled) {
+    if (atEnd) fallbackEl.selectionStart = fallbackEl.selectionEnd = fallbackEl.value.length;
+    fallbackEl.focus();
+  }
 }
 
 // ── Init ───────────────────────────────────────────────────────

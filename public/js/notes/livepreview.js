@@ -197,7 +197,7 @@ const editorTheme = EditorView.theme({
     // Thai stacks marks above and below the baseline; this is the same
     // leading the rendered preview uses.
     lineHeight: "1.75",
-    padding: "1.5rem 1.75rem",
+    padding: "var(--notes-pad)",
     overflow: "auto",
   },
   ".cm-content": { padding: "0", caretColor: "var(--accent-bright)" },

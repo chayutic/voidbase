@@ -34,8 +34,9 @@ function jsonBody(payload) {
 }
 
 /**
- * { folders, notes, conflicts }. Notes are summaries, newest first,
- * each with its folder ("" for the root). No bodies.
+ * { folders, notes, pins, conflicts }. Notes are summaries, newest
+ * first, each with its folder ("" for the root). No bodies. Pins are
+ * ids, oldest pin first.
  */
 export function listNotes() {
   return request("/list");
@@ -67,6 +68,11 @@ export function searchNotes(query) {
 
 export function deleteNote(id) {
   return request(`/note/${id}`, { method: "DELETE" });
+}
+
+/** Pin or unpin a note. Returns { pins }, every pinned id, oldest first. */
+export function setPinned(id, pinned) {
+  return request(`/note/${id}/pin`, { method: "PUT", ...jsonBody({ pinned }) });
 }
 
 /** Move a note to a folder, "" for the root. Keeps its id and mtime; returns its summary. */

@@ -9,19 +9,28 @@
 @layer tokens {
 
 :root {
-  --notes-sidebar-w: 17rem;
-  --notes-header-h:  3.5rem;
+  --notes-sheet-w: 44rem;
 
-  /* What the sidebar collapses to rather than 0. Wide enough to hold
-     the collapse button, which is the only way back — a control inside
-     a zero-width sidebar cannot reopen it. */
-  --notes-rail-w:    2.25rem;
+  /* Grows with the window, so a tall portrait monitor doesn't put the
+     first line against its top edge. */
+  --notes-top: max(3rem, 5dvh);
+
+  /* CodeMirror's scroller, the preview and the fallback all pad by
+     this, so the text sits in the same place on every surface. */
+  --notes-pad: 2.75rem 3.25rem 3rem;
 
   /* Thai faces are appended rather than replacing Geist. Browsers fall
      back per glyph, so mixed Thai and English resolves automatically.
      Never use theme.css's --font-title/--font-body on this page: they
      are Latin-only and Thai silently drops to a generic sans. */
   --notes-font: 'Geist', 'Noto Sans Thai', sans-serif;
+}
+
+@media (max-width: 700px) {
+  :root {
+    --notes-top: 0.75rem;
+    --notes-pad: 1.25rem 1.25rem 2rem;
+  }
 }
 
 } /* @layer tokens */
@@ -41,374 +50,173 @@ body.notes {
 }
 
 /* ======================================================
-   HEADER
+   STAGE
 ====================================================== */
 
-.notes__header {
-  flex: none;
-  height: var(--notes-header-h);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 1rem;
-  border-bottom: 1px solid var(--border-color);
-  background: var(--surface-dark);
-}
-
-.notes__header h1 {
-  margin: 0;
-  font-size: var(--text-headline);
-  font-weight: 200;
-  letter-spacing: var(--track-wide);
-  line-height: 1.6;
-  text-transform: uppercase;
-  color: var(--text-secondary);
-}
-
-/* ======================================================
-   LAYOUT
-====================================================== */
-
-.notes__layout {
+/* The bottom padding lines the sheet's foot up with the corner
+   buttons'. */
+.notes__stage {
   flex: 1;
   min-height: 0;
-  display: grid;
-  grid-template-columns: var(--notes-sidebar-w) 1fr;
-}
-
-/* No transition: width is a layout property, so this snaps. */
-:root.notes-sidebar-collapsed .notes__layout {
-  grid-template-columns: var(--notes-rail-w) 1fr;
-}
-
-/* ======================================================
-   SIDEBAR
-====================================================== */
-
-.notes__sidebar {
-  min-height: 0;
-  overflow-y: auto;
-  border-right: 1px solid var(--border-color);
-  background: var(--surface-dark);
-}
-
-:root.notes-sidebar-collapsed .notes__sidebar {
-  overflow: hidden;
-}
-
-.notes__sidebar-head {
-  position: sticky;
-  top: 0;
-  z-index: 1;
-  border-bottom: 1px solid var(--border-color);
-  background: var(--panel-bg);
-}
-
-.notes__searchbar {
+  width: min(var(--notes-sheet-w), 100% - 2rem);
+  margin: 0 auto;
+  padding: var(--notes-top) 0 1.5rem;
   display: flex;
-  align-items: center;
-  gap: 0.45rem;
-  padding: 0.6rem 0.7rem;
+  flex-direction: column;
 }
 
-.notes__search-icon {
-  flex: none;
-  width: 14px;
-  height: 14px;
-  color: var(--text-secondary);
-  transition: color var(--transition-normal);
-}
-
-.notes__searchbar:focus-within .notes__search-icon {
-  color: var(--accent);
-}
-
-.notes__search {
-  flex: 1;
-  min-width: 0;
-  border: none;
-  outline: none;
-  background: none;
-  color: var(--text-primary);
-  font-family: inherit;
-  font-size: var(--text-body);
-  line-height: 1.6;
-}
-
-.notes__search::placeholder { color: var(--text-secondary); }
-
-.notes__collapse {
+.notes__icon-btn {
   flex: none;
   display: grid;
   place-items: center;
-  width: 24px;
-  height: 24px;
+  width: 1.9rem;
+  height: 1.9rem;
   padding: 0;
   border: none;
-  border-radius: var(--radius);
+  border-radius: var(--radius-xs);
   background: none;
   color: var(--text-secondary);
   cursor: pointer;
   transition: background var(--transition-fast), color var(--transition-fast);
 }
 
-.notes__collapse svg { width: 14px; height: 14px; }
+.notes__icon-btn[hidden] { display: none; }
+.notes__icon-btn svg { width: 15px; height: 15px; }
 
-.notes__collapse:hover {
+.notes__icon-btn:hover {
   background: var(--surface-glass-hover);
   color: var(--text-primary);
 }
 
-.notes__new-row {
+/* ======================================================
+   TABS
+====================================================== */
+
+.notes__tabs {
+  flex: none;
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  width: calc(100% - 1rem);
-  margin: 0 0.5rem 0.5rem;
-  padding: 0.5rem 0.65rem;
-  border: none;
-  border-radius: var(--radius);
-  background: none;
-  font: inherit;
-  font-size: var(--text-body);
-  line-height: 1.55;
-  text-align: left;
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: background var(--transition-fast), color var(--transition-fast);
+  align-items: flex-end;
+  min-height: 2.6rem;
 }
 
-.notes__new-row svg {
+/* Each edge fades only while there is more strip past it. */
+.notes__tab-strip {
+  display: flex;
+  align-items: flex-end;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  --fade-start: 0rem;
+  --fade-end:   0rem;
+  mask-image: linear-gradient(to right,
+    transparent, black var(--fade-start),
+    black calc(100% - var(--fade-end)), transparent);
+}
+
+.notes__tab-strip.has-before { --fade-start: 2rem; }
+.notes__tab-strip.has-more   { --fade-end: 2rem; }
+
+/* An inactive tab's bottom border is the sheet's top edge under it.
+   The open tab drops it, and its glass joins the sheet's. */
+.notes__tab {
   flex: none;
-  width: 14px;
-  height: 14px;
+  max-width: 11rem;
+  padding: 0.55rem 1.1rem 0.6rem;
+  overflow: hidden;
+  border: 1px solid transparent;
+  border-bottom-color: var(--border-color);
+  border-radius: var(--radius) var(--radius) 0 0;
+  background: none;
+  font: inherit;
+  line-height: 1.6;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--text-secondary);
+  cursor: pointer;
   transition: color var(--transition-fast);
 }
 
-.notes__new-row:hover {
+.notes__tab:hover { color: var(--text-primary); }
+
+.notes__tab[aria-current="true"] {
+  border-color: var(--border-color);
+  border-bottom-color: transparent;
   background: var(--surface-glass);
-  color: var(--text-primary);
-}
-
-.notes__new-row:hover svg { color: var(--accent-bright); }
-
-/* ── Folder pills ── */
-
-.notes__folders {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.3rem;
-  padding: 0 0.7rem 0.6rem;
-}
-
-.notes__folders[hidden] { display: none; }
-
-.notes__folder {
-  max-width: 100%;
-  overflow: hidden;
-  padding: 0.1rem 0.7rem;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-pill);
-  background: var(--surface-glass);
-  font: inherit;
-  font-size: var(--text-label);
-  line-height: 1.55;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
-}
-
-.notes__folder:hover { color: var(--text-primary); }
-
-.notes__folder[aria-pressed="true"] {
-  background: var(--surface-glass-hover);
-  border-color: var(--border-hover);
-  color: var(--text-primary);
-}
-
-.notes__folder-input {
-  field-sizing: content;
-  min-width: 4ch;
-  outline: none;
-  background: var(--surface-glass-hover);
-  border-color: var(--accent);
-  color: var(--text-primary);
-  caret-color: var(--accent);
-  cursor: text;
-}
-
-/* ── Collapsed rail ── */
-
-:root.notes-sidebar-collapsed .notes__search,
-:root.notes-sidebar-collapsed .notes__search-icon,
-:root.notes-sidebar-collapsed .notes__folders,
-:root.notes-sidebar-collapsed .notes__new-row,
-:root.notes-sidebar-collapsed .notes__list {
-  display: none;
-}
-
-:root.notes-sidebar-collapsed .notes__searchbar {
-  justify-content: center;
-  padding: 0.6rem 0;
-}
-
-:root.notes-sidebar-collapsed .notes__collapse svg {
-  transform: rotate(180deg);
-}
-
-.notes__row mark {
-  padding: 0 1px;
-  border-radius: var(--radius-xs);
-  background: var(--accent-muted);
-  color: var(--text-primary);
-}
-
-.notes__list {
-  display: flex;
-  flex-direction: column;
-  padding: 0.5rem;
-  gap: 2px;
-}
-
-.notes__row { position: relative; }
-
-.notes__row-open {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-  width: 100%;
-  padding: 0.60rem 1.9rem 0.60rem 0.75rem;
-  border: 1px solid transparent;
-  border-radius: var(--radius);
-  background: none;
-  font: inherit;
-  text-align: left;
-  color: inherit;
-  cursor: pointer;
-  transition: background var(--transition-fast), border-color var(--transition-fast);
-}
-
-/* Keyed on the wrapper so the row stays lit while the pointer is on its
-   delete, which is a sibling of this button rather than inside it. */
-.notes__row:hover .notes__row-open { background: var(--surface-glass); }
-
-.notes__row.active .notes__row-open {
-  background: var(--surface-glass-hover);
-  border-color: var(--border-hover);
-}
-
-.notes__row-title,
-.notes__row-excerpt {
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-
-.notes__row-title {
-  font-size: var(--text-body);
   font-weight: 600;
-  line-height: 1.55;
   color: var(--text-primary);
 }
 
-.notes__row-title.untitled {
+.notes__tab.is-temp { font-style: italic; }
+
+.notes__tab.untitled {
   font-weight: 400;
   font-variant-numeric: tabular-nums;
-  color: var(--text-secondary);
 }
 
-.notes__row-meta {
-  display: flex;
-  gap: 0.4rem;
-  max-width: 100%;
-  font-size: var(--text-label);
-  line-height: 1.55;
-  color: var(--text-secondary);
-}
-
-.notes__row-excerpt {
+/* The rest of the sheet's top edge. */
+.notes__tabs-rest {
   flex: 1;
-  min-width: 0;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.2rem;
+  padding-left: 0.5rem;
+  border-bottom: 1px solid var(--border-color);
 }
 
-.notes__row-folder {
-  flex: none;
-  max-width: 50%;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  font-weight: 600;
-}
-
-.notes__row-folder + .notes__row-excerpt::before {
-  content: "·";
-  margin-right: 0.4rem;
-}
-
-.notes__row-remove {
-  position: absolute;
-  top: calc(0.5rem + 1px);
-  right: calc(0.45rem + 1px);
-  display: grid;
-  place-items: center;
-  width: 20px;
-  height: 20px;
-  padding: 0;
+.notes__switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  height: 1.9rem;
+  padding: 0 0.4rem 0 0.55rem;
   border: none;
   border-radius: var(--radius-xs);
   background: none;
-  color: var(--text-secondary);
-  cursor: pointer;
-  opacity: 0;
-  transition: opacity var(--transition-fast), background var(--transition-fast), color var(--transition-fast);
-}
-
-.notes__row-remove svg { width: 13px; height: 13px; }
-
-.notes__row:hover .notes__row-remove,
-.notes__row-remove:focus-visible { opacity: 1; }
-
-.notes__row-remove:hover {
-  background: var(--surface-glass-hover);
-  color: var(--red-highlights);
-}
-
-.notes__empty {
-  margin: 0;
-  padding: 1.5rem 0.75rem;
-  font-size: var(--text-label);
-  line-height: 1.6;
-  text-align: center;
-  color: var(--text-secondary);
-}
-
-.notes__empty-action {
-  padding: 0;
-  border: none;
-  background: none;
   font: inherit;
-  color: var(--text-primary);
+  line-height: 1.6;
+  white-space: nowrap;
+  color: var(--text-secondary);
   cursor: pointer;
-  transition: color var(--transition-fast);
+  transition: background var(--transition-fast), color var(--transition-fast);
 }
 
-.notes__empty-action:hover { color: var(--red-highlights); }
+.notes__switch svg { width: 14px; height: 14px; flex: none; }
+
+.notes__switch:hover {
+  background: var(--surface-glass-hover);
+  color: var(--text-primary);
+}
+
+.notes__kbd {
+  padding: 0 0.35rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xs);
+  font: inherit;
+  font-size: var(--text-micro);
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
 
 /* ======================================================
-   EDITOR
+   SHEET
 ====================================================== */
 
-/* min-width as well as min-height: this is a grid item, and a grid
-   item's automatic minimum is min-content on both axes. Without it a
-   long line inside `.markdown pre` widens the 1fr column instead of
-   scrolling, and the pre's own overflow-x never gets to engage. */
+/* min-width as well as min-height: this is a flex item, and a flex
+   item's automatic minimum is min-content. Without it a long line
+   inside `.markdown pre` widens the sheet instead of scrolling, and
+   the pre's own overflow-x never gets to engage. */
 .notes__pane {
+  flex: 1;
   min-height: 0;
   min-width: 0;
   display: flex;
   flex-direction: column;
+  border: 1px solid var(--border-color);
+  border-top: none;
+  border-radius: 0 0 var(--radius) var(--radius);
+  background: var(--surface-glass);
 }
 
 /* Three surfaces occupy the same slot; exactly one is visible.
@@ -438,7 +246,7 @@ body.notes {
 
 .notes__fallback {
   width: 100%;
-  padding: 1.5rem 1.75rem;
+  padding: var(--notes-pad);
   border: none;
   outline: none;
   resize: none;
@@ -453,29 +261,63 @@ body.notes {
 
 .notes__fallback::placeholder { color: var(--text-secondary); }
 
-/* ── Status bar ── */
+/* ── Band ── */
 
 .notes__statusbar {
   flex: none;
   display: flex;
   align-items: center;
   gap: var(--gap);
-  padding: 0.4rem 1.75rem;
+  min-height: 2.6rem;
+  padding: 0.3rem 0.6rem 0.3rem 1.25rem;
   border-top: 1px solid var(--border-color);
+  border-radius: 0 0 var(--radius) var(--radius);
+  background: var(--surface-dark);
   font-size: var(--text-micro);
   line-height: 1.6;
   letter-spacing: var(--track-normal);
   color: var(--text-secondary);
 }
 
-.notes__status { margin-right: auto; }
+.notes__status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--dot-gap);
+  min-width: 0;
+  white-space: nowrap;
+}
 
-.notes__status[data-state="saving"] { color: var(--text-secondary); }
-.notes__status[data-state="saved"]  { color: var(--green-highlights); }
-.notes__status[data-state="dirty"]  { color: var(--orange-highlights); }
-.notes__status[data-state="error"]  { color: var(--red-highlights); }
+.notes__status > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
-.notes__meta { font-variant-numeric: tabular-nums; }
+.notes__status::before {
+  content: "";
+  flex: none;
+  width: var(--dot);
+  height: var(--dot);
+  border-radius: 50%;
+  background: var(--text-secondary);
+  opacity: 0.5;
+}
+
+.notes__status:is(:not([data-state]), [data-state=""])::before { display: none; }
+
+.notes__status[data-state="dirty"]::before { background: var(--orange-highlights); opacity: 1; }
+.notes__status[data-state="error"]::before { background: var(--red-highlights); opacity: 1; }
+.notes__status[data-state="error"] { color: var(--text-primary); }
+
+.notes__meta {
+  margin-left: auto;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.notes__pin[aria-pressed="true"] { color: var(--accent-bright); }
+.notes__pin[aria-pressed="true"] svg { fill: currentColor; }
+
+.notes__delete:hover { color: var(--red-highlights); }
 
 /* ── Folder button ── */
 
@@ -511,7 +353,7 @@ body.notes {
 
 .notes__picker {
   position-anchor: --note-folder;
-  position-area: top span-left;
+  position-area: top span-right;
   position-try-fallbacks: flip-block;
   inset: auto;
   width: max-content;
@@ -529,7 +371,7 @@ body.notes {
   line-height: 1.55;
   opacity: 0;
   transform: translateY(4px) scale(0.97);
-  transform-origin: bottom right;
+  transform-origin: bottom left;
   transition:
     opacity   var(--transition-normal),
     transform var(--transition-normal),
@@ -622,11 +464,274 @@ body.notes {
 .notes__picker-new input::placeholder { color: var(--text-secondary); }
 
 /* ======================================================
+   SWITCHER
+====================================================== */
+
+.notes__switcher {
+  width: min(36rem, 100vw - 2rem);
+  max-width: none;
+  max-height: none;
+  margin: 12dvh auto auto;
+  padding: 0;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  background: var(--panel-bg);
+  color: var(--text-primary);
+  opacity: 0;
+  transform: translateY(10px) scale(0.97);
+  transition:
+    opacity   var(--transition-normal),
+    transform var(--transition-normal),
+    overlay   var(--transition-normal) allow-discrete,
+    display   var(--transition-normal) allow-discrete;
+}
+
+.notes__switcher[open] {
+  opacity: 1;
+  transform: none;
+}
+
+.notes__switcher::backdrop {
+  background: oklch(from var(--surface-dark) l c h / 0.55);
+  backdrop-filter: blur(6px);
+  opacity: 0;
+  transition:
+    opacity var(--transition-normal),
+    overlay var(--transition-normal) allow-discrete,
+    display var(--transition-normal) allow-discrete;
+}
+
+.notes__switcher[open]::backdrop {
+  opacity: 1;
+}
+
+@starting-style {
+  .notes__switcher[open] {
+    opacity: 0;
+    transform: translateY(10px) scale(0.97);
+  }
+
+  .notes__switcher[open]::backdrop {
+    opacity: 0;
+  }
+}
+
+.notes__switcher-box {
+  display: flex;
+  flex-direction: column;
+  max-height: min(70dvh, 44rem);
+}
+
+.notes__searchbar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  height: 3.2rem;
+  padding: 0 1.15rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.notes__search-icon {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  color: var(--text-secondary);
+  transition: color var(--transition-normal);
+}
+
+.notes__searchbar:focus-within .notes__search-icon {
+  color: var(--accent);
+}
+
+.notes__search {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: none;
+  color: var(--text-primary);
+  caret-color: var(--accent);
+  font-family: inherit;
+  font-size: var(--text-subhead);
+  line-height: 1.6;
+}
+
+.notes__search::placeholder { color: var(--text-secondary); }
+
+/* ── Folder pills ── */
+
+.notes__folders {
+  flex: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  padding: 0.7rem 1rem 0.2rem;
+}
+
+.notes__folders[hidden] { display: none; }
+
+.notes__folder {
+  max-width: 14rem;
+  overflow: hidden;
+  padding: 0.1rem 0.7rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-pill);
+  background: var(--surface-glass);
+  font: inherit;
+  font-size: var(--text-label);
+  line-height: 1.55;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+}
+
+.notes__folder:hover { color: var(--text-primary); }
+
+.notes__folder[aria-pressed="true"] {
+  background: var(--surface-glass-hover);
+  border-color: var(--border-hover);
+  color: var(--text-primary);
+}
+
+.notes__folder-input {
+  field-sizing: content;
+  min-width: 4ch;
+  outline: none;
+  background: var(--surface-glass-hover);
+  border-color: var(--accent);
+  color: var(--text-primary);
+  caret-color: var(--accent);
+  cursor: text;
+}
+
+/* ── Rows ── */
+
+.notes__list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0.5rem 0.4rem 0.4rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) transparent;
+}
+
+.notes__row {
+  flex: none;
+  display: grid;
+  grid-template-columns: 1rem minmax(0, 1fr) auto;
+  column-gap: 0.6rem;
+  align-items: center;
+  width: 100%;
+  padding: 0.45rem 0.7rem 0.5rem 0.55rem;
+  border: none;
+  border-radius: var(--radius-xs);
+  background: none;
+  font: inherit;
+  text-align: left;
+  color: inherit;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.notes__row.is-selected { background: var(--surface-glass-hover); }
+
+.notes__row-glyph {
+  display: grid;
+  place-items: center;
+  color: var(--text-secondary);
+}
+
+.notes__row-glyph svg { width: 11px; height: 11px; }
+
+.notes__row-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.notes__row-title,
+.notes__row-excerpt {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  line-height: 1.55;
+}
+
+.notes__row-title { font-weight: 600; }
+
+.notes__row-title.untitled {
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-secondary);
+}
+
+.notes__row-excerpt { color: var(--text-secondary); }
+
+.notes__row-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  max-width: 10rem;
+  font-size: var(--text-micro);
+  line-height: 1.6;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: var(--text-secondary);
+}
+
+.notes__row-folder {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.notes__row--new .notes__row-title {
+  font-weight: 400;
+  color: var(--text-secondary);
+}
+
+.notes__row--new.is-selected .notes__row-title { color: var(--text-primary); }
+
+.notes__row mark {
+  padding: 0 1px;
+  border-radius: var(--radius-xs);
+  background: var(--accent-muted);
+  color: var(--text-primary);
+}
+
+.notes__empty {
+  margin: 0;
+  padding: 1rem 0.75rem;
+  font-size: var(--text-label);
+  line-height: 1.6;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.notes__empty-action {
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: color var(--transition-fast);
+}
+
+.notes__empty-action:hover { color: var(--red-highlights); }
+
+/* ======================================================
    PREVIEW — loading state and the mobile reading surface
 ====================================================== */
 
 .notes__preview {
-  padding: 1.5rem 1.75rem;
+  padding: var(--notes-pad);
   overflow-y: auto;
   overflow-wrap: break-word;
 }
@@ -807,50 +912,28 @@ body.notes {
 /* ======================================================
    NARROW SCREENS
    ======================================================
-   Deliberately minimal. This is a desktop-first tool; the phone case
-   only needs to let you find a note and read it.
+   Phones read; they don't edit. CodeMirror still mounts, and the
+   rendered preview takes its place.
 ====================================================== */
 
 @media (max-width: 700px) {
-  .notes__layout {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto 1fr;
+  /* Clears the corner buttons, which would otherwise sit on the band. */
+  .notes__stage {
+    width: calc(100% - 1.5rem);
+    padding-bottom: 4.25rem;
   }
 
-  .notes__sidebar {
-    max-height: 38dvh;
-    border-right: none;
-    border-bottom: 1px solid var(--border-color);
+  .notes__tab {
+    max-width: 8.5rem;
+    padding: 0.5rem 0.85rem 0.55rem;
   }
 
-  .notes__collapse { display: none; }
+  .notes__switch span,
+  .notes__kbd { display: none; }
 
-  /* Undo a collapsed state saved on desktop: the toggle above is hidden
-     here, so the rail would strand the list with no way back. Every
-     collapsed rule has to be undone here, overflow included, or the
-     list shows but cannot scroll. */
-  :root.notes-sidebar-collapsed .notes__layout {
-    grid-template-columns: 1fr;
-  }
-
-  :root.notes-sidebar-collapsed .notes__sidebar {
-    overflow-y: auto;
-  }
-
-  :root.notes-sidebar-collapsed .notes__new-row,
-  :root.notes-sidebar-collapsed .notes__list,
-  :root.notes-sidebar-collapsed .notes__folders:not([hidden]) {
-    display: flex;
-  }
-
-  :root.notes-sidebar-collapsed .notes__search,
-  :root.notes-sidebar-collapsed .notes__search-icon {
-    display: block;
-  }
-
-  :root.notes-sidebar-collapsed .notes__searchbar {
-    justify-content: flex-start;
-    padding: 0.6rem 0.7rem;
+  .notes__icon-btn {
+    width: 2.5rem;
+    height: 2.5rem;
   }
 
   .notes__pane.cm6-ready     .notes__editor   { display: none; }
@@ -858,22 +941,13 @@ body.notes {
   .notes__pane.cm6-ready     .notes__preview,
   .notes__pane.fallback-mode .notes__preview  { display: block; }
 
-  .notes__preview   { padding: 1rem 1.1rem; }
-  .notes__statusbar { padding: 0.4rem 1.1rem; }
+  .notes__status:not([data-state="error"]) > span { display: none; }
 
-  .notes__row-remove { opacity: 1; }
+  .notes__switcher { margin-top: 0.75rem; }
+  .notes__switcher-box { max-height: calc(100dvh - 1.5rem); }
 
-  .notes__folders {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-
-  .notes__folder {
-    flex: none;
-    max-width: 12rem;
-    padding: 0.3rem 0.85rem;
-  }
+  .notes__row { padding-block: 0.6rem 0.65rem; }
+  .notes__folder { padding: 0.3rem 0.85rem; }
 
   .notes__picker-item { padding: 0.55rem 0.7rem; }
   .notes__picker-new  { padding: 0.6rem 0.7rem 0.35rem; }

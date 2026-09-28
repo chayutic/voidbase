@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════
-//  FORMAT — display helpers shared by the sidebar and status bar
+//  FORMAT — display helpers shared by the tabs, switcher and band
 // ═══════════════════════════════════════════════════════════════
 
 const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
@@ -17,7 +17,7 @@ function idToDate(id) {
 }
 
 /** "24 Aug · 22:09" — the fallback label for a note with no heading. */
-export function formatCreated(id) {
+function formatCreated(id) {
   const d = idToDate(id);
   if (!d) return id;
   const time = `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
@@ -38,7 +38,7 @@ export function formatEdited(isoString) {
   return `${then.getDate()} ${MONTHS[then.getMonth()]} · ${time}`;
 }
 
-/** The label a note shows in the sidebar. */
+/** The label a note shows on its tab and in the switcher. */
 export function displayTitle(note) {
   return note.title || formatCreated(note.id);
 }

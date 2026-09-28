@@ -4,7 +4,7 @@
 //
 //  The picker is a native popover, so light dismiss, Escape and the
 //  top layer come from the browser. Its list is built on open, from
-//  whatever folders the sidebar last fetched.
+//  whatever folders the library last fetched.
 
 import * as api   from "./api.js";
 import { reject } from "../inline-edit.js";
