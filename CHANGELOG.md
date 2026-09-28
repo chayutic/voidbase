@@ -18,6 +18,7 @@
 - **The two smallest text sizes land on whole pixels**, 13px and 12px, up from 12.8 and 11.52. Voidport's numbers again
 - **Line spacing comes in four sizes, not nine.** Notes prose is a little tighter at 1.7, the lists and tabs a hair shorter, and `/ops` names closer to what's under them. Voidport's four
 - **Text on the dark themes is Voidport's greys**, a shade softer for the white and a shade brighter for the grey. I tried both side by side and couldn't tell
+- **Spacing sits on whole pixels.** Gaps between cards are 12px instead of 12.8, and sections are 40px apart instead of 38.4. Same names as Voidport, same numbers
 - **Making a folder from the move picker just makes the folder.** It used to move the open note into it as well. The note stays put now, and the new folder is right there in the list if you did want it moved
 - **Notes on a phone is the same page**, tabs and all, instead of a squeezed sidebar over the note. Still read-only there. The note doesn't drop down the screen when the list arrives any more either, since there's no list above it
 - **The health line has the header row to itself.** "Bangkok · UTC+7" only shows where the line doesn't: through the tunnel, and in Guest Mode. I know where I live

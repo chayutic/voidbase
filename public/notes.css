@@ -60,7 +60,7 @@ body.notes {
   min-height: 0;
   width: min(var(--notes-sheet-w), 100% - 2rem);
   margin: 0 auto;
-  padding: var(--notes-top) 0 1.5rem;
+  padding: var(--notes-top) 0 var(--space-loose);
   display: flex;
   flex-direction: column;
 }
@@ -569,7 +569,7 @@ body.notes {
   display: flex;
   flex-wrap: wrap;
   gap: 0.35rem;
-  padding: 0.7rem 1rem 0.2rem;
+  padding: 0.7rem var(--pad) 0.2rem;
 }
 
 .notes__folders[hidden] { display: none; }
@@ -710,7 +710,7 @@ body.notes {
 
 .notes__empty {
   margin: 0;
-  padding: 1rem 0.75rem;
+  padding: var(--pad) 0.75rem;
   font-size: var(--text-label);
   line-height: var(--leading-body);
   text-align: center;
@@ -871,7 +871,7 @@ body.notes {
 
 .markdown pre {
   margin: 0 0 1em;
-  padding: 0.85rem 1rem;
+  padding: 0.85rem var(--pad);
   border: 1px solid var(--border-color);
   border-radius: var(--radius);
   background: var(--surface-dark);

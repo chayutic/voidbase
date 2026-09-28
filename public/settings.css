@@ -13,8 +13,8 @@
 .settings-trigger,
 .nav-trigger {
   position: fixed;
-  bottom: 1.5rem;
-  right: 1.5rem;
+  bottom: var(--space-loose);
+  right: var(--space-loose);
   z-index: 100;
 
   width: 42px;
@@ -79,7 +79,7 @@
 
 .nav-trigger {
   right: unset;
-  left: 1.5rem;
+  left: var(--space-loose);
   text-decoration: none;
 }
 
@@ -89,7 +89,7 @@
 .settings-panel {
   position: fixed;
   bottom: 4.5rem;
-  right: 1.5rem;
+  right: var(--space-loose);
   z-index: 99;
 
   width: 340px;
@@ -116,7 +116,7 @@
 }
 
 .settings-panel__header {
-  padding: 0.75rem 1rem 0.6rem;
+  padding: 0.75rem var(--pad) 0.6rem;
   font-size: var(--text-body);
   font-family: var(--font-title);
   font-weight: var(--body-thin);
@@ -127,7 +127,7 @@
 }
 
 .settings__section {
-  padding: 0.75rem 1rem;
+  padding: 0.75rem var(--pad);
 }
 
 .settings__section + .settings__section {
@@ -371,19 +371,19 @@
 
   .settings-trigger {
     top: unset;
-    bottom: 1rem;
-    right: 1rem;
+    bottom: var(--pad);
+    right: var(--pad);
   }
 
   /* Stays paired with the gear. */
   .nav-trigger {
     top: unset;
-    bottom: 1rem;
-    left: 1rem;
+    bottom: var(--pad);
+    left: var(--pad);
   }
 
   .settings__section {
-    padding: 1rem 1.25rem;
+    padding: var(--pad) 1.25rem;
   }
 
   .theme__swatch {

@@ -67,11 +67,11 @@ h4 {
   z-index: 1;
   max-width: 1024px;
   margin: 0 auto;
-  padding: 1rem 2rem;
+  padding: var(--pad) 2rem;
 }
 
 .section + .section {
-  margin-top: calc(var(--gap) * 3);
+  margin-top: var(--section);
 }
 
 /* ======================================================
@@ -90,7 +90,7 @@ h4 {
   grid-template-rows: auto auto;
   column-gap: 0.8rem;
   align-items: start;
-  padding: 1rem;
+  padding: var(--pad);
   border-radius: var(--radius);
   background: var(--surface-glass);
   border: 1px solid var(--border-color);
@@ -159,7 +159,7 @@ h4 {
 ====================================================== */
 
 .header {
-  padding: 4rem 0 1.5rem;
+  padding: 4rem 0 var(--space-loose);
   background: var(--surface-dark);
   border-bottom: 1px solid var(--border-color);
   /* Resolves to --text-primary except in the light themes, which step it
@@ -322,7 +322,7 @@ h4 {
   display: flex;
   justify-content: center;
   height: 95px;
-  margin: 0.25rem 0 2.5rem;
+  margin: var(--space-tight) 0 2.5rem;
 }
 
 .dock__list {
@@ -414,7 +414,7 @@ h4 {
   align-items: center;
   width: 100%;
   max-width: 584px;
-  gap: 0.25rem;
+  gap: var(--space-tight);
 }
 
 .search__input-row {
@@ -553,20 +553,20 @@ input:checked + .search__toggle-track::before {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.5rem 1rem;
+  padding: 0.5rem var(--pad);
   color: var(--text-primary);
   border-bottom: 1px solid var(--border-color);
 }
 
 .search__turbo-presets {
-  padding: 0.5rem 1rem;
+  padding: 0.5rem var(--pad);
 }
 
 .search__turbo-presets-header {
   display: flex;
   align-items: center;
   gap: var(--gap);
-  margin-bottom: 0.25rem;
+  margin-bottom: var(--space-tight);
 }
 
 .search__turbo-label {
@@ -626,7 +626,7 @@ input:checked + .search__toggle-track::before {
   display: flex;
   align-items: center;
   gap: 0.6rem;
-  padding: 0.25rem 0;
+  padding: var(--space-tight) 0;
   border-bottom: 1px solid var(--border-color);
 }
 
@@ -893,7 +893,7 @@ input:checked + .search__toggle-track::before {
   display: grid;
   grid-template-columns: 1fr max-content minmax(4rem, max-content) minmax(3rem, max-content) minmax(3.5rem, max-content) 1.2rem;
   align-items: center;
-  gap: 0.25rem;
+  gap: var(--space-tight);
 }
 
 .deals__table-header {
@@ -953,7 +953,7 @@ input:checked + .search__toggle-track::before {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 0.25rem;
+  gap: var(--space-tight);
 }
 
 .deals__discount {
@@ -1085,7 +1085,7 @@ input:checked + .search__toggle-track::before {
   overflow-x: auto;
   scroll-behavior: smooth;
   scrollbar-width: none;
-  padding-bottom: 0.25rem; /* prevent border clipping on scroll */
+  padding-bottom: var(--space-tight); /* prevent border clipping on scroll */
 }
 
 .arrivals__card {
@@ -1290,7 +1290,7 @@ input:checked + .search__toggle-track::before {
   all: unset;
 
   outline: revert;
-  padding: 0.25rem 0.5rem;
+  padding: var(--space-tight) 0.5rem;
   font-size: var(--text-micro);
   font-family: var(--font-title);
   font-weight: var(--body-bold);
@@ -1565,7 +1565,7 @@ input:checked + .search__toggle-track::before {
 .utilities__card {
   display: block;
   text-decoration: none;
-  padding: 0.75rem 1rem;
+  padding: 0.75rem var(--pad);
   border-radius: var(--radius);
   background: var(--surface-glass);
   border: 1px solid var(--border-color);
@@ -1597,7 +1597,7 @@ input:checked + .search__toggle-track::before {
 
 .footer {
   margin-top: 2rem;
-  padding: 1.5rem 0 4rem;
+  padding: var(--space-loose) 0 4rem;
   background: var(--surface-dark);
   border-top: 1px solid var(--border-color);
 }
@@ -1687,7 +1687,7 @@ input:checked + .search__toggle-track::before {
 }
 
 .customizer__header {
-  padding: 0.75rem 1rem 0.6rem;
+  padding: 0.75rem var(--pad) 0.6rem;
   border-bottom: 1px solid var(--border-color);
 }
 
@@ -1708,7 +1708,7 @@ input:checked + .search__toggle-track::before {
   display: flex;
   align-items: center;
   gap: 0.6rem;
-  padding: 0.45rem 1rem;
+  padding: 0.45rem var(--pad);
   cursor: grab;
   transition: background var(--transition-fast);
   color: var(--text-primary);
@@ -1779,7 +1779,7 @@ input:checked + .search__toggle-track::before {
   display: flex;
   justify-content: flex-end;
   gap: 0.5rem;
-  padding: 0.75rem 1rem;
+  padding: 0.75rem var(--pad);
   border-top: 1px solid var(--border-color);
 }
 
@@ -1793,7 +1793,7 @@ input:checked + .search__toggle-track::before {
   font-weight: var(--body-semi);
   letter-spacing: var(--track-wider);
   text-transform: uppercase;
-  padding: 0.35rem 0.25rem;
+  padding: 0.35rem var(--space-tight);
   color: var(--text-secondary);
   margin-right: auto;
   transition: color var(--transition-normal);
@@ -1885,11 +1885,11 @@ input:checked + .search__toggle-track::before {
 }
 
   .container {
-  padding: 1.5rem 1rem;
+  padding: var(--space-loose) var(--pad);
   }
 
   .search {
-  padding: 0 1rem;
+  padding: 0 var(--pad);
 }
 
   .stocks__grid.expanded-charts {
@@ -1903,7 +1903,7 @@ input:checked + .search__toggle-track::before {
 
   /* ── Header ── */
 .header {
-  padding: 3rem 0 1rem;
+  padding: 3rem 0 var(--pad);
 }
 
 .header__separator {
@@ -1913,13 +1913,13 @@ input:checked + .search__toggle-track::before {
 
 .header__meta {
   font-size: var(--text-subhead);
-  gap: 0.25rem;
+  gap: var(--space-tight);
 }
 
 /* ── Dock ── */
 .dock {
   height: 80px;
-  margin: 0 0 1rem;
+  margin: 0 0 var(--pad);
 }
 
 .dock__list {
