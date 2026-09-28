@@ -159,14 +159,14 @@ export const hideMarkers = ViewPlugin.fromClass(
  * line-height stays >= 1.5 to leave room for Thai vowel and tone marks.
  */
 const markdownHighlight = HighlightStyle.define([
-  { tag: tags.heading1, fontSize: "var(--text-title)", fontWeight: "600", lineHeight: "1.5" },
-  { tag: tags.heading2, fontSize: "var(--text-headline)", fontWeight: "600", lineHeight: "1.5" },
-  { tag: tags.heading3, fontSize: "var(--text-subhead)", fontWeight: "600", lineHeight: "1.5" },
-  { tag: tags.heading4, fontSize: "var(--text-body)", fontWeight: "600", fontStyle: "italic", lineHeight: "1.5" },
-  { tag: tags.heading5, fontSize: "var(--text-body)", fontWeight: "600", fontStyle: "italic", lineHeight: "1.5", color: "var(--text-secondary)" },
-  { tag: tags.heading6, fontSize: "var(--text-body)", fontWeight: "600", fontStyle: "italic", lineHeight: "1.5", color: "var(--text-secondary)" },
+  { tag: tags.heading1, fontSize: "var(--text-title)", fontWeight: "var(--body-semi)", lineHeight: "1.5" },
+  { tag: tags.heading2, fontSize: "var(--text-headline)", fontWeight: "var(--body-semi)", lineHeight: "1.5" },
+  { tag: tags.heading3, fontSize: "var(--text-subhead)", fontWeight: "var(--body-semi)", lineHeight: "1.5" },
+  { tag: tags.heading4, fontSize: "var(--text-body)", fontWeight: "var(--body-semi)", fontStyle: "italic", lineHeight: "1.5" },
+  { tag: tags.heading5, fontSize: "var(--text-body)", fontWeight: "var(--body-semi)", fontStyle: "italic", lineHeight: "1.5", color: "var(--text-secondary)" },
+  { tag: tags.heading6, fontSize: "var(--text-body)", fontWeight: "var(--body-semi)", fontStyle: "italic", lineHeight: "1.5", color: "var(--text-secondary)" },
 
-  { tag: tags.strong,        fontWeight: "600" },
+  { tag: tags.strong,        fontWeight: "var(--body-semi)" },
   { tag: tags.emphasis,      fontStyle: "italic" },
   { tag: tags.strikethrough, textDecoration: "line-through", color: "var(--text-secondary)" },
 

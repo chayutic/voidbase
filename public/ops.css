@@ -24,7 +24,7 @@
   margin: 0;
   padding: .8rem 0 0 0;
   font-family: var(--font-header);
-  font-weight: 700;
+  font-weight: var(--display-black);
   font-size: var(--text-display);
   letter-spacing: var(--track-normal);
   text-align: center;
@@ -43,7 +43,7 @@
   align-items: center;
   gap: 0.35rem;
   font-size: var(--text-headline);
-  font-weight: 200;
+  font-weight: var(--body-thin);
   letter-spacing: var(--track-wide);
   text-transform: uppercase;
 }
@@ -62,7 +62,7 @@
 .ops__health-line {
   min-block-size: 1lh;
   font-size: var(--text-body);
-  font-weight: 400;
+  font-weight: var(--body-normal);
   text-align: center;
   color: var(--text-secondary);
 }
@@ -170,7 +170,7 @@
 .ops__section h2 {
   margin: 0 0 var(--gap);
   font-family: var(--font-title);
-  font-weight: 200;
+  font-weight: var(--body-thin);
   font-size: var(--text-headline);
   line-height: 1;
   letter-spacing: var(--track-wide);
@@ -202,7 +202,7 @@
 
 .ops__icon text {
   font-family: var(--font-body);
-  font-weight: 600;
+  font-weight: var(--body-semi);
 }
 
 button:where(.ops__service, .ops__name, .ops__offer-name) {
@@ -317,7 +317,7 @@ button:where(.ops__service, .ops__name, .ops__offer-name) {
   gap: 0.3rem;
   margin: 0;
   font-size: var(--text-subhead);
-  font-weight: 600;
+  font-weight: var(--body-semi);
   line-height: 1.4;
 }
 
@@ -416,7 +416,7 @@ button:where(.ops__service, .ops__name, .ops__offer-name) {
 }
 
 .ops__offer-name {
-  font-weight: 600;
+  font-weight: var(--body-semi);
 }
 
 .ops__change {
@@ -428,7 +428,7 @@ button:where(.ops__service, .ops__name, .ops__offer-name) {
 }
 
 .ops__change b {
-  font-weight: 600;
+  font-weight: var(--body-semi);
   color: var(--text-primary);
 }
 
@@ -504,7 +504,7 @@ button:where(.ops__service, .ops__name, .ops__offer-name) {
 }
 
 .ops__service-name {
-  font-weight: 600;
+  font-weight: var(--body-semi);
 }
 
 .ops__service-said {
@@ -798,12 +798,12 @@ button:where(.ops__service, .ops__name, .ops__offer-name) {
 }
 
 .ops__vol-name {
-  font-weight: 600;
+  font-weight: var(--body-semi);
 }
 
 .ops__vol-pct {
   font-size: var(--text-title);
-  font-weight: 600;
+  font-weight: var(--body-semi);
   line-height: 1;
   letter-spacing: var(--track-normal);
   font-variant-numeric: tabular-nums;
@@ -820,7 +820,7 @@ button:where(.ops__service, .ops__name, .ops__offer-name) {
 .ops__vol-pct small {
   margin-inline-start: 0.3rem;
   font-size: var(--text-body);
-  font-weight: 400;
+  font-weight: var(--body-normal);
   letter-spacing: normal;
   color: var(--text-secondary);
 }
@@ -834,7 +834,7 @@ button:where(.ops__service, .ops__name, .ops__offer-name) {
 }
 
 .ops__vol-said b {
-  font-weight: 400;
+  font-weight: var(--body-normal);
   color: var(--text-primary);
 }
 
@@ -928,7 +928,7 @@ button:where(.ops__service, .ops__name, .ops__offer-name) {
 .ops__detail-name {
   margin: 0;
   font-size: var(--text-subhead);
-  font-weight: 600;
+  font-weight: var(--body-semi);
   line-height: 1.4;
 }
 
@@ -992,7 +992,7 @@ button:where(.ops__service, .ops__name, .ops__offer-name) {
 .ops__detail-label {
   margin: 0 0 0.5rem;
   font-size: var(--text-label);
-  font-weight: 400;
+  font-weight: var(--body-normal);
   color: var(--text-secondary);
 }
 

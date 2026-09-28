@@ -83,6 +83,13 @@
   --track-wide:         0.08em;
   --track-wider:        0.1em;
 
+  /* ── Weights, Voidport's names ── */
+  --body-thin:          200;
+  --body-normal:        400;
+  --body-semi:          600;
+  --body-bold:          700;
+  --display-black:      700;
+
   /* ── Layout ── */
   --radius:             8px;
   --radius-xs:          4px;
@@ -184,7 +191,7 @@ body {
   color: var(--text-primary);
   font-family: var(--font-body);
   font-size: var(--text-body);
-  font-weight: 400;
+  font-weight: var(--body-normal);
 
   background:
     radial-gradient(ellipse 55% 40% at 18% 25%, oklch(0.38 0.18 var(--theme-hue) / 0.22), transparent 65%),
@@ -386,7 +393,7 @@ input[aria-invalid="true"]:focus {
   color: var(--text-primary);
   font-family: var(--font-title);
   font-size: var(--text-label);
-  font-weight: 400;
+  font-weight: var(--body-normal);
   line-height: 1.55;
   letter-spacing: normal;
   text-transform: none;

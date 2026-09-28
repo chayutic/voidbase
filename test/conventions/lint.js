@@ -260,6 +260,24 @@ check("font-size-ramp", "Every font-size is a --text-* token (The One Ramp Rule)
   }
 });
 
+check("font-weight-ladder", "Every font-weight is a --body-* or --display-* token", (hit) => {
+  for (const f of CSS) {
+    if (f === THEME_CSS) continue;
+    const src = stripCssComments(read(f));
+    for (const m of src.matchAll(/font-weight\s*:\s*([^;}]+)/g)) {
+      if (/^var\(--(body|display)-[a-z]+\)$/.test(m[1].trim())) continue;
+      hit(f, lineOf(src, m.index), m[1].trim());
+    }
+  }
+  for (const f of JS) {
+    const src = stripJsComments(read(f));
+    for (const m of src.matchAll(/fontWeight\s*[:=]\s*["'`]([^"'`]+)["'`]/g)) {
+      if (/^var\(--(body|display)-[a-z]+\)$/.test(m[1])) continue;
+      hit(f, lineOf(src, m.index), m[1]);
+    }
+  }
+});
+
 // A class found in no page's markup fails too: the check cannot see
 // what element a JS-built node is, and unseen must not read as a pass.
 check("track-wider", "Every --track-wider site is a <button> (The Three-Track Rule)", (hit) => {

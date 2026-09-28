@@ -8,14 +8,14 @@
 
 h1 {  
   font-family: var(--font-header);
-  font-weight: 700;
+  font-weight: var(--display-black);
   font-size: var(--text-display);
   letter-spacing: var(--track-normal);
 }
 
 h2 {
   font-family: var(--font-title);
-  font-weight: 200;
+  font-weight: var(--body-thin);
   font-size: var(--text-headline);
   line-height: 1;
   letter-spacing: var(--track-wide);
@@ -27,7 +27,7 @@ h2 {
 
 h3 {
   font-family: var(--font-title);
-  font-weight: 600;
+  font-weight: var(--body-semi);
   font-size: var(--text-body);
   letter-spacing: var(--track-normal);
   margin: 0 0 0.1rem;
@@ -36,7 +36,7 @@ h3 {
 h4 {
   font-family: var(--font-body);
   font-size: var(--text-label);
-  font-weight: 400;
+  font-weight: var(--body-normal);
   color: var(--text-secondary);
   margin: 0;
 }
@@ -193,7 +193,7 @@ h4 {
   align-items: center;
   gap: 0.35rem;
   font-size: var(--text-headline);
-  font-weight: 200;
+  font-weight: var(--body-thin);
   letter-spacing: var(--track-wide);
   text-transform: uppercase;
 }
@@ -209,7 +209,7 @@ h4 {
   display: flex;
   align-items: center;
   gap: var(--dot-gap);
-  font-weight: 400;
+  font-weight: var(--body-normal);
   font-size: var(--text-body);
   color: var(--text-secondary);
 }
@@ -235,7 +235,7 @@ h4 {
 
 .header__status {
   font-size: var(--text-body);
-  font-weight: 400;
+  font-weight: var(--body-normal);
   color: var(--text-secondary);
   text-align: center;
 }
@@ -382,7 +382,7 @@ h4 {
   transform: translateX(-50%) translateY(3px);
   margin-top: 0.6rem;
   font-size: var(--text-label);
-  font-weight: 400;
+  font-weight: var(--body-normal);
   text-transform: uppercase;
   letter-spacing: var(--track-wide);
   color: var(--text-secondary);
@@ -572,7 +572,7 @@ input:checked + .search__toggle-track::before {
 .search__turbo-label {
   font-size: var(--text-label);
   font-family: var(--font-title);
-  font-weight: 400;
+  font-weight: var(--body-normal);
   letter-spacing: var(--track-wide);
   text-transform: uppercase;
   color: var(--text-secondary);
@@ -767,7 +767,7 @@ input:checked + .search__toggle-track::before {
   margin-left: var(--gap);
   font-size: var(--text-micro);
   font-family: var(--font-title);
-  font-weight: 700;
+  font-weight: var(--body-bold);
   letter-spacing: var(--track-normal);
   color: var(--text-secondary);
 }
@@ -822,7 +822,7 @@ input:checked + .search__toggle-track::before {
   cursor: pointer;
   font-family: var(--font-title);
   font-size: var(--text-micro);
-  font-weight: 600;
+  font-weight: var(--body-semi);
   text-transform: uppercase;
   line-height: 1;
   letter-spacing: var(--track-wider);
@@ -905,7 +905,7 @@ input:checked + .search__toggle-track::before {
 .deals__table-header span {
   font-family: var(--font-title);
   font-size: var(--text-micro);
-  font-weight: 600;
+  font-weight: var(--body-semi);
   letter-spacing: var(--track-wide);
   text-transform: uppercase;
   color: var(--text-secondary);
@@ -1018,7 +1018,7 @@ input:checked + .search__toggle-track::before {
 
 .deals__review-modifier {
   font-size: var(--text-micro);
-  font-weight: 700;
+  font-weight: var(--body-bold);
   line-height: 1;
   display: inline-flex;
   align-items: center;
@@ -1150,7 +1150,7 @@ input:checked + .search__toggle-track::before {
 .arrivals__title {
   font-family: var(--font-title);
   font-size: var(--text-label);
-  font-weight: 600;
+  font-weight: var(--body-semi);
   color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
@@ -1218,7 +1218,7 @@ input:checked + .search__toggle-track::before {
 .arrivals__library-label {
   font-family: var(--font-title);
   font-size: var(--text-micro);
-  font-weight: 600;
+  font-weight: var(--body-semi);
   text-transform: uppercase;
   letter-spacing: var(--track-wide);
   text-align: center;
@@ -1293,7 +1293,7 @@ input:checked + .search__toggle-track::before {
   padding: 0.25rem 0.5rem;
   font-size: var(--text-micro);
   font-family: var(--font-title);
-  font-weight: 700;
+  font-weight: var(--body-bold);
   letter-spacing: var(--track-normal);
   cursor: pointer;
   color: var(--text-secondary);
@@ -1387,7 +1387,7 @@ input:checked + .search__toggle-track::before {
 
 .stocks__symbol {
   font-family: var(--font-title);
-  font-weight: 700;
+  font-weight: var(--body-bold);
   letter-spacing: var(--track-normal);
   margin-bottom: 0.1rem;
 }
@@ -1402,7 +1402,7 @@ input:checked + .search__toggle-track::before {
 .stocks__delta {
   font-family: var(--font-title);
   font-size: var(--text-label);
-  font-weight: 500;
+  font-weight: var(--body-normal);
   letter-spacing: var(--track-normal);
 }
 
@@ -1477,7 +1477,7 @@ input:checked + .search__toggle-track::before {
 .stocks__symbol-input {
   all: unset;
   font-family: var(--font-title);
-  font-weight: 700;
+  font-weight: var(--body-bold);
   font-size: var(--text-body);
   width: 6ch;
   border-bottom: 1px solid var(--accent);
@@ -1572,7 +1572,7 @@ input:checked + .search__toggle-track::before {
   color: var(--text-secondary);
   font-family: var(--font-title);
   font-size: var(--text-label);
-  font-weight: 500;
+  font-weight: var(--body-normal);
   transition:
     border-color var(--transition-normal),
     background   var(--transition-normal),
@@ -1618,7 +1618,7 @@ input:checked + .search__toggle-track::before {
 .footer__tagline {
   font-size: var(--text-body);
   font-style: italic;
-  font-weight: 400;
+  font-weight: var(--body-normal);
   letter-spacing: var(--track-normal);
   color: var(--text-secondary);
 }
@@ -1628,7 +1628,7 @@ input:checked + .search__toggle-track::before {
   align-items: center;
   gap: 0.4rem;
   font-size: var(--text-label);
-  font-weight: 400;
+  font-weight: var(--body-normal);
   letter-spacing: var(--track-wide);
   text-transform: uppercase;
   color: var(--text-secondary);
@@ -1694,7 +1694,7 @@ input:checked + .search__toggle-track::before {
 .customizer__title {
   font-family: var(--font-title);
   font-size: var(--text-subhead);
-  font-weight: 200;
+  font-weight: var(--body-thin);
   letter-spacing: var(--track-wide);
   text-transform: uppercase;
   color: var(--text-secondary);
@@ -1790,7 +1790,7 @@ input:checked + .search__toggle-track::before {
   cursor: pointer;
   font-family: var(--font-title);
   font-size: var(--text-label);
-  font-weight: 600;
+  font-weight: var(--body-semi);
   letter-spacing: var(--track-wider);
   text-transform: uppercase;
   padding: 0.35rem 0.25rem;
@@ -1811,7 +1811,7 @@ input:checked + .search__toggle-track::before {
   cursor: pointer;
   font-family: var(--font-title);
   font-size: var(--text-label);
-  font-weight: 600;
+  font-weight: var(--body-semi);
   letter-spacing: var(--track-wider);
   text-transform: uppercase;
   border-radius: var(--radius-xs);

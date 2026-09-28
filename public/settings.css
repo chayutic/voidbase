@@ -119,7 +119,7 @@
   padding: 0.75rem 1rem 0.6rem;
   font-size: var(--text-body);
   font-family: var(--font-title);
-  font-weight: 200;
+  font-weight: var(--body-thin);
   letter-spacing: var(--track-wide);
   text-transform: uppercase;
   color: var(--text-secondary);
@@ -310,7 +310,7 @@
   cursor: pointer;
   font-family: var(--font-title);
   font-size: var(--text-label);
-  font-weight: 600;
+  font-weight: var(--body-semi);
   letter-spacing: var(--track-wider);
   color: var(--text-secondary);
   border: 1px solid var(--border-color);
@@ -329,7 +329,7 @@
   border-top: 1px solid var(--border-color);
   font-family: var(--font-title);
   font-size: var(--text-label);
-  font-weight: 400;
+  font-weight: var(--body-normal);
   letter-spacing: var(--track-wide);
   text-transform: uppercase;
   color: var(--text-secondary);

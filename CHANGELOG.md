@@ -8,6 +8,7 @@
 - **`/ops` says how big each volume is, not just how much is on it.** "4.7 of 7.2 TB used", now that the collector writes the total down. And how full it is now, not as of this morning's first run
 - **An update on `/ops` says how long it's been waiting**, "since 26 Sep", and one that turned up since your last visit is lit like everything else that changed
 - **The search bar has the cursor when the dashboard opens.** Just start typing
+- **A font-weight convention check.** Weights are tokens now, with Voidport's names, and a bare number outside the theme fails. The ticker deltas asked for 500, which was never loaded, so they were 400 all along. Now they say so
 - **Cloudflare tunnel and Tailscale open their consoles from `/ops`.** They were the two names on the page that went nowhere
 - **A service on `/ops` opens into its detail now**, instead of straight into the service. Every container and how long it's been up, each image and its version, and the last 30 days: a strip with the bad days in red and orange and a dot under any day it was updated, then everything that happened, newest first. Mutes and unmutes are in there too, and anything since your last visit is lit. The tray tiles, the name on an incident card and the name on an update offer all open it. The service itself is an Open link in the header, or an arrow that turns up beside the name on hover. On a phone there's no hover, so it's only the link. Updates only get recorded from today, so the dots start empty
 

@@ -142,14 +142,14 @@ body.notes {
   border-color: var(--border-color);
   border-bottom-color: transparent;
   background: var(--surface-glass);
-  font-weight: 600;
+  font-weight: var(--body-semi);
   color: var(--text-primary);
 }
 
 .notes__tab.is-temp { font-style: italic; }
 
 .notes__tab.untitled {
-  font-weight: 400;
+  font-weight: var(--body-normal);
   font-variant-numeric: tabular-nums;
 }
 
@@ -666,10 +666,10 @@ body.notes {
   line-height: 1.55;
 }
 
-.notes__row-title { font-weight: 600; }
+.notes__row-title { font-weight: var(--body-semi); }
 
 .notes__row-title.untitled {
-  font-weight: 400;
+  font-weight: var(--body-normal);
   font-variant-numeric: tabular-nums;
   color: var(--text-secondary);
 }
@@ -695,7 +695,7 @@ body.notes {
 }
 
 .notes__row--new .notes__row-title {
-  font-weight: 400;
+  font-weight: var(--body-normal);
   color: var(--text-secondary);
 }
 
@@ -763,7 +763,7 @@ body.notes {
 .markdown h6 {
   margin: 1.6em 0 0.6em;
   font-family: var(--notes-font);
-  font-weight: 600;
+  font-weight: var(--body-semi);
   line-height: 1.5;
   color: var(--text-primary);
 }
@@ -786,7 +786,7 @@ body.notes {
   line-height: 1.75;
 }
 
-.markdown strong { font-weight: 600; color: var(--text-primary); }
+.markdown strong { font-weight: var(--body-semi); color: var(--text-primary); }
 .markdown em     { font-style: italic; }
 .markdown del    { color: var(--text-secondary); text-decoration-thickness: 1px; }
 
@@ -905,7 +905,7 @@ body.notes {
 
 .markdown th {
   background: var(--surface-glass);
-  font-weight: 600;
+  font-weight: var(--body-semi);
 }
 
 .markdown img { max-width: 100%; height: auto; border-radius: var(--radius); }
