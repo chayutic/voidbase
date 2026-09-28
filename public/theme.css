@@ -47,7 +47,7 @@
 
   /* Glass & borders */
   --surface-glass:      oklch(1 0 0 / 0.04);
-  --surface-glass-hover:oklch(1 0 0 / 0.06);
+  --surface-glass-hover:oklch(1 0 0 / 0.07);
   --border-color:       oklch(1 0 0 / 0.08);
   --border-hover:       oklch(1 0 0 / 0.25);
   --axis-line-color:    oklch(1 0 0 / 0.15);
