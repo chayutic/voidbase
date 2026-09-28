@@ -6,6 +6,9 @@
 - **`/ops` says how big each volume is, not just how much is on it.** "4.7 of 7.2 TB used", now that the collector writes the total down
 - **An update on `/ops` says how long it's been waiting**, "since 26 Sep", and one that turned up since your last visit is lit like everything else that changed
 
+### Fixed
+- **Voidport Admin still went to Ghost**, which Voidport hasn't run for a while. It opens Grav's admin now, with Grav's logo
+
 ## v0.8.0 — 2026-09-27
 *A page for what's wrong*
 
