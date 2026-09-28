@@ -21,9 +21,9 @@ export function capital(text) {
 }
 
 /** "release-4.0.20.3014" and "v3.5.2" → bare numbers; a digest is none. */
-export function version(running) {
-  if (!running || running.startsWith("sha256:")) return null;
-  return running.replace(/^(release-|v(?=\d))/, "");
+export function version(tag) {
+  if (!tag || tag.startsWith("sha256:")) return null;
+  return tag.replace(/^(release-|v(?=\d))/, "");
 }
 
 /** 2.3.2243 → 2.3.2363 with "2363" picked out; digests whole. */

@@ -141,7 +141,7 @@ function nowSection(data, now) {
 const IMAGE_STATE = { ok: "ok", update: "change", skip: "muted" };
 
 function imageRow(image) {
-  const running = version(image.running) ?? image.running;
+  const running = version(image.version) ?? image.running;
   let said;
   if (image.status === "update") {
     said = versionChange(image.running, image.latest);
@@ -311,8 +311,8 @@ function headline(data, now) {
   const [r] = buildRows(data.health.checks, [{ name: data.name, containers: data.containers }], true);
   if (!r) return { state: "unknown", said: "No checks" };
   if (r.state !== "ok") return { state: r.state, said: [capital(r.detail), whenOf(r.state, r.since, now)].filter(Boolean).join(" · ") };
-  const image = data.updates.images?.find((i) => version(i.running));
-  return { state: "ok", said: capital([version(image?.running), whenOf("ok", r.since, now)].filter(Boolean).join(" · ")) };
+  const image = data.updates.images?.find((i) => version(i.version));
+  return { state: "ok", said: capital([version(image?.version), whenOf("ok", r.since, now)].filter(Boolean).join(" · ")) };
 }
 
 function render(data) {

@@ -174,7 +174,7 @@ function hostItems(hosts) {
 function versionsOf(images) {
   const out = new Map();
   for (const i of images) {
-    const v = version(i.running);
+    const v = version(i.version);
     if (i.service && v && !out.has(i.service)) out.set(i.service, v);
   }
   return out;
