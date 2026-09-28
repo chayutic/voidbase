@@ -186,7 +186,7 @@ h4 {
   margin: 0.8rem 0 1.2rem;
 }
 
-/* Clock + AQI + location block */
+/* Clock + AQI + status block */
 .header__meta {
   display: flex;
   flex-direction: column;
@@ -233,7 +233,7 @@ h4 {
 .header__aqi[data-state="stale"] { opacity: 0.5; }
 .header__aqi[data-state="unconfigured"] { visibility: hidden; }
 
-.header__location {
+.header__status {
   font-size: var(--text-body);
   font-weight: 400;
   color: var(--text-secondary);
@@ -241,6 +241,10 @@ h4 {
 }
 
 /* ── Health line ── */
+
+:root:not(.guest-mode) .header__status:has(.header__health) .header__location {
+  display: none;
+}
 
 .header__health[data-state="stale"] { opacity: 0.5; }
 

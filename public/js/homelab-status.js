@@ -11,7 +11,7 @@ import { getJSON, failedState } from "./request.js";
 import { ago, count }           from "./format.js";
 import { buildRows, tally }     from "./health-rows.js";
 
-const locationEl = document.querySelector(".header__location");
+const statusEl   = document.querySelector(".header__status");
 const cardEls    = document.querySelectorAll(".card[data-service]");
 
 const REFRESH_MS = 60_000;
@@ -48,8 +48,8 @@ function ensureLine() {
   if (lineEl) return lineEl;
   lineEl = document.createElement("span");
   lineEl.className = "header__health";
-  lineEl.innerHTML = ` · <a class="header__health-link" href="/ops"><span class="header__health-dot" aria-hidden="true"></span><span></span></a>`;
-  locationEl.append(lineEl);
+  lineEl.innerHTML = `<a class="header__health-link" href="/ops"><span class="header__health-dot" aria-hidden="true"></span><span></span></a>`;
+  statusEl.append(lineEl);
   return lineEl;
 }
 
@@ -105,7 +105,7 @@ async function fetchStatus() {
 }
 
 export async function initHomelabStatus() {
-  if (!locationEl) return;
+  if (!statusEl) return;
   // A first failure is the tunnel's refusal, or no /ops at all:
   // either way there is nothing to poll for.
   if (!(await fetchStatus())) return;
