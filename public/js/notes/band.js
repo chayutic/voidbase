@@ -12,6 +12,7 @@ const pinBtn    = document.getElementById("notePin");
 const deleteBtn = document.getElementById("noteDelete");
 
 let current  = null;   // id of the open note
+let onUnpin  = () => {};
 let onDelete = () => {};
 let onError  = () => {};
 
@@ -32,7 +33,8 @@ export function show(id) {
 async function togglePin() {
   const id = current;
   try {
-    await library.setPinned(id, !library.isPinned(id));
+    if (library.isPinned(id)) await onUnpin(id);
+    else await library.setPinned(id, true);
   } catch (err) {
     console.error("Pin failed:", err);
     onError(err.status === 404 ? "That note is gone" : "Could not change the pin");
@@ -53,6 +55,7 @@ async function remove() {
 }
 
 export function initBand(handlers = {}) {
+  onUnpin  = handlers.onUnpin  ?? onUnpin;
   onDelete = handlers.onDelete ?? onDelete;
   onError  = handlers.onError  ?? onError;
 

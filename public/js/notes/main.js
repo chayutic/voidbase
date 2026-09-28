@@ -38,6 +38,14 @@ async function create(body = "", folder = "") {
   }
 }
 
+// Unpinning closes the tab. Moving first means the note is never on
+// screen unpinned, where it would take the temporary tab.
+async function unpin(id) {
+  const next = tabs.neighbour(id);
+  if (next) await open(next);
+  await library.setPinned(id, false);
+}
+
 // The tab beside it takes over, as closing a tab would.
 async function remove(id) {
   const next = tabs.neighbour(id) ?? library.all().find(n => n.id !== id)?.id ?? null;
@@ -73,6 +81,7 @@ switcher.initSwitcher({
 });
 
 band.initBand({
+  onUnpin:  unpin,
   onDelete: remove,
   onError:  (message) => editor.reportError(message),
 });
