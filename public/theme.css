@@ -75,8 +75,8 @@
   --text-headline:      1.25rem;
   --text-subhead:       1rem;
   --text-body:          0.875rem;
-  --text-label:         0.8rem;
-  --text-micro:         0.72rem;
+  --text-label:         0.8125rem;
+  --text-micro:         0.75rem;
 
   /* ── Tracking ── */
   --track-normal:       0.03em;
