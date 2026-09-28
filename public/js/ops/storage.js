@@ -239,7 +239,7 @@ function render(data, checks) {
     ...VOLUMES.filter((v) => mounts.some((m) => m.mount === v.mount)).map((v) => ({ ...v, ...mounts.find((m) => m.mount === v.mount) })),
     ...mounts.filter((m) => !VOLUMES.some((v) => v.mount === m.mount)).map((m) => ({ ...m, name: m.mount, roles: [] })),
   ];
-  const checkOf = (v) => checks?.find((c) => c.id === `disk:${v.mount}`);
+  const checkOf = (v) => v && checks?.find((c) => c.id === `disk:${v.mount}`);
   for (const v of volumes) v.now = nowOf(v, checkOf(v));
   const levelOf = (v) => (v ? clampPct(v.now.pct) : 0);
 
