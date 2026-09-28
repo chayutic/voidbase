@@ -122,8 +122,8 @@ body {
   --bg-secondary:   oklch(from var(--bg-primary) calc(l + 0.04) calc(c + 0.004) h);
 
   /* Text */
-  --text-primary:   oklch(0.97 0 var(--theme-hue));
-  --text-secondary: oklch(0.71 0 var(--theme-hue));
+  --text-primary:   oklch(0.95 0 var(--theme-hue));
+  --text-secondary: oklch(0.72 0 var(--theme-hue));
 
   /* Dashboard header text. A token rather than a `[data-theme] .header`
      rule, so that no component keys off the theme directly. The light
@@ -236,8 +236,8 @@ body::before {
   --theme-hue:      0;
   --bg-primary:     oklch(0.08 0 0);
   --bg-secondary:   oklch(0.12 0 0);
-  --text-primary:   oklch(0.97 0 0);
-  --text-secondary: oklch(0.71 0 0);
+  --text-primary:   oklch(0.95 0 0);
+  --text-secondary: oklch(0.72 0 0);
   --accent:         oklch(0.82 0 0);
   --accent-bright:  oklch(0.95 0 0);
   --accent-muted:   oklch(0.48 0 0);
