@@ -9,6 +9,9 @@
 - **Cloudflare tunnel and Tailscale open their consoles from `/ops`.** They were the two names on the page that went nowhere
 - **A service on `/ops` opens into its detail now**, instead of straight into the service. Every container and how long it's been up, each image and its version, and the last 30 days: a strip with the bad days in red and orange and a dot under any day it was updated, then everything that happened, newest first. Mutes and unmutes are in there too, and anything since your last visit is lit. The tray tiles, the name on an incident card and the name on an update offer all open it. The service itself is an Open link in the header, or an arrow that turns up beside the name on hover. On a phone there's no hover, so it's only the link. Updates only get recorded from today, so the dots start empty
 
+### Changed
+- **Every status dot is the same dot now**, one size and one distance from its words, on the dashboard and `/ops` alike. The air quality dot shrank on a phone and sat closer to its reading than the health line under it did, and `/ops` had three different gaps of its own
+
 ### Fixed
 - **Voidport Admin still went to Ghost**, which Voidport hasn't run for a while. It opens Grav's admin now, with Grav's logo
 - **Opening "couldn't be checked" on `/ops` knocked the rest of its line out of line.** Everything else in the row slid down to the middle of the opened list. It all stays on the top line now, and the reasons open underneath

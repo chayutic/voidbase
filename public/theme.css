@@ -88,6 +88,8 @@
   --radius-xs:          4px;
   --radius-pill:        999px;
   --gap:                0.8rem;
+  --dot:                8px;
+  --dot-gap:            0.5rem;
 
   /* ── Shadows & tints ── */
   --surface-dark:       oklch(0 0 0 / 0.20);

@@ -208,15 +208,15 @@ h4 {
 .header__aqi {
   display: flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: var(--dot-gap);
   font-weight: 400;
   font-size: var(--text-body);
   color: var(--text-secondary);
 }
 
 .header__aqi-dot {
-  width: 8px;
-  height: 8px;
+  width: var(--dot);
+  height: var(--dot);
   border-radius: 50%;
   display: inline-block;
   /* Color set dynamically via JS using --aqi-* variables */
@@ -256,10 +256,11 @@ h4 {
 
 /* A glyph, not a box: text snaps to whole pixels and a box doesn't, so
    a box dot drifts off centre as the row's position changes.
-   Inline-block keeps the link's hover underline off it. */
+   Inline-block keeps the link's hover underline off it. The bullet's
+   own side bearing is the missing 1.5px of --dot-gap. */
 .header__health-dot {
   display: inline-block;
-  margin-inline-end: 0.45rem;
+  margin-inline-end: calc(var(--dot-gap) - 1.5px);
   font-size: 36px;
   line-height: 0;
   letter-spacing: 0;
@@ -292,8 +293,8 @@ h4 {
 
 /* Hollow for unknown, as on /ops. */
 .card__dot {
-  width: 8px;
-  height: 8px;
+  width: var(--dot);
+  height: var(--dot);
   border-radius: 50%;
   border: 1px solid var(--text-secondary);
 }
@@ -1909,11 +1910,6 @@ input:checked + .search__toggle-track::before {
 .header__meta {
   font-size: var(--text-subhead);
   gap: 0.25rem;
-}
-
-.header__aqi-dot {
-  width: 6px;
-  height: 6px;
 }
 
 /* ── Dock ── */

@@ -78,10 +78,11 @@
 /* A glyph, not a box, as on the dashboard's health line: text snaps
    to whole pixels and a box doesn't, so a box dot drifts off centre
    as the row's position changes. Hollow until something has been
-   said. */
+   said. The bullet's own side bearing is the missing 1.5px of
+   --dot-gap. */
 .ops__topline-dot {
   display: inline-block;
-  margin-inline-end: 0.45rem;
+  margin-inline-end: calc(var(--dot-gap) - 1.5px);
   font-size: 36px;
   line-height: 0;
   letter-spacing: 0;
@@ -116,8 +117,8 @@
    this page can't read. */
 .ops__dot {
   flex: none;
-  width: 8px;
-  height: 8px;
+  width: var(--dot);
+  height: var(--dot);
   border-radius: 50%;
   border: 1px solid var(--text-secondary);
 }
@@ -368,16 +369,11 @@ button:where(.ops__service, .ops__name, .ops__offer-name) {
 .ops__parts li {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: var(--dot-gap);
 }
 
 .ops__parts li:is([data-status="warn"], [data-status="fail"]) {
   color: var(--text-primary);
-}
-
-.ops__parts .ops__dot {
-  width: 6px;
-  height: 6px;
 }
 
 .ops__incident-week {
@@ -599,7 +595,7 @@ button:where(.ops__service, .ops__name, .ops__offer-name) {
 .ops__why summary {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--dot-gap);
 }
 
 .ops__phrase[data-lit] {
@@ -956,7 +952,7 @@ button:where(.ops__service, .ops__name, .ops__offer-name) {
 .ops__detail-state {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--dot-gap);
   min-block-size: 1lh;
   margin: 0.1rem 0 0;
   font-variant-numeric: tabular-nums;
@@ -1027,9 +1023,9 @@ button:where(.ops__service, .ops__name, .ops__offer-name) {
 
 .ops__detail-row {
   display: grid;
-  grid-template-columns: 8px minmax(0, 1fr) auto;
+  grid-template-columns: var(--dot) minmax(0, 1fr) auto;
   align-items: start;
-  column-gap: 0.75rem;
+  column-gap: var(--dot-gap);
   margin-inline: -0.45rem;
   padding: 0.3rem 0.45rem;
   border-radius: var(--radius-xs);
@@ -1037,7 +1033,7 @@ button:where(.ops__service, .ops__name, .ops__offer-name) {
 }
 
 .ops__detail-row > .ops__dot {
-  margin-top: calc((1lh - 8px) / 2);
+  margin-top: calc((1lh - var(--dot)) / 2);
 }
 
 .ops__detail-text {
@@ -1229,7 +1225,7 @@ button:where(.ops__service, .ops__name, .ops__offer-name) {
 
 @container (max-width: 30rem) {
   .ops__detail-row {
-    grid-template-columns: 8px minmax(0, 1fr);
+    grid-template-columns: var(--dot) minmax(0, 1fr);
   }
 
   .ops__detail-row > :last-child:not(.ops__detail-text) {
