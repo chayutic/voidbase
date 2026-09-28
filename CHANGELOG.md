@@ -13,6 +13,7 @@
 
 ### Changed
 - **Notes is one page in the middle of the window**, not a sidebar and a pane under a header that said "Notes", which I knew. It starts far enough down that a tall monitor doesn't put the first line on the top edge. Saved or not, the folder, when it was edited, pin and delete all sit along its foot, and saving says so with the same dot as everything else instead of a green word
+- **Making a folder from the move picker just makes the folder.** It used to move the open note into it as well. The note stays put now, and the new folder is right there in the list if you did want it moved
 - **Notes on a phone is the same page**, tabs and all, instead of a squeezed sidebar over the note. Still read-only there. The note doesn't drop down the screen when the list arrives any more either, since there's no list above it
 - **The health line has the header row to itself.** "Bangkok · UTC+7" only shows where the line doesn't: through the tunnel, and in Guest Mode. I know where I live
 - **Every status dot is the same dot now**, one size and one distance from its words, on the dashboard and `/ops` alike. The air quality dot shrank on a phone and sat closer to its reading than the health line under it did, and `/ops` had three different gaps of its own

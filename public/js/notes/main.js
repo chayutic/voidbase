@@ -83,6 +83,7 @@ move.initMove({
   // old folder back into the list.
   beforeMove: () => editor.flush(),
   onMoved:    (summary) => library.update(summary),
+  onCreated:  () => library.refreshQuietly(),
   onError:    (message) => editor.reportError(message),
 });
 

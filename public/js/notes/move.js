@@ -18,6 +18,7 @@ let note       = null;  // { id, folder } of the open note
 let folders    = () => [];
 let beforeMove = async () => {};
 let onMoved    = () => {};
+let onCreated  = async () => {};
 let onError    = () => {};
 
 function label(folder) {
@@ -75,21 +76,20 @@ async function moveTo(folder) {
   }
 }
 
-async function createAndMove() {
+async function createFolder() {
   const name = newEl.value.trim();
   if (!name) return;
 
-  let created;
   try {
-    created = await api.createFolder(name);
+    await api.createFolder(name);
   } catch (err) {
     reject(newEl, err.detail ?? "Could not create that folder");
     return;
   }
 
   newEl.value = "";
-  close();
-  await moveTo(created.name);
+  await onCreated();
+  if (pickerEl.matches(":popover-open")) renderList();
 }
 
 // ── Init ───────────────────────────────────────────────────────
@@ -98,6 +98,7 @@ export function initMove(handlers = {}) {
   folders    = handlers.folders    ?? folders;
   beforeMove = handlers.beforeMove ?? beforeMove;
   onMoved    = handlers.onMoved    ?? onMoved;
+  onCreated  = handlers.onCreated  ?? onCreated;
   onError    = handlers.onError    ?? onError;
 
   pickerEl.addEventListener("beforetoggle", (e) => {
@@ -112,6 +113,6 @@ export function initMove(handlers = {}) {
   newEl.addEventListener("keydown", (e) => {
     if (e.key !== "Enter") return;
     e.preventDefault();
-    createAndMove();
+    createFolder();
   });
 }
