@@ -263,18 +263,21 @@ body.notes {
 
 /* ── Band ── */
 
+/* Whole pixels on purpose: an 18px line (Micro x 1.5625) centred in a
+   44px row inside the hairline. Any fraction here, and the status dot
+   snaps a pixel off the text's cap centre while the text doesn't. */
 .notes__statusbar {
   flex: none;
   display: flex;
   align-items: center;
   gap: var(--gap);
-  min-height: 2.6rem;
-  padding: 0.3rem 0.6rem 0.3rem 1.25rem;
+  min-height: calc(2.75rem + 1px);
+  padding: 0 0.6rem 0 1.25rem;
   border-top: 1px solid var(--border-color);
   border-radius: 0 0 var(--radius) var(--radius);
   background: var(--surface-dark);
   font-size: var(--text-micro);
-  line-height: 1.6;
+  line-height: 1.5625;
   letter-spacing: var(--track-normal);
   color: var(--text-secondary);
 }
