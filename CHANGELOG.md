@@ -8,6 +8,7 @@
 
 ### Fixed
 - **Voidport Admin still went to Ghost**, which Voidport hasn't run for a while. It opens Grav's admin now, with Grav's logo
+- **Opening "couldn't be checked" on `/ops` knocked the rest of its line out of line.** Everything else in the row slid down to the middle of the opened list. It all stays on the top line now, and the reasons open underneath
 
 ## v0.8.0 — 2026-09-27
 *A page for what's wrong*

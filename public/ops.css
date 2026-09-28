@@ -517,6 +517,7 @@ a.ops__service:hover {
 .ops__phrases {
   display: flex;
   flex-wrap: wrap;
+  align-items: start;
   gap: 0.45rem 1.5rem;
   margin: 0;
   padding: 0;
