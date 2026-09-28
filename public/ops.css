@@ -178,27 +178,6 @@
   color: var(--text-secondary);
 }
 
-.ops__checked {
-  margin-inline-start: 0.75rem;
-  font-family: var(--font-body);
-  font-size: var(--text-body);
-  font-weight: 400;
-  letter-spacing: normal;
-  text-transform: none;
-}
-
-.ops__checked::before {
-  content: "· ";
-}
-
-.ops__checked:empty {
-  display: none;
-}
-
-.ops__section[data-file]:not([data-file="fresh"]) .ops__checked {
-  color: var(--orange-highlights);
-}
-
 /* A display set below would otherwise outrank the attribute. */
 :is(.ops__foot-row, .ops__chassis)[hidden] {
   display: none;
@@ -859,6 +838,10 @@ button:where(.ops__service, .ops__name, .ops__offer-name) {
   color: var(--text-primary);
 }
 
+.ops__vol-smart {
+  color: var(--orange-highlights);
+}
+
 .ops__readout-foot {
   padding-top: 1rem;
   border-top: 1px solid var(--border-color);
@@ -1125,7 +1108,7 @@ button:where(.ops__service, .ops__name, .ops__offer-name) {
 
 /* Host has no request of its own: it is health's, like the board. */
 .ops__health[data-state="stale"] :is(.ops__topline, .ops__health-line),
-.ops__section[data-state="stale"] :is(.ops__checked, .ops__services, .ops__foot-row:not([data-state]) .ops__phrases),
+.ops__section[data-state="stale"] :is(.ops__services, .ops__foot-row:not([data-state]) .ops__phrases),
 .ops__foot-row[data-state="stale"] .ops__phrases,
 :is(.ops__incidents, .ops__offers)[data-state="stale"] {
   opacity: 0.5;
@@ -1140,11 +1123,11 @@ button:where(.ops__service, .ops__name, .ops__offer-name) {
   color: var(--text-secondary);
 }
 
-.ops__section[data-state="unavailable"] .ops__checked {
-  display: inline;
+.ops__section[data-state="unavailable"] .ops__volumes-note {
+  display: block;
 }
 
-.ops__section[data-state="unavailable"] .ops__checked::after {
+.ops__section[data-state="unavailable"] .ops__volumes-note::before {
   content: "No answer";
 }
 

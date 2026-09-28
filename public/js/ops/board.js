@@ -6,7 +6,7 @@
 //  states are not current ones. Anything else leaves the registry's
 //  names and links in the tray, every state unknown.
 
-import { stamp, count, span }                from "../format.js";
+import { stamp, span }                       from "../format.js";
 import { isNew }                             from "./seen.js";
 import { glyph, nameOf }                     from "./icons.js";
 import { el, dot, capital, phrase, version } from "./dom.js";
@@ -16,7 +16,6 @@ import { openDetail, openIcon }              from "./detail.js";
 const boardEl     = document.getElementById("opsBoard");
 const incidentsEl = document.getElementById("opsIncidents");
 const titleEl     = document.getElementById("opsTrayTitle");
-const noteEl      = document.getElementById("opsTrayNote");
 const servicesEl  = document.getElementById("opsServices");
 const machineEl   = document.getElementById("opsMachine");
 const hostsEl     = document.getElementById("opsHostList");
@@ -181,13 +180,6 @@ function versionsOf(images) {
   return out;
 }
 
-function tally(fine) {
-  const muted = fine.filter((r) => r.state === "muted").length;
-  const said = [count(fine.length - muted, "service")];
-  if (muted) said.push(`${muted} muted`);
-  return said.join(", ");
-}
-
 function show() {
   boardEl.dataset.state = "ready";
   incidentsEl.dataset.state = "ready";
@@ -207,8 +199,7 @@ export function renderBoard(rows, checked, images, offered) {
   const versions = versionsOf(images);
 
   incidentsEl.replaceChildren(...loud.map((r) => incidentEl(r, now)));
-  titleEl.firstChild.textContent = "Operational";
-  noteEl.textContent = fine.length ? tally(fine) : "nothing else";
+  titleEl.textContent = "Operational";
   servicesEl.replaceChildren(...fine.map((r) => serviceEl(r, now, versions)));
   hostsEl.replaceChildren(...hosts);
   machineEl.hidden = !hosts.length;
@@ -218,8 +209,7 @@ export function renderBoard(rows, checked, images, offered) {
 /** health.json said nothing current: the registry's names, unknown. */
 export function renderRegistry(rows) {
   incidentsEl.replaceChildren();
-  titleEl.firstChild.textContent = "Services";
-  noteEl.textContent = `${count(rows.length, "service")}, state unknown`;
+  titleEl.textContent = "Services";
   servicesEl.replaceChildren(...rows.map((r) => serviceEl(r, NaN, new Map())));
   hostsEl.replaceChildren();
   machineEl.hidden = true;

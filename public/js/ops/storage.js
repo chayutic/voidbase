@@ -12,7 +12,6 @@ import { ago, stamp, day }  from "../format.js";
 import { el, dot, capital } from "./dom.js";
 
 const sectionEl = document.getElementById("opsStorage");
-const checkedEl = document.getElementById("opsSmartChecked");
 const chassisEl = document.getElementById("opsChassis");
 const noteEl    = document.getElementById("opsVolumesNote");
 
@@ -136,9 +135,8 @@ function range(values) {
   return lo === hi ? `${lo}°` : `${lo}–${hi}°`;
 }
 
-// "Three WD Red Plus 4 TB drives, 2 yr 6 mo old, 41–43°, SMART passed."
+// "Three WD Red Plus 4 TB drives, 2 yr 6 mo old, 41–43°"
 function drivesSaid(disks) {
-  if (!disks.length) return "";
   const models = [...new Set(disks.map(modelOf))];
   const what = disks.length === 1  ? models[0]
              : models.length === 1 ? `${COUNTS[disks.length] ?? disks.length} ${models[0]} drives`
@@ -150,12 +148,22 @@ function drivesSaid(disks) {
   if (temps.length) said.push(range(temps));
   const wear = disks.map((d) => d.wear_pct).filter(Number.isFinite);
   if (wear.length) said.push(`${100 - Math.max(...wear)} % life left`);
-  const bad = disks.filter((d) => d.state !== "ok");
-  said.push(bad.length ? bad.map((d) => d.detail).join(", ") : "SMART passed");
-  return `${said.join(", ")}.`;
+  return said.join(", ");
 }
 
-function volumeEl(volume, disks, check) {
+// "SMART passed 8 h ago", or what it found and when it looked. Only
+// a fresh smart.json has disks to say it about.
+function verdictEl(disks, smart, checked) {
+  const bad = disks.filter((d) => d.state !== "ok");
+  const age = ago(Date.parse(checked) - Date.parse(smart.generated));
+  const verdict = el("span", null, bad.length
+    ? `${bad.map((d) => d.detail).join(", ")}, SMART checked ${age}`
+    : `SMART passed ${age}`);
+  verdict.title = stamp(smart.generated);
+  return verdict;
+}
+
+function volumeEl(volume, disks, check, smart, checked) {
   const { pct, used } = volume.now;
   const box = el("div", "ops__vol");
   const status = statusOf(check);
@@ -171,7 +179,9 @@ function volumeEl(volume, disks, check) {
     if (Number.isFinite(check?.total_bytes)) said.append(...usedOf(used, check.total_bytes), " used, ");
     else said.append(el("b", null, size(used)), " used, ");
   }
-  said.append(`${trend(volume.history, pct)}. ${drivesSaid(disks)}`);
+  said.append(`${trend(volume.history, pct)}. `);
+  if (disks.length) said.append(`${drivesSaid(disks)}, `, verdictEl(disks, smart, checked), ".");
+  else if (volume.roles.length && smart.file !== "fresh") said.append(unknownEl(smart, checked));
   box.append(head, said);
   return box;
 }
@@ -187,18 +197,24 @@ function looseSaid(disk) {
 
 // ── Render ─────────────────────────────────────────────────────
 
-function checkedText(smart, checked) {
+// Why no drive is spoken for, in place of their verdict.
+function unknownText(smart, checked) {
   const age = Date.parse(checked) - Date.parse(smart.generated);
   switch (smart.file) {
-    case "fresh":   return `SMART checked ${ago(age)}`;
     case "stale":
-      if (!smart.generated) return "SMART check stopped";
-      if (age < 0) return `smart.json is dated ${stamp(smart.generated)}, which hasn't happened yet`;
-      return `SMART check stopped ${ago(age)}`;
-    case "missing": return "no smart.json";
-    case "schema":  return smart.schema == null ? "smart.json has no schema" : `smart.json is on schema ${smart.schema}`;
+      if (!smart.generated) return "SMART check stopped.";
+      if (age < 0) return `smart.json is dated ${stamp(smart.generated)}, which hasn't happened yet.`;
+      return `SMART check stopped ${ago(age)}.`;
+    case "missing": return "No smart.json.";
+    case "schema":  return smart.schema == null ? "smart.json has no schema." : `smart.json is on schema ${smart.schema}.`;
   }
   return null;
+}
+
+function unknownEl(smart, checked) {
+  const said = el("span", "ops__vol-smart", unknownText(smart, checked));
+  if (smart.generated) said.title = stamp(smart.generated);
+  return said;
 }
 
 // disk.csv's last row is the day's first run; the check is this
@@ -210,14 +226,11 @@ function nowOf(volume, check) {
 }
 
 function render(data, checks) {
-  const text = checkedText(data.smart, data.checked);
-  if (!text) throw new Error(`Unknown file state "${data.smart.file}"`);
+  if (data.smart.file !== "fresh" && !unknownText(data.smart, data.checked)) {
+    throw new Error(`Unknown file state "${data.smart.file}"`);
+  }
 
   sectionEl.dataset.state = "ready";
-  sectionEl.dataset.file  = data.smart.file;
-  checkedEl.textContent   = text;
-  if (data.smart.generated) checkedEl.title = stamp(data.smart.generated);
-  else checkedEl.removeAttribute("title");
   sectionEl.hidden = false;
 
   const disks = data.smart.disks ?? [];
@@ -247,16 +260,19 @@ function render(data, checks) {
   rack.append(bays, sticks);
 
   const readout = el("div", "ops__readout");
-  readout.append(...volumes.map((v) => volumeEl(v, disks.filter((d) => v.roles.includes(d.role) && d.role !== "cache"), checkOf(v))));
+  readout.append(...volumes.map((v) => volumeEl(v, disks.filter((d) => v.roles.includes(d.role) && d.role !== "cache"), checkOf(v), data.smart, data.checked)));
   const placed = new Set(volumes.flatMap((v) => v.roles).filter((r) => r !== "cache"));
   const loose = disks.filter((d) => !placed.has(d.role));
   if (loose.length) readout.append(el("p", "ops__readout-foot", loose.map(looseSaid).join(" ")));
 
   chassisEl.replaceChildren(rack, readout);
   chassisEl.hidden = !volumes.length && !disks.length;
-  noteEl.textContent = data.disk.file !== "fresh" ? "no disk.csv, so no volumes"
-                     : !volumes.length          ? "disk.csv has no rows yet"
-                     :                            "";
+  // With no volume to say it in, the note under the card says it.
+  const unsaid = data.smart.file !== "fresh" && !volumes.some((v) => v.roles.length);
+  noteEl.textContent = [
+    data.disk.file !== "fresh" ? "No disk.csv, so no volumes." : !volumes.length ? "disk.csv has no rows yet." : "",
+    unsaid ? unknownText(data.smart, data.checked) : "",
+  ].filter(Boolean).join(" ");
 }
 
 /**

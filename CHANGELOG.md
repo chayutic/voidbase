@@ -11,6 +11,7 @@
 
 ### Changed
 - **Every status dot is the same dot now**, one size and one distance from its words, on the dashboard and `/ops` alike. The air quality dot shrank on a phone and sat closer to its reading than the health line under it did, and `/ops` had three different gaps of its own
+- **`/ops` section titles are just titles again.** Nothing else on the site hangs a note off a heading. The service count is gone, since nobody needed it, and when SMART last looked moved into the storage sentences: "SMART passed 8 h ago", or orange if it's stopped looking
 
 ### Fixed
 - **Voidport Admin still went to Ghost**, which Voidport hasn't run for a while. It opens Grav's admin now, with Grav's logo
