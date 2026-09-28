@@ -14,6 +14,7 @@
 
 ### Changed
 - **Notes is one page in the middle of the window**, not a sidebar and a pane under a header that said "Notes", which I knew. It starts far enough down that a tall monitor doesn't put the first line on the top edge. Saved or not, the folder, when it was edited, pin and delete all sit along its foot, and saving says so with the same dot as everything else instead of a green word
+- **Prices, the wordmark and the other tracked text are a touch tighter**, 0.03em instead of 0.04, which is what Voidport uses. You'd have to be looking for it
 - **Making a folder from the move picker just makes the folder.** It used to move the open note into it as well. The note stays put now, and the new folder is right there in the list if you did want it moved
 - **Notes on a phone is the same page**, tabs and all, instead of a squeezed sidebar over the note. Still read-only there. The note doesn't drop down the screen when the list arrives any more either, since there's no list above it
 - **The health line has the header row to itself.** "Bangkok · UTC+7" only shows where the line doesn't: through the tunnel, and in Guest Mode. I know where I live
