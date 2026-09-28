@@ -245,8 +245,9 @@
   all: unset;
   outline: revert;
   cursor: pointer;
-  width: 20px;
-  height: 20px;
+  box-sizing: border-box;
+  width: 24px;
+  height: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -276,8 +277,8 @@
 
 /* ── Theme swatches ── */
 .theme__swatch {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
   border: 1.5px solid transparent;
   cursor: pointer;
