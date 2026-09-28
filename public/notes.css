@@ -307,8 +307,8 @@ body.notes {
 
 .notes__status:is(:not([data-state]), [data-state=""])::before { display: none; }
 
-.notes__status[data-state="dirty"]::before { background: var(--orange-highlights); opacity: 1; }
-.notes__status[data-state="error"]::before { background: var(--red-highlights); opacity: 1; }
+.notes__status[data-state="dirty"]::before { background: var(--signal-mid); opacity: 1; }
+.notes__status[data-state="error"]::before { background: var(--signal-bad); opacity: 1; }
 .notes__status[data-state="error"] { color: var(--text-primary); }
 
 .notes__meta {
@@ -320,7 +320,7 @@ body.notes {
 .notes__pin[aria-pressed="true"] { color: var(--accent-bright); }
 .notes__pin[aria-pressed="true"] svg { fill: currentColor; }
 
-.notes__delete:hover { color: var(--red-highlights); }
+.notes__delete:hover { color: var(--signal-bad); }
 
 /* ── Folder button ── */
 
@@ -451,7 +451,7 @@ body.notes {
 }
 
 .notes__picker-new:focus-within svg { color: var(--accent); }
-.notes__picker-new:has([aria-invalid="true"]) svg { color: var(--red-highlights); }
+.notes__picker-new:has([aria-invalid="true"]) svg { color: var(--signal-bad); }
 
 .notes__picker-new input {
   flex: 1;
@@ -727,7 +727,7 @@ body.notes {
   transition: color var(--transition-fast);
 }
 
-.notes__empty-action:hover { color: var(--red-highlights); }
+.notes__empty-action:hover { color: var(--signal-bad); }
 
 /* ======================================================
    PREVIEW — loading state and the mobile reading surface
@@ -910,7 +910,7 @@ body.notes {
 
 .markdown img { max-width: 100%; height: auto; border-radius: var(--radius); }
 
-.markdown__error { color: var(--red-highlights); }
+.markdown__error { color: var(--signal-bad); }
 
 /* ======================================================
    NARROW SCREENS

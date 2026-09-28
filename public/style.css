@@ -284,12 +284,12 @@ h4 {
 }
 
 .header__health[data-status="warn"] .header__health-dot {
-  color: var(--orange-highlights);
+  color: var(--signal-mid);
   -webkit-text-stroke: 0;
 }
 
 .header__health[data-status="fail"] .header__health-dot {
-  color: var(--red-highlights);
+  color: var(--signal-bad);
   -webkit-text-stroke: 0;
 }
 
@@ -305,12 +305,12 @@ h4 {
 
 .card[data-status="warn"] .card__dot {
   border: none;
-  background: var(--orange-highlights);
+  background: var(--signal-mid);
 }
 
 .card[data-status="fail"] .card__dot {
   border: none;
-  background: var(--red-highlights);
+  background: var(--signal-bad);
 }
 
 /* ======================================================
@@ -721,7 +721,7 @@ input:checked + .search__toggle-track::before {
 
 .search__preset-remove svg { width: 0.85rem; height: 0.85rem; }
 .search__preset-item:hover .search__preset-remove { opacity: 1; }
-.search__preset-remove:hover { color: var(--red-highlights); }
+.search__preset-remove:hover { color: var(--signal-bad); }
 
 /* ======================================================
    GAME DEALS
@@ -963,7 +963,7 @@ input:checked + .search__toggle-track::before {
   white-space: nowrap;
 }
 
-.deals__discount--off { color: var(--green-highlights); }
+.deals__discount--off { color: var(--signal-good); }
 
 .deals__low {
   font-size: var(--text-label);
@@ -975,7 +975,7 @@ input:checked + .search__toggle-track::before {
 .deals__fire {
   display: inline-flex;
   align-items: center;
-  color: var(--orange-highlights);
+  color: var(--signal-mid);
   flex-shrink: 0;
 }
 
@@ -1061,7 +1061,7 @@ input:checked + .search__toggle-track::before {
 
 .deals__remove svg { width: 0.85rem; height: 0.85rem; }
 .deals__row:hover .deals__remove { opacity: 1; }
-.deals__remove:hover { color: var(--red-highlights); }
+.deals__remove:hover { color: var(--signal-bad); }
 
 /* ── Row states ── */
 
@@ -1406,8 +1406,8 @@ input:checked + .search__toggle-track::before {
   letter-spacing: var(--track-normal);
 }
 
-.stocks__delta[data-sign="up"]   { color: var(--green-highlights); }
-.stocks__delta[data-sign="down"] { color: var(--red-highlights);  }
+.stocks__delta[data-sign="up"]   { color: var(--signal-good); }
+.stocks__delta[data-sign="down"] { color: var(--signal-bad);  }
 
 /* ── Expanded mode overlay: symbol / price / delta top-left ── */
 .stocks__grid.expanded-charts .stocks__overlay {
@@ -1469,7 +1469,7 @@ input:checked + .search__toggle-track::before {
 
 .stocks__card[data-state="invalid"] .stocks__overlay-bottom::before {
   content: "Unknown symbol";
-  color: var(--red-highlights);
+  color: var(--signal-bad);
 }
 
 .stocks__card[data-state="invalid"] .stocks__edit { opacity: 1; }

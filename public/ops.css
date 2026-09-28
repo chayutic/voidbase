@@ -102,12 +102,12 @@
 }
 
 .ops__health[data-file="fresh"][data-overall="warn"] .ops__topline-dot {
-  color: var(--orange-highlights);
+  color: var(--signal-mid);
   -webkit-text-stroke: 0;
 }
 
 .ops__health:is([data-file="fresh"][data-overall="fail"], [data-file="stale"], [data-file="missing"]) .ops__topline-dot {
-  color: var(--red-highlights);
+  color: var(--signal-bad);
   -webkit-text-stroke: 0;
 }
 
@@ -133,11 +133,11 @@
 }
 
 .ops__dot[data-status="warn"] {
-  background: var(--orange-highlights);
+  background: var(--signal-mid);
 }
 
 .ops__dot[data-status="fail"] {
-  background: var(--red-highlights);
+  background: var(--signal-bad);
 }
 
 /* A version that moved, or can: in the detail only. */
@@ -388,7 +388,7 @@ button:where(.ops__service, .ops__name, .ops__offer-name) {
 }
 
 .ops__ribbon-day[data-status="fail"] {
-  background: var(--red-highlights);
+  background: var(--signal-bad);
 }
 
 .ops__ribbon-names {
@@ -589,7 +589,7 @@ button:where(.ops__service, .ops__name, .ops__offer-name) {
 }
 
 .ops__foot-row[data-file]:not([data-file="fresh"]) .ops__phrase-name {
-  color: var(--orange-highlights);
+  color: var(--signal-mid);
 }
 
 .ops__why summary {
@@ -697,11 +697,11 @@ button:where(.ops__service, .ops__name, .ops__offer-name) {
 }
 
 :is(.ops__bay-fill, .ops__stick-fill)[data-status="warn"] {
-  --tank: var(--orange-highlights);
+  --tank: var(--signal-mid);
 }
 
 :is(.ops__bay-fill, .ops__stick-fill)[data-status="fail"] {
-  --tank: var(--red-highlights);
+  --tank: var(--signal-bad);
 }
 
 @keyframes ops-rise {
@@ -810,11 +810,11 @@ button:where(.ops__service, .ops__name, .ops__offer-name) {
 }
 
 .ops__vol[data-status="warn"] .ops__vol-pct {
-  color: var(--orange-highlights);
+  color: var(--signal-mid);
 }
 
 .ops__vol[data-status="fail"] .ops__vol-pct {
-  color: var(--red-highlights);
+  color: var(--signal-bad);
 }
 
 .ops__vol-pct small {
@@ -839,7 +839,7 @@ button:where(.ops__service, .ops__name, .ops__offer-name) {
 }
 
 .ops__vol-smart {
-  color: var(--orange-highlights);
+  color: var(--signal-mid);
 }
 
 .ops__readout-foot {
@@ -1064,11 +1064,11 @@ button:where(.ops__service, .ops__name, .ops__offer-name) {
 }
 
 .ops__strip-day[data-status="warn"] {
-  background: var(--orange-highlights);
+  background: var(--signal-mid);
 }
 
 .ops__strip-day[data-status="fail"] {
-  background: var(--red-highlights);
+  background: var(--signal-bad);
 }
 
 .ops__strip-day[data-deploy]::after {

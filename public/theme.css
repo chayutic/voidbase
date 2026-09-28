@@ -35,10 +35,10 @@
 :root {
   /* ── Non-theme tokens ── */
 
-  /* Unified highlight colors */
-  --green-highlights:  oklch(0.72 0.18 142);
-  --red-highlights:    oklch(0.63 0.22 25);
-  --orange-highlights: oklch(0.75 0.18 45);
+  /* Signals. The same three values as Voidport's --signal-* */
+  --signal-good: oklch(0.72 0.18 142);
+  --signal-mid:  oklch(0.75 0.18 45);
+  --signal-bad:  oklch(0.63 0.22 25);
 
   /* Steam review sentiment colors */
   --steam-positive: oklch(0.7597 0.1117 235.46);
@@ -368,9 +368,9 @@ a {
 /* :focus for the specificity: a refused field always has focus, and
    the row inputs' own :focus rule would otherwise paint it accent. */
 input[aria-invalid="true"]:focus {
-  border-color: var(--red-highlights);
+  border-color: var(--signal-bad);
   box-shadow: none;
-  caret-color: var(--red-highlights);
+  caret-color: var(--signal-bad);
 }
 
 .refusal {
