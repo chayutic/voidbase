@@ -249,13 +249,13 @@ body::before {
     radial-gradient(ellipse 50% 45% at 25% 80%, oklch(0.18 0 0 / 0.35), transparent 60%);
 }
 
-/* ── White theme (WIP) ── */
+/* ── White theme ── */
 :root[data-theme="white"] body {
   --theme-hue:      0;
   --bg-primary:     oklch(0.96 0 0);
-  --bg-secondary:   oklch(0.91 0 0);
+  --bg-secondary:   oklch(0.93 0 0);
   --text-primary:   oklch(0.15 0 0);
-  --text-secondary: oklch(0.50 0 0);
+  --text-secondary: oklch(0.46 0 0);
   /* Primary is near-black here; the header reads better one step down. */
   --header-text:    var(--text-secondary);
   --accent:         oklch(0.50 0 0);

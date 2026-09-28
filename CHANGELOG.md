@@ -21,6 +21,7 @@
 
 ### Fixed
 - **Voidport Admin still went to Ghost**, which Voidport hasn't run for a while. It opens Grav's admin now, with Grav's logo
+- **The white theme's grey text passes contrast now.** It was just under 4.5:1 on the Control Panel, which is exactly where the labels and placeholders live. Darker by a hair, borrowed from Voidport, which had already fixed it. White isn't WIP any more
 - **Opening "couldn't be checked" on `/ops` knocked the rest of its line out of line.** Everything else in the row slid down to the middle of the opened list. It all stays on the top line now, and the reasons open underneath
 
 ## v0.8.0 — 2026-09-27
