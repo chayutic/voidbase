@@ -5,6 +5,9 @@
 ### Added
 - **`/ops` knows which Voidbase is running.** The dashboard's tile, its detail and its image row say 0.9.0, where they used to say nothing, because all ops had for it was the digest of the Node image underneath. Ops writes the release tag down now, and every version on the page comes from that field
 
+### Changed
+- **A title on New Arrivals only fades if it doesn't fit.** "The Gentlemen" fits, with five pixels to spare, and it was fading anyway. "The Little Mermaid" doesn't, so it still fades, over the last quarter of the card now instead of the last 40%
+
 ### Fixed
 - **Importing a whole season no longer empties New Arrivals of every other show.** It looked at the 30 newest episodes, so 48 of Lie to Me at once left it one series instead of three. It keeps looking now until it finds three
 - **An episode's year and number under its title don't fade out any more.** That fade is for titles, which can run long. "2008 S03·E88" can't, and it was fading anyway

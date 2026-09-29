@@ -1154,7 +1154,15 @@ input:checked + .search__toggle-track::before {
   color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
-  mask-image: linear-gradient(to right, black 60%, transparent 100%);
+  animation: arrivals-title-fade linear both;
+  animation-timeline: scroll(self inline);
+}
+
+/* A scroll timeline is inactive without overflow, so a title that fits
+   never gets the mask. `animation-timeline` must follow the shorthand,
+   which resets it. */
+@keyframes arrivals-title-fade {
+  from, to { mask-image: linear-gradient(to right, black 75%, transparent 100%); }
 }
 
 .arrivals__meta {
