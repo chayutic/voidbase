@@ -1136,7 +1136,23 @@ input:checked + .search__toggle-track::before {
 }
 
 .arrivals__poster--placeholder {
+  display: grid;
+  place-items: center;
+  padding: 0.75rem;
   background: var(--surface-glass-hover);
+}
+
+.arrivals__poster--placeholder::after {
+  content: attr(data-title);
+  font-family: var(--font-title);
+  font-size: var(--text-label);
+  font-weight: var(--body-semi);
+  line-height: var(--leading-snug);
+  letter-spacing: var(--track-wide);
+  text-transform: uppercase;
+  text-align: center;
+  text-wrap: balance;
+  color: var(--text-secondary);
 }
 
 .arrivals__info {

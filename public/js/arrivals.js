@@ -50,6 +50,7 @@ function createArrivalCard(item) {
   imgWrap.className = "arrivals__poster";
 
   const alt = item.type === "Movie" ? item.title : (item.seriesName ?? item.title);
+  imgWrap.dataset.title = alt;
   const imageId = item.type === "Movie" ? item.id : item.seriesId;
   if (imageId && item.imageTag) {
     setPoster(imgWrap, imageId, item.imageTag, alt);

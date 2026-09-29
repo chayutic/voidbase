@@ -7,6 +7,7 @@
 
 ### Changed
 - **A title on New Arrivals only fades if it doesn't fit.** "The Gentlemen" fits, with five pixels to spare, and it was fading anyway. "The Little Mermaid" doesn't, so it still fades, over the last quarter of the card now instead of the last 40%
+- **A missing poster has the title on it** instead of an empty box that looked like it was still loading. Small caps, like a video shop's spine label
 
 ### Fixed
 - **Importing a whole season no longer empties New Arrivals of every other show.** It looked at the 30 newest episodes, so 48 of Lie to Me at once left it one series instead of three. It keeps looking now until it finds three
