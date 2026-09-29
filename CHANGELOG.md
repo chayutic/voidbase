@@ -1,6 +1,6 @@
 # Changelog — Voidbase
 
-## Unreleased
+## v0.9.1 — 2026-09-29
 
 ### Added
 - **`/ops` knows which Voidbase is running.** The dashboard's tile, its detail and its image row say 0.9.0, where they used to say nothing, because all ops had for it was the digest of the Node image underneath. Ops writes the release tag down now, and every version on the page comes from that field
