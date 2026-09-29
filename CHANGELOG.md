@@ -3,9 +3,10 @@
 ## Unreleased
 
 ### Added
-- **The VOIDBASE title on `/ops` goes back to the dashboard.** It looks exactly as it did, so it's a way home for anyone who tries it, not a button
+- **The VOIDBASE title on `/ops` goes back to the dashboard.** It looks exactly as it did
 
 ### Changed
+- **The corner button on `/ops` goes to Notes now**, the same button as the dashboard's. The title already goes home, so two ways back to the dashboard was one too many
 - **Voidport has its own mark**, the ringed O from its wordmark, on the dashboard card and on `/ops`. It used to be a generic browser window, which could have been anything
 
 ## v0.9.1 — 2026-09-29
