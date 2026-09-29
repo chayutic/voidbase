@@ -5,6 +5,9 @@
 ### Added
 - **`/ops` knows which Voidbase is running.** The dashboard's tile, its detail and its image row say 0.9.0, where they used to say nothing, because all ops had for it was the digest of the Node image underneath. Ops writes the release tag down now, and every version on the page comes from that field
 
+### Fixed
+- **Importing a whole season no longer empties New Arrivals of every other show.** It looked at the 30 newest episodes, so 48 of Lie to Me at once left it one series instead of three. It keeps looking now until it finds three
+
 ## v0.9.0 — 2026-09-28
 
 ### Added

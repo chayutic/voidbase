@@ -416,6 +416,53 @@ app.get("/steam/price/:appid", async (req, res) => {
 // Returns MOVIE_SLOTS movies followed by EPISODE_SLOTS episodes, each
 // group sorted by DateCreated descending. An episode's imageTag is its
 // series' poster: its own Primary is a 16:9 still, cropped to 2:3.
+const EPISODE_PAGE      = 50;
+const EPISODE_PAGES_MAX = 10;
+
+// The newest episode of each of the `slots` most recently added series.
+// Pages until enough series turn up: a whole season imported at once
+// fills any fixed window with one series and pushes the others out.
+async function recentSeriesEpisodes(slots) {
+  const seenSeries = new Set();
+  const episodes   = [];
+
+  for (let page = 0; page < EPISODE_PAGES_MAX; page++) {
+    const data = await fetchJSON(`${JELLYFIN_URL}/Items?` + new URLSearchParams({
+      IncludeItemTypes: "Episode",
+      SortBy:           "DateCreated,SortName",
+      SortOrder:        "Descending",
+      StartIndex:       String(page * EPISODE_PAGE),
+      Limit:            String(EPISODE_PAGE),
+      Recursive:        "true",
+      Fields:           "PrimaryImageAspectRatio,ProductionYear,ImageTags,ParentId,SeriesName,SeasonName,SeriesId",
+      ImageTypeLimit:   "1",
+      EnableImageTypes: "Primary",
+      apikey:           JELLYFIN_KEY,
+    }));
+    const items = data.Items || [];
+
+    for (const item of items) {
+      const sid = item.SeriesId ?? item.Id;
+      if (seenSeries.has(sid)) continue;
+      seenSeries.add(sid);
+      episodes.push({
+        id:         item.Id,
+        type:       "Episode",
+        title:      item.Name,
+        year:       item.ProductionYear ?? null,
+        seriesName: item.SeriesName ?? null,
+        seasonNum:  item.ParentIndexNumber ?? null,
+        episodeNum: item.IndexNumber ?? null,
+        seriesId:   item.SeriesId ?? null,
+        imageTag:   item.SeriesId ? item.SeriesPrimaryImageTag ?? null : null,
+      });
+      if (episodes.length >= slots) return episodes;
+    }
+    if (items.length < EPISODE_PAGE) break;
+  }
+  return episodes;
+}
+
 app.get("/jellyfin/recent", async (req, res) => {
   if (!JELLYFIN_URL || !JELLYFIN_KEY) {
     return res.status(503).json({ error: "Jellyfin not configured" });
@@ -437,23 +484,9 @@ app.get("/jellyfin/recent", async (req, res) => {
       apikey:           JELLYFIN_KEY,
     });
 
-    // Limit sits far above EPISODE_SLOTS to leave headroom for the
-    // one-per-series deduplication below.
-    const episodesUrl = `${JELLYFIN_URL}/Items?` + new URLSearchParams({
-      IncludeItemTypes: "Episode",
-      SortBy:           "DateCreated,SortName",
-      SortOrder:        "Descending",
-      Limit:            "30",
-      Recursive:        "true",
-      Fields:           "PrimaryImageAspectRatio,ProductionYear,ImageTags,ParentId,SeriesName,SeasonName,SeriesId",
-      ImageTypeLimit:   "1",
-      EnableImageTypes: "Primary",
-      apikey:           JELLYFIN_KEY,
-    });
-
-    const [moviesData, episodesData] = await Promise.all([
+    const [moviesData, episodes] = await Promise.all([
       fetchJSON(moviesUrl),
-      fetchJSON(episodesUrl),
+      recentSeriesEpisodes(EPISODE_SLOTS),
     ]);
 
     const movies = (moviesData.Items || []).slice(0, MOVIE_SLOTS).map(item => ({
@@ -467,26 +500,6 @@ app.get("/jellyfin/recent", async (req, res) => {
       seriesId:   null,
       imageTag:   item.ImageTags?.Primary ?? null,
     }));
-
-    const seenSeries = new Set();
-    const episodes   = [];
-    for (const item of (episodesData.Items || [])) {
-      const sid = item.SeriesId ?? item.Id;
-      if (seenSeries.has(sid)) continue;
-      seenSeries.add(sid);
-      episodes.push({
-        id:         item.Id,
-        type:       "Episode",
-        title:      item.Name,
-        year:       item.ProductionYear ?? null,
-        seriesName: item.SeriesName ?? null,
-        seasonNum:  item.ParentIndexNumber ?? null,
-        episodeNum: item.IndexNumber ?? null,
-        seriesId:   item.SeriesId ?? null,
-        imageTag:   item.SeriesId ? item.SeriesPrimaryImageTag ?? null : null,
-      });
-      if (episodes.length >= EPISODE_SLOTS) break;
-    }
 
     res.json([...movies, ...episodes]);
   } catch (err) {
