@@ -7,6 +7,7 @@
 
 ### Fixed
 - **Importing a whole season no longer empties New Arrivals of every other show.** It looked at the 30 newest episodes, so 48 of Lie to Me at once left it one series instead of three. It keeps looking now until it finds three
+- **An episode's year and number under its title don't fade out any more.** That fade is for titles, which can run long. "2008 S03·E88" can't, and it was fading anyway
 
 ## v0.9.0 — 2026-09-28
 

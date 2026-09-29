@@ -1164,7 +1164,6 @@ input:checked + .search__toggle-track::before {
   white-space: nowrap;
   overflow: hidden;
   letter-spacing: var(--track-normal);
-  mask-image: linear-gradient(to right, black 60%, transparent 100%);
 }
 
 /* Library card. Beside a poster it stretches to the poster's height;
