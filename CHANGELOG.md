@@ -1,5 +1,10 @@
 # Changelog — Voidbase
 
+## Unreleased
+
+### Changed
+- **Voidport has its own mark**, the ringed O from its wordmark, on the dashboard card and on `/ops`. It used to be a generic browser window, which could have been anything
+
 ## v0.9.1 — 2026-09-29
 
 ### Added
