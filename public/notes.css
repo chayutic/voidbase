@@ -26,7 +26,7 @@
   --notes-font: 'Geist', 'Noto Sans Thai', sans-serif;
 
   /* The note itself: the editor, the rendered note and the fallback.
-     The Control Panel's Mono Font swaps it for Geist Mono, on trial. */
+     The Control Panel's Mono Font swaps it for Geist Mono. */
   --notes-text-font: var(--notes-font);
 }
 

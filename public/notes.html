@@ -14,7 +14,16 @@
       root.dataset.theme = "violet";
       try {
         root.dataset.theme = localStorage.getItem("theme") || "violet";
-        if (localStorage.getItem("notesFont") === "mono") root.classList.add("notes-mono");
+        if (localStorage.getItem("notesFont") === "mono") {
+          root.classList.add("notes-mono");
+          const face = document.createElement("link");
+          face.rel = "preload";
+          face.as = "font";
+          face.type = "font/woff2";
+          face.crossOrigin = "";
+          face.href = "/js/vendor/fonts/v6_or3nQ6H-1_WfwkMZI_qYFrcdmg.woff2";
+          document.head.append(face);
+        }
       } catch (e) {}
     }
   </script>
