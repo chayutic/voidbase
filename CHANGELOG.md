@@ -10,6 +10,7 @@
 - **Task lists tick in the notes editor.** `- [ ]` is a box now, without the bullet, and clicking it writes the `x` into the note. Ctrl+Z unticks. A done item goes grey, no strikethrough. On a phone the boxes are still just a picture of one
 
 ### Changed
+- **Utilities opens all at once and fades its cards in**, instead of sliding open on `max-height`. That was the browser laying out the page again every frame, toward a 500px cap the grid would have outgrown one day. The cards can't be tabbed to while it's shut any more, which they could before
 - **The notes band is gone.** Seven things in one strip, and half of them repeated what the page already said. The save state is a dot on the open tab now, and no dot means saved. Pin and unpin are on the tab. The folder and the edit time are a line above the note that scrolls away with it, and the folder still opens the move picker. Delete moved to Ctrl K: the trash on the selected row, or Shift+Delete. When a save fails, a strip rises over the bottom of the sheet until it's sorted, with a Reload button if the note changed somewhere else
 - **The corner button on `/ops` goes to Notes now**, the same button as the dashboard's. The title already goes home, so two ways back to the dashboard was one too many
 - **Voidport has its own mark**, the ringed O from its wordmark, on the dashboard card and on `/ops`. It used to be a generic browser window, which could have been anything

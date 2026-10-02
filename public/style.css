@@ -1560,23 +1560,23 @@ input:checked + .search__toggle-track::before {
 }
 
 .utilities__content {
-  display: grid;
-  overflow: hidden;
-  max-height: 0;
-  opacity: 0;
-  transform: translateY(-4px);
-  pointer-events: none;
   transition:
-    max-height var(--transition-normal),
-    opacity    var(--transition-normal),
-    transform  var(--transition-normal);
+    opacity   var(--transition-normal),
+    transform var(--transition-normal),
+    display   var(--transition-normal) allow-discrete;
 }
 
-.utilities__content.expanded {
-  max-height: 500px;
-  opacity: 1;
-  transform: translateY(0);
-  pointer-events: auto;
+.utilities__content:not(.expanded) {
+  display: none;
+  opacity: 0;
+  transform: translateY(-4px);
+}
+
+@starting-style {
+  .utilities__content.expanded {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
 }
 
 .utilities__grid {
