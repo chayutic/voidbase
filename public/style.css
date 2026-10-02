@@ -1867,9 +1867,10 @@ input:checked + .search__toggle-track::before {
   content: "";
   position: absolute;
   inset: 0;
-  width: 0;
   background: var(--surface-glass-hover);
-  transition: width var(--transition-normal);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--transition-normal);
   z-index: -1;
 }
 
@@ -1878,7 +1879,7 @@ input:checked + .search__toggle-track::before {
 }
 
 .customizer__save.saving::after {
-  width: 100%;
+  transform: scaleX(1);
 }
 
 /* Sits above the ::after fill, which is at z-index -1. */
