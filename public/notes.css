@@ -1007,6 +1007,21 @@ body.notes {
 }
 
 /* ======================================================
+   EDITOR — links
+   ======================================================
+   Only links that go somewhere get .cm-md-link, so a [label] with no
+   definition stays plain, as the rendered note leaves it.
+====================================================== */
+
+.cm-md-link {
+  text-decoration: underline;
+  text-decoration-color: var(--accent-bright);
+  text-underline-offset: 2px;
+}
+
+.cm-md-url { color: var(--text-secondary); }
+
+/* ======================================================
    EDITOR — task boxes
    ======================================================
    Drawn over `[ ]` off the cursor line, and sized like the rendered

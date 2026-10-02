@@ -12,13 +12,15 @@
 //     a heading looks like a heading and strong text is bold.
 //  2. The hide plugin — replaces syntax markers (#, **, ~~, backticks,
 //     link brackets) with nothing, and a task's [ ] with a box that
-//     ticks, except on active lines.
+//     ticks, except on active lines. It also marks every link that
+//     goes somewhere, so Ctrl+click can open it.
 
 
 import {
   Decoration, ViewPlugin, EditorView, WidgetType,
   HighlightStyle, syntaxHighlighting, syntaxTree, tags,
 } from "../vendor/cm6.min.js";
+import { linkTarget } from "./markdown.js";
 
 /**
  * Node types whose text is punctuation rather than content.
@@ -29,9 +31,7 @@ const SYNTAX_NODES = new Set([
   "EmphasisMark",      // * or _ around em and strong
   "StrikethroughMark", // ~~
   "CodeMark",          // ` and ```
-  "LinkMark",          // [ ] ( )
   "QuoteMark",         // >
-  "URL",               // the target of an inline link
 ]);
 
 const hide = Decoration.replace({});
@@ -83,6 +83,59 @@ function toggleTask(view, box) {
     userEvent: "input.toggle",
   });
   return true;
+}
+
+/** Underlines a link's text and carries where it goes. */
+function linkMark(target) {
+  return Decoration.mark({
+    class: "cm-md-link",
+    attributes: { "data-href": target, title: `${target}\nCtrl+click to open` },
+  });
+}
+
+const urlMark = Decoration.mark({ class: "cm-md-url" });
+
+const labelKey = text => text.trim().replace(/\s+/g, " ").toLowerCase();
+
+/** Every `[label]: url` in the note. Only built when a link needs one. */
+function references(state) {
+  const refs = new Map();
+  syntaxTree(state).iterate({
+    enter(node) {
+      if (node.name !== "LinkReference") return;
+      const label = node.node.getChild("LinkLabel");
+      const url   = node.node.getChild("URL");
+      if (label && url) refs.set(labelKey(state.sliceDoc(label.from + 1, label.to - 1)), state.sliceDoc(url.from, url.to));
+      return false;
+    },
+  });
+  return refs;
+}
+
+/**
+ * Decorations for a `[text](url)`, `[text][label]` or `[label]`. One
+ * that goes nowhere, like a `[label]` with no definition, is left as
+ * the brackets it is, the way the rendered note leaves it.
+ */
+function linkRanges(state, link, onActiveLine, refs) {
+  const [open, close] = link.getChildren("LinkMark");
+  if (!close) return [];
+  const url   = link.getChild("URL");
+  const label = link.getChild("LinkLabel");
+  const href  = url   ? state.sliceDoc(url.from, url.to)
+              : label ? refs().get(labelKey(state.sliceDoc(label.from + 1, label.to - 1)))
+              :         refs().get(labelKey(state.sliceDoc(open.to, close.from)));
+  const target = linkTarget(href);
+  if (!target) return [];
+
+  const ranges = [];
+  if (close.from > open.to) ranges.push(linkMark(target).range(open.to, close.from));
+  if (onActiveLine) {
+    if (url) ranges.push(urlMark.range(url.from, url.to));
+  } else {
+    ranges.push(hide.range(open.from, open.to), hide.range(close.from, link.to));
+  }
+  return ranges;
 }
 
 const isTaskBox = el => el instanceof HTMLInputElement && el.classList.contains("cm-md-task");
@@ -146,6 +199,8 @@ function buildDecorations(view) {
   const active = activeLines(state);
   const ranges = [];
   let hiddenTo = 0;
+  let refs = null;
+  const lazyRefs = () => refs ??= references(state);
 
   for (const { from, to } of view.visibleRanges) {
     syntaxTree(state).iterate({
@@ -158,9 +213,28 @@ function buildDecorations(view) {
           for (let n = line.number; n <= last; n++) ranges.push(doneLine.range(state.doc.line(n).from));
         }
 
+        if (node.name === "Link") {
+          ranges.push(...linkRanges(state, node.node, active.has(line.number), lazyRefs));
+          return;
+        }
+
+        // A bare URL, a <url>, or the url of a [label]: definition. An
+        // inline link's own URL was handled with its Link.
+        if (node.name === "URL" && !["Link", "Image"].includes(node.node.parent?.name)) {
+          const target = linkTarget(state.sliceDoc(node.from, node.to));
+          if (target) ranges.push(linkMark(target).range(node.from, node.to));
+          return;
+        }
+
         // Leave the line under the cursor as raw source so it stays
         // editable — you cannot fix a link you cannot see.
         if (active.has(line.number)) return;
+
+        if (node.name === "Autolink") {
+          const [open, close] = node.node.getChildren("LinkMark");
+          if (open && close) ranges.push(hide.range(open.from, open.to), hide.range(close.from, close.to));
+          return;
+        }
 
         if (node.name === "HorizontalRule") {
           ranges.push(ruleLine.range(line.from));
@@ -218,6 +292,12 @@ export const hideMarkers = ViewPlugin.fromClass(
     // a second time.
     eventHandlers: {
       mousedown(e, view) {
+        const link = (e.ctrlKey || e.metaKey) && e.target.closest?.(".cm-md-link");
+        if (link) {
+          e.preventDefault();
+          window.open(link.dataset.href, "_blank", "noopener,noreferrer");
+          return true;
+        }
         if (!isTaskBox(e.target)) return false;
         e.preventDefault();
         return toggleTask(view, e.target);
@@ -249,8 +329,6 @@ const markdownHighlight = HighlightStyle.define([
   { tag: tags.emphasis,      fontStyle: "italic" },
   { tag: tags.strikethrough, textDecoration: "line-through", color: "var(--text-secondary)" },
 
-  { tag: tags.link,    textDecoration: "underline", textDecorationColor: "var(--accent-bright)", textUnderlineOffset: "2px" },
-  { tag: tags.url,     color: "var(--text-secondary)" },
   { tag: tags.monospace, fontFamily: "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
                          fontSize: "0.9em", background: "var(--surface-glass-hover)", borderRadius: "var(--radius-xs)" },
   { tag: tags.quote,   color: "var(--text-secondary)", fontStyle: "italic" },

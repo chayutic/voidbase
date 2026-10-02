@@ -22,20 +22,29 @@ function escapeHtml(text) {
 const SAFE_PROTOCOLS = new Set(["http:", "https:", "mailto:"]);
 
 /**
- * Allowlist rather than blocklist. Relative and anchor links resolve
- * against this page and are fine; anything with a protocol has to be
+ * Where a link opens, or null if it shouldn't. Shared with the editor,
+ * so Ctrl+click and the rendered note agree.
+ *
+ * Allowlist rather than blocklist: anything with a protocol has to be
  * one we named. Covers javascript:, data:, vbscript: and whatever
- * comes next without needing to enumerate them.
+ * comes next without needing to enumerate them. A bare domain or
+ * www. gets https://, and a bare address mailto:, where the browser
+ * would resolve either as a path under /notes.
  */
-function isSafeHref(href) {
-  const raw = String(href ?? "").trim();
-  if (!raw) return false;
-  if (raw.startsWith("#") || raw.startsWith("/") || raw.startsWith("./") || raw.startsWith("../")) return true;
-
+export function linkTarget(href) {
+  let raw = String(href ?? "").trim();
+  if (!raw) return null;
+  if (/^(#|\/|\.\.?\/)/.test(raw)) return raw;
+  if (!/^[a-z][a-z\d+.-]*:/i.test(raw)) {
+    if (/^[^\s@/]+@[^\s@/]+\.[^\s@/]+$/.test(raw)) raw = `mailto:${raw}`;
+    else if (/^[^\s/.]+(\.[^\s/.]+)+(\/|$)/.test(raw)) raw = `https://${raw}`;
+    else return null;
+  }
   try {
-    return SAFE_PROTOCOLS.has(new URL(raw, window.location.origin).protocol);
+    const url = new URL(raw);
+    return SAFE_PROTOCOLS.has(url.protocol) ? url.href : null;
   } catch {
-    return false;
+    return null;
   }
 }
 
@@ -60,10 +69,11 @@ parser.use({
     // hole the default was closing.
     link({ href, title, tokens }) {
       const text = this.parser.parseInline(tokens);
-      if (!isSafeHref(href)) return text;
+      const target = linkTarget(href);
+      if (!target) return text;
 
       const attrs = [
-        `href="${escapeHtml(href)}"`,
+        `href="${escapeHtml(target)}"`,
         title ? `title="${escapeHtml(title)}"` : "",
         'target="_blank"',
         'rel="noopener noreferrer"',

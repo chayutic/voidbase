@@ -4,7 +4,7 @@
 
 ### Added
 - **The VOIDBASE title on `/ops` goes back to the dashboard.** It looks exactly as it did
-
+- **Ctrl+click opens a link in the notes editor**, in a new tab. Hovering one shows where it goes, since the address is hidden. `google.com` and `www.` links go to https now, in the editor and on a phone, instead of to a page under /notes
 - **Tabs drag.** Pick a pinned tab up with the mouse and drop it where it goes; the others step aside, and the strip scrolls if you hold it at the edge. Not on a phone, where it would fight the scrolling, and I'm not editing there anyway
 - **Task lists tick in the notes editor.** `- [ ]` is a box now, without the bullet, and clicking it writes the `x` into the note. Ctrl+Z unticks. A done item goes grey, no strikethrough. On a phone the boxes are still just a picture of one
 
@@ -14,6 +14,10 @@
 - **Customizer Save fills by scaling now, not by growing its `width`.** It looks the same, left to right. It just stopped asking the browser to lay the button out again every frame
 - **Links in a note are the same colour as the words around them**, with the accent kept for the underline. In violet, blue and pink the accent was too dark to read as text, 3.4–3.7:1 where body text gets 4.5. Same in the editor and on a phone
 - **CodeMirror's patch releases and esbuild 0.28 are in**, so the notes editor's bundle is rebuilt. Nothing should look different. dotenv 18 still isn't, because it's put out six releases in two weeks
+
+### Fixed
+- **A bare `https://…` link in a note no longer vanishes** when the cursor leaves its line, and neither does a `<https://…>`. The editor hid every URL it saw, on the theory that it was the tail of a `[text](url)`
+- **`[google.com]` on its own stays `[google.com]` in the editor.** It isn't a link without a URL or a definition, and the phone already showed it with its brackets. The editor dressed it up as one anyway
 
 ## v0.9.1 — 2026-09-29
 
