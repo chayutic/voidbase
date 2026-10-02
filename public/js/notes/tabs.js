@@ -158,9 +158,14 @@ function follow() {
   const last  = slots.at(-1).left + slots.at(-1).width;
   const moved = drag.x - drag.startX + stripEl.scrollLeft - drag.startScroll;
   const left  = Math.min(Math.max(self.left + moved, first), last - self.width);
-  const centre = left + self.width / 2;
 
-  drag.to = slots.filter((s, i) => i !== from && s.left + s.width / 2 < centre).length;
+  // A pin is passed once the leading edge crosses its middle. Not the
+  // dragged tab's centre: clamped at either end of the row, a wide
+  // tab's centre never reaches a narrow neighbour's middle.
+  const mid = s => s.left + s.width / 2;
+  drag.to = from
+    + slots.filter((s, i) => i > from && left + self.width > mid(s)).length
+    - slots.filter((s, i) => i < from && left < mid(s)).length;
   tabs[from].style.transform = `translateX(${left - self.left}px)`;
   tabs.forEach((tab, i) => {
     if (i === from) return;
