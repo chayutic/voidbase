@@ -12,7 +12,7 @@
 
 import * as api      from "./api.js";
 import * as dateline from "./dateline.js";
-import { renderPreview, renderPreviewNow } from "./preview.js";
+import { renderPreviewNow } from "./preview.js";
 
 const paneEl     = document.querySelector(".notes__pane");
 const mountEl    = document.getElementById("noteEditor");
@@ -174,10 +174,7 @@ async function mountCodeMirror(initialText) {
     ...livePreviewExtensions,
     hideMarkers,
     cm.EditorView.updateListener.of((update) => {
-      if (update.docChanged) {
-        onEdit();
-        renderPreview(update.state.doc.toString());
-      }
+      if (update.docChanged) onEdit();
     }),
     cm.EditorView.domEventHandlers({
       blur: () => { flush(); },

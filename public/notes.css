@@ -928,7 +928,7 @@ body.notes {
 .notes__empty-action:hover { color: var(--signal-bad); }
 
 /* ======================================================
-   PREVIEW — loading state and the mobile reading surface
+   PREVIEW — the read-only render until an editor mounts
 ====================================================== */
 
 .notes__preview {
@@ -1018,8 +1018,8 @@ body.notes {
   margin: 0.3em 0 0;
 }
 
-/* Task lists — GFM `- [ ]`. Checkboxes render disabled: phones read,
-   and the desktop editor draws its own. A loose list wraps each item,
+/* Task lists — GFM `- [ ]`. Checkboxes render disabled: the editor
+   draws its own. A loose list wraps each item,
    box included, in a <p>. */
 .markdown li:has(> input[type="checkbox"], > p:first-child > input[type="checkbox"]) {
   list-style: none;
@@ -1114,9 +1114,6 @@ body.notes {
 
 /* ======================================================
    NARROW SCREENS
-   ======================================================
-   Phones read; they don't edit. CodeMirror still mounts, and the
-   rendered preview takes its place.
 ====================================================== */
 
 @media (max-width: 700px) {
@@ -1138,13 +1135,6 @@ body.notes {
     width: 2.5rem;
     height: 2.5rem;
   }
-
-  .notes__pane.cm6-ready     .notes__editor   { display: none; }
-  .notes__pane.fallback-mode .notes__fallback { display: none; }
-  .notes__pane.cm6-ready     .notes__preview,
-  .notes__pane.fallback-mode .notes__preview  { display: block; }
-
-  .notes__pane.fallback-mode .notes__fallback-dateline:not([hidden]) { display: none; }
 
   .notes__item--new::after { width: 2.5rem; }
 
