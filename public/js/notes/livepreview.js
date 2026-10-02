@@ -275,6 +275,19 @@ export const hideMarkers = ViewPlugin.fromClass(
   class {
     constructor(view) {
       this.decorations = buildDecorations(view);
+      // Ctrl or Cmd held gives a link the hand cursor. On window, since
+      // the key can go down while the editor isn't focused. On
+      // scrollDOM, since CodeMirror rewrites the classes of the others.
+      this.keys = e => view.scrollDOM.classList.toggle("cm-link-keys", e.ctrlKey || e.metaKey);
+      this.blur = () => view.scrollDOM.classList.remove("cm-link-keys");
+      window.addEventListener("keydown", this.keys);
+      window.addEventListener("keyup", this.keys);
+      window.addEventListener("blur", this.blur);
+    }
+    destroy() {
+      window.removeEventListener("keydown", this.keys);
+      window.removeEventListener("keyup", this.keys);
+      window.removeEventListener("blur", this.blur);
     }
     update(update) {
       // Selection changes matter as much as edits: moving the caret onto
@@ -301,6 +314,11 @@ export const hideMarkers = ViewPlugin.fromClass(
         if (!isTaskBox(e.target)) return false;
         e.preventDefault();
         return toggleTask(view, e.target);
+      },
+      // Catches a key pressed while another window had focus.
+      mousemove(e) {
+        this.keys(e);
+        return false;
       },
       click(e) {
         if (!isTaskBox(e.target)) return false;

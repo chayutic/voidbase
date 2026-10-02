@@ -1047,6 +1047,8 @@ body.notes {
 
 .cm-md-url { color: var(--text-secondary); }
 
+.cm-link-keys .cm-md-link { cursor: pointer; }
+
 /* ======================================================
    EDITOR — task boxes
    ======================================================

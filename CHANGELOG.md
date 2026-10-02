@@ -5,7 +5,7 @@
 ### Added
 - **The VOIDBASE title on `/ops` goes back to the dashboard.** It looks exactly as it did
 - **A Sans/Mono switch in the notes band**, to try a note in Geist Mono for a while. Only the note changes, not the tabs or the band, and it's remembered. Geist Mono is self-hosted next to Geist
-- **Ctrl+click opens a link in the notes editor**, in a new tab. Hovering one shows where it goes, since the address is hidden. `google.com` and `www.` links go to https now, in the editor and on a phone, instead of to a page under /notes
+- **Ctrl+click opens a link in the notes editor**, in a new tab. Holding Ctrl turns the pointer into a hand over a link, and hovering one shows where it goes, since the address is hidden. `google.com` and `www.` links go to https now, in the editor and on a phone, instead of to a page under /notes
 - **Tabs drag.** Pick a pinned tab up with the mouse and drop it where it goes; the others step aside, and the strip scrolls if you hold it at the edge. Not on a phone, where it would fight the scrolling, and I'm not editing there anyway
 - **Task lists tick in the notes editor.** `- [ ]` is a box now, without the bullet, and clicking it writes the `x` into the note. Ctrl+Z unticks. A done item goes grey, no strikethrough. On a phone the boxes are still just a picture of one
 
