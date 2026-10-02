@@ -24,6 +24,9 @@
 - **A bare `https://…` link in a note no longer vanishes** when the cursor leaves its line, and neither does a `<https://…>`. The editor hid every URL it saw, on the theory that it was the tail of a `[text](url)`
 - **`[google.com]` on its own stays `[google.com]` in the editor.** It isn't a link without a URL or a definition, and the phone already showed it with its brackets. The editor dressed it up as one anyway
 
+### Removed
+- **The render matrix.** It hadn't run since v0.7.20, its notes probes were measuring a layout that no longer exists, and keeping it meant re-baselining after every design change to catch what I'd already seen on :3006. Its one real catch, the `:visited` cascade bug, can't happen any more now that the stylesheets are layered
+
 ## v0.9.1 — 2026-09-29
 
 ### Added
