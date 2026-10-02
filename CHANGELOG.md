@@ -1,6 +1,6 @@
 # Changelog — Voidbase
 
-## Unreleased
+## v0.10.0 — 2026-10-02
 
 ### Added
 - **A contact sheet, `npm run sheet`.** Every theme on both pages, at desktop and phone width, plus the panels and modes that start shut, as screenshots in `.audit/shots/sheet/`. Nothing to pass or fail; it's for looking at the states I never open by habit, on the changes that could reach them

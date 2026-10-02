@@ -5,7 +5,7 @@
 import * as store from "./store.js";
 import { KEYS }   from "./store.js";
 
-export const VERSION = "v0.9.1";
+export const VERSION = "v0.10.0";
 
 /**
  * Jellyfin base URL for browser-facing links. A LAN address, so these
