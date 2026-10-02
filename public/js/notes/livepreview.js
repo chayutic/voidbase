@@ -170,7 +170,7 @@ const markdownHighlight = HighlightStyle.define([
   { tag: tags.emphasis,      fontStyle: "italic" },
   { tag: tags.strikethrough, textDecoration: "line-through", color: "var(--text-secondary)" },
 
-  { tag: tags.link,    color: "var(--accent-bright)", textDecoration: "underline", textUnderlineOffset: "2px" },
+  { tag: tags.link,    textDecoration: "underline", textDecorationColor: "var(--accent-bright)", textUnderlineOffset: "2px" },
   { tag: tags.url,     color: "var(--text-secondary)" },
   { tag: tags.monospace, fontFamily: "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
                          fontSize: "0.9em", background: "var(--surface-glass-hover)", borderRadius: "var(--radius-xs)" },

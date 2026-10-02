@@ -793,8 +793,9 @@ body.notes {
 .markdown del    { color: var(--text-secondary); text-decoration-thickness: 1px; }
 
 .markdown a {
-  color: var(--accent-bright);
+  color: inherit;
   text-decoration: underline;
+  text-decoration-color: var(--accent-bright);
   text-underline-offset: 2px;
 }
 
@@ -844,7 +845,7 @@ body.notes {
   color: var(--text-secondary);
 }
 
-.markdown li:has(> input[type="checkbox"]:checked, > p:first-child > input[type="checkbox"]:checked) :is(strong, a) {
+.markdown li:has(> input[type="checkbox"]:checked, > p:first-child > input[type="checkbox"]:checked) strong {
   color: inherit;
 }
 
