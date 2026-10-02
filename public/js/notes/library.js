@@ -64,18 +64,21 @@ export async function setPinned(id, on) {
 let ordering  = false;   // an order save is in flight
 let reordered = false;   // and the order moved again since it left
 
-/**
- * Swap a pin with its neighbour, `by` -1 or 1, on screen at once. The
- * save follows, one at a time, so a quick run of moves can't land out
- * of order. Rejects if the save fails, once the pins are the server's
- * again.
- */
-export async function movePin(id, by) {
-  const at = pins.indexOf(id);
-  const to = at + by;
-  if (at === -1 || to < 0 || to >= pins.length) return;
+/** Swap a pin with its neighbour, `by` -1 or 1. */
+export function movePin(id, by) {
+  return placePin(id, pins.indexOf(id) + by);
+}
 
-  pins = pins.with(at, pins[to]).with(to, id);
+/**
+ * Move a pin to index `to`, on screen at once. The save follows, one
+ * at a time, so a quick run of moves can't land out of order. Rejects
+ * if the save fails, once the pins are the server's again.
+ */
+export async function placePin(id, to) {
+  const at = pins.indexOf(id);
+  if (at === -1 || to === at || to < 0 || to >= pins.length) return;
+
+  pins = pins.toSpliced(at, 1).toSpliced(to, 0, id);
   onChange();
   await saveOrder();
 }

@@ -148,6 +148,23 @@ body.notes {
 
 .notes__tab.is-temp { font-style: italic; }
 
+/* ── Dragging a tab ── */
+
+.notes__tab-strip.is-dragging { cursor: grabbing; }
+
+.notes__tab-strip.is-dragging .notes__tab {
+  cursor: inherit;
+  transition: color var(--transition-fast), transform var(--transition-normal);
+}
+
+/* Opaque, so the tab it passes over doesn't show through. */
+.notes__tab-strip .notes__tab.is-dragged {
+  z-index: 1;
+  border-color: var(--border-hover);
+  background: var(--panel-bg);
+  transition: none;
+}
+
 .notes__tab.untitled {
   font-weight: var(--body-normal);
   font-variant-numeric: tabular-nums;
