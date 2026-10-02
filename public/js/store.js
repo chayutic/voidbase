@@ -26,6 +26,7 @@ export const KEYS = {
   // Notes
   notesOpen:   "notesOpen",
   notesFolder: "notesFolder",
+  notesFont:   "notesFont",
 
   // Ops
   opsSeen:        "opsSeen",

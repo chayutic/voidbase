@@ -350,7 +350,7 @@ const editorTheme = EditorView.theme({
     backgroundColor: "transparent",
   },
   ".cm-scroller": {
-    fontFamily: "var(--notes-font)",
+    fontFamily: "var(--notes-text-font)",
     // Thai stacks marks above and below the baseline; this is the same
     // leading the rendered preview uses.
     lineHeight: "var(--leading-prose)",

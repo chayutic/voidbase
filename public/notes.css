@@ -24,6 +24,14 @@
      Never use theme.css's --font-title/--font-body on this page: they
      are Latin-only and Thai silently drops to a generic sans. */
   --notes-font: 'Geist', 'Noto Sans Thai', sans-serif;
+
+  /* The note itself: the editor, the rendered note and the fallback.
+     The band's font button swaps it for Geist Mono, on trial. */
+  --notes-text-font: var(--notes-font);
+}
+
+:root.notes-mono {
+  --notes-text-font: 'Geist Mono', 'Noto Sans Thai', monospace;
 }
 
 @media (max-width: 700px) {
@@ -270,7 +278,7 @@ body.notes {
   overflow-y: auto;
   background: none;
   color: var(--text-primary);
-  font-family: inherit;
+  font-family: var(--notes-text-font);
   font-size: var(--text-body);
   line-height: var(--leading-prose);
   tab-size: 4;
@@ -335,6 +343,23 @@ body.notes {
 }
 
 .notes__move-hint { white-space: nowrap; }
+
+.notes__font {
+  all: unset;
+  outline: revert;
+  cursor: pointer;
+  padding: 0 0.35rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xs);
+  font-size: var(--text-micro);
+  line-height: var(--leading-body);
+  color: var(--text-secondary);
+}
+
+.notes__font:hover {
+  border-color: var(--border-hover);
+  color: var(--text-primary);
+}
 
 .notes__pin[aria-pressed="true"] { color: var(--accent-bright); }
 .notes__pin[aria-pressed="true"] svg { fill: currentColor; }
@@ -754,6 +779,7 @@ body.notes {
 
 .notes__preview {
   padding: var(--notes-pad);
+  font-family: var(--notes-text-font);
   overflow-y: auto;
   overflow-wrap: break-word;
 }
@@ -781,7 +807,7 @@ body.notes {
 .markdown h5,
 .markdown h6 {
   margin: 1.6em 0 0.6em;
-  font-family: var(--notes-font);
+  font-family: var(--notes-text-font);
   font-weight: var(--body-semi);
   line-height: var(--leading-body);
   color: var(--text-primary);

@@ -15,6 +15,7 @@ import * as switcher    from "./switcher.js";
 import * as band        from "./band.js";
 import * as editor      from "./editor.js";
 import * as move        from "./move.js";
+import { initFont }     from "./font.js";
 
 initTheme();
 
@@ -98,6 +99,8 @@ move.initMove({
   onCreated:  () => library.refreshQuietly(),
   onError:    (message) => editor.reportError(message),
 });
+
+initFont();
 
 document.getElementById("noteNew").addEventListener("click", () => create());
 

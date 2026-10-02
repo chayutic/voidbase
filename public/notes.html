@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Notes — Voidbase</title>
 
-  <!-- Applies the saved theme before first paint. Must stay inline and
+  <!-- Applies the saved theme and note font before first paint. Must stay inline and
        blocking: a deferred module runs after the default palette is
        already on screen. -->
   <script>
@@ -14,6 +14,7 @@
       root.dataset.theme = "violet";
       try {
         root.dataset.theme = localStorage.getItem("theme") || "violet";
+        if (localStorage.getItem("notesFont") === "mono") root.classList.add("notes-mono");
       } catch (e) {}
     }
   </script>
@@ -52,6 +53,7 @@
   <link rel="modulepreload" href="/js/notes/band.js">
   <link rel="modulepreload" href="/js/notes/editor.js">
   <link rel="modulepreload" href="/js/notes/move.js">
+  <link rel="modulepreload" href="/js/notes/font.js">
   <link rel="modulepreload" href="/js/store.js">
   <link rel="modulepreload" href="/js/config.js">
   <link rel="modulepreload" href="/js/notes/api.js">
@@ -124,6 +126,8 @@
         <span class="notes__meta" id="noteMeta"></span>
 
         <span class="notes__move-hint" id="noteMoveHint" hidden>Move tab <kbd class="notes__kbd">Alt ← →</kbd></span>
+
+        <button class="notes__font" id="noteFont" type="button"></button>
 
         <button class="notes__icon-btn notes__pin" id="notePin" type="button" aria-label="Pin" aria-pressed="false" hidden>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
