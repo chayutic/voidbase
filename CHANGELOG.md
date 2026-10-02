@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Added
+- **A contact sheet, `npm run sheet`.** Every theme on both pages, at desktop and phone width, plus the panels and modes that start shut, as screenshots in `.audit/shots/sheet/`. Nothing to pass or fail; it's for looking at the states I never open by habit, on the changes that could reach them
 - **Notes edit on a phone.** Under 700px it used to show the note read-only, with the editor loaded and hidden underneath. It's the same editor as on a desktop now, tick boxes and all
 - **The VOIDBASE title on `/ops` goes back to the dashboard.** It looks exactly as it did
 - **A Mono Font switch in the Control Panel**, only on the notes page, to set a note in Geist Mono. It started as a trial and is staying. Only the note changes, not the tabs or anything around it, and it's remembered. Geist Mono is self-hosted next to Geist, and preloaded when it's on, so a cold load doesn't swap faces halfway in

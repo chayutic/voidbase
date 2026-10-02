@@ -19,6 +19,7 @@
   "scripts": {
     "dev": "PORT=3006 STATUS_DIR=/volume2/docker/status NOTES_DIR=./notes node --watch server.js",
     "build:cm6": "esbuild build/cm6-entry.js --bundle --format=esm --minify --target=es2022 --outfile=public/js/vendor/cm6.min.js --legal-comments=none",
+    "sheet": "node test/sheet/sheet.js",
     "lint:conventions": "node test/conventions/lint.js"
   }
 }
