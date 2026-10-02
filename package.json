@@ -14,7 +14,7 @@
     "@codemirror/view": "^6.43.9",
     "@lezer/highlight": "^1.2.3",
     "@lezer/markdown": "^1.7.2",
-    "esbuild": "^0.25.0"
+    "esbuild": "^0.28.2"
   },
   "scripts": {
     "dev": "PORT=3006 STATUS_DIR=/volume2/docker/status NOTES_DIR=./notes node --watch server.js",
