@@ -4,7 +4,8 @@
 //
 //  A native <dialog>, so Escape, the top layer and handing focus back
 //  come from the browser. Ctrl+K opens it from anywhere, the editor
-//  included.
+//  included. It's also the only place a note is deleted: the selected
+//  row's trash icon, or Shift+Delete.
 //
 //  Rows are built with DOM methods, never innerHTML: titles, excerpts
 //  and search snippets all come straight out of note bodies.
@@ -14,16 +15,16 @@ import * as library from "./library.js";
 import * as store   from "../store.js";
 import { KEYS }     from "../store.js";
 import { displayTitle, isUntitled, formatEdited } from "./format.js";
-import { PLUS } from "../icons.js";
+import { PLUS, PIN } from "../icons.js";
 import { beginInlineEdit } from "../inline-edit.js";
-
-const PIN = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/></svg>`;
 
 const dialogEl  = document.getElementById("noteSwitcher");
 const searchEl  = document.getElementById("notesSearch");
 const foldersEl = document.getElementById("notesFolders");
 const listEl    = document.getElementById("notesList");
 const openBtn   = document.getElementById("switcherOpen");
+
+const TRASH = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>`;
 
 const SEARCH_DEBOUNCE_MS = 150;
 
@@ -36,6 +37,7 @@ let searchSeq   = 0;
 let searchTimer = null;
 let onOpen      = () => {};
 let onCreate    = () => {};
+let onDelete    = async () => {};
 let onError     = () => {};
 let onRenamed   = () => {};
 
@@ -90,19 +92,36 @@ function span(className, content) {
   return el;
 }
 
-function buildRow(index, glyph, text, meta) {
+// The row is a button, so its delete sits beside it in the item
+// rather than inside it. New note's item keeps the column empty.
+function buildRow(index, glyph, text, meta, note = null) {
+  const item = document.createElement("div");
+  item.className     = "notes__item";
+  item.dataset.index = index;
+
   const row = document.createElement("button");
-  row.type          = "button";
-  row.className     = "notes__row";
-  row.dataset.index = index;
+  row.type      = "button";
+  row.className = "notes__row";
 
   const mark = span("notes__row-glyph", "");
   mark.innerHTML = glyph;
 
   row.append(mark, text, meta);
   row.addEventListener("click", () => choose(index));
-  row.addEventListener("pointermove", () => select(index));
-  return row;
+  item.append(row);
+  item.addEventListener("pointermove", () => select(index));
+
+  if (note) {
+    const trash = document.createElement("button");
+    trash.type      = "button";
+    trash.className = "notes__icon-btn notes__row-delete";
+    trash.title     = "Delete note";
+    trash.setAttribute("aria-label", `Delete ${displayTitle(note)}`);
+    trash.innerHTML = TRASH;
+    trash.addEventListener("click", () => deleteNote(note));
+    item.append(trash);
+  }
+  return item;
 }
 
 function noteRow(note, index, q) {
@@ -120,15 +139,15 @@ function noteRow(note, index, q) {
   if (viewed === null && note.folder) meta.append(span("notes__row-folder", note.folder));
   meta.append(span("notes__row-edited", formatEdited(note.mtime)));
 
-  return buildRow(index, library.isPinned(note.id) ? PIN : "", text, meta);
+  return buildRow(index, library.isPinned(note.id) ? PIN : "", text, meta, note);
 }
 
 function newRow(index, q) {
   const text = span("notes__row-text", "");
   text.append(span("notes__row-title", q ? `New note “${q}”` : "New note"));
-  const row = buildRow(index, PLUS, text, span("notes__row-meta", viewed ?? ""));
-  row.classList.add("notes__row--new");
-  return row;
+  const item = buildRow(index, PLUS, text, span("notes__row-meta", viewed ?? ""));
+  item.classList.add("notes__item--new");
+  return item;
 }
 
 function emptyMessage(q, count) {
@@ -169,15 +188,31 @@ function renderList() {
 
 function select(index) {
   selected = index;
-  for (const row of listEl.querySelectorAll(".notes__row")) {
-    row.classList.toggle("is-selected", Number(row.dataset.index) === index);
+  for (const item of listEl.querySelectorAll(".notes__item")) {
+    item.classList.toggle("is-selected", Number(item.dataset.index) === index);
   }
 }
 
 function move(by) {
   const count = rows().length + 1;
   select((selected + by + count) % count);
-  listEl.querySelector(".notes__row.is-selected")?.scrollIntoView({ block: "nearest" });
+  listEl.querySelector(".notes__item.is-selected")?.scrollIntoView({ block: "nearest" });
+}
+
+// The list repaints from the library's change, and the switcher stays
+// open for the next one. Focus goes back to the search, since the
+// button it was on is gone.
+async function deleteNote(note) {
+  if (!window.confirm(`Delete “${displayTitle(note)}”? This cannot be undone.`)) return;
+  try {
+    await onDelete(note.id);
+  } catch (err) {
+    console.error("Delete failed:", err);
+    onError("Could not delete that note");
+  }
+  results = results?.filter(n => n.id !== note.id) ?? null;
+  renderList();
+  searchEl.focus();
 }
 
 function choose(index) {
@@ -335,6 +370,7 @@ export function render() {
 export function initSwitcher(handlers = {}) {
   onOpen    = handlers.onOpen    ?? onOpen;
   onCreate  = handlers.onCreate  ?? onCreate;
+  onDelete  = handlers.onDelete  ?? onDelete;
   onError   = handlers.onError   ?? onError;
   onRenamed = handlers.onRenamed ?? onRenamed;
 
@@ -363,6 +399,14 @@ export function initSwitcher(handlers = {}) {
   searchEl.addEventListener("keydown", async (e) => {
     if (e.key === "ArrowDown") { e.preventDefault(); move(1); }
     if (e.key === "ArrowUp")   { e.preventDefault(); move(-1); }
+    // Shift+Delete is Cut on Windows, so a selection in the field keeps it.
+    if (e.key === "Delete" && e.shiftKey && searchEl.selectionStart === searchEl.selectionEnd) {
+      const note = rows()[selected];
+      if (note) {
+        e.preventDefault();
+        deleteNote(note);
+      }
+    }
     if (e.key === "Enter") {
       e.preventDefault();
       // Enter inside the debounce means the rows on screen are for the

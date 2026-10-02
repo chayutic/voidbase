@@ -50,10 +50,9 @@
   <link rel="modulepreload" href="/js/notes/library.js">
   <link rel="modulepreload" href="/js/notes/tabs.js">
   <link rel="modulepreload" href="/js/notes/switcher.js">
-  <link rel="modulepreload" href="/js/notes/band.js">
   <link rel="modulepreload" href="/js/notes/editor.js">
   <link rel="modulepreload" href="/js/notes/move.js">
-  <link rel="modulepreload" href="/js/notes/font.js">
+  <link rel="modulepreload" href="/js/notes/dateline.js">
   <link rel="modulepreload" href="/js/store.js">
   <link rel="modulepreload" href="/js/config.js">
   <link rel="modulepreload" href="/js/notes/api.js">
@@ -83,7 +82,7 @@
         </button>
         <button class="notes__switch" id="switcherOpen" type="button" aria-keyshortcuts="Control+K">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/>
+            <circle cx="10" cy="10" r="7"/><line x1="15.5" y1="15.5" x2="21" y2="21"/>
           </svg>
           <span>All notes</span>
           <kbd class="notes__kbd">Ctrl K</kbd>
@@ -95,54 +94,45 @@
 
       <!-- Three surfaces, one slot, exactly one visible: CodeMirror once
            it mounts, a read-only marked render until then, the textarea
-           if it never loads. -->
+           if it never loads. Each shows the dateline above the note;
+           CodeMirror draws its own. -->
       <div class="notes__editor" id="noteEditor"></div>
 
-      <article class="notes__preview markdown" id="notePreview"></article>
+      <div class="notes__preview">
+        <div class="notes__dateline" id="previewDateline" hidden></div>
+        <article class="markdown" id="notePreview"></article>
+      </div>
 
+      <div class="notes__dateline notes__fallback-dateline" id="fallbackDateline" hidden></div>
       <textarea class="notes__fallback"
                 id="noteFallback"
                 spellcheck="false"
                 autocomplete="off"
                 placeholder="Start typing. A first line like “# Groceries” becomes the title."></textarea>
 
-      <div class="notes__statusbar">
-        <span class="notes__status" id="noteStatus"><span id="noteStatusText"></span></span>
-
-        <button class="notes__note-folder" id="noteFolder" type="button"
-                popovertarget="folderPicker" title="Move to another folder" hidden></button>
-        <div class="notes__picker" id="folderPicker" popover aria-label="Move to folder">
-          <div class="notes__picker-label">Move to</div>
-          <div class="notes__picker-list" id="folderPickerList"></div>
-          <label class="notes__picker-new">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-            </svg>
-            <input id="folderPickerNew" type="text" placeholder="New folder" aria-label="New folder"
-                   maxlength="64" autocomplete="off" spellcheck="false">
-          </label>
-        </div>
-
-        <span class="notes__meta" id="noteMeta"></span>
-
-        <span class="notes__move-hint" id="noteMoveHint" hidden>Move tab <kbd class="notes__kbd">Alt ← →</kbd></span>
-
-        <button class="notes__font" id="noteFont" type="button"></button>
-
-        <button class="notes__icon-btn notes__pin" id="notePin" type="button" aria-label="Pin" aria-pressed="false" hidden>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/>
-          </svg>
-        </button>
-        <button class="notes__icon-btn notes__delete" id="noteDelete" type="button" aria-label="Delete note" title="Delete note" hidden>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
-          </svg>
-        </button>
+      <div class="notes__trouble" id="noteTrouble" role="status" data-shown="false">
+        <span class="notes__trouble-text" id="noteTroubleText"></span>
+        <button class="notes__trouble-reload" id="noteTroubleReload" type="button" hidden>Reload</button>
       </div>
     </section>
 
   </main>
+
+
+  <!-- ════ FOLDER PICKER ════
+       Opened by the dateline's folder button, whichever surface
+       drew it. -->
+  <div class="notes__picker" id="folderPicker" popover aria-label="Move to folder">
+    <div class="notes__picker-label">Move to</div>
+    <div class="notes__picker-list" id="folderPickerList"></div>
+    <label class="notes__picker-new">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+      <input id="folderPickerNew" type="text" placeholder="New folder" aria-label="New folder"
+             maxlength="64" autocomplete="off" spellcheck="false">
+    </label>
+  </div>
 
 
   <!-- ════ SWITCHER ════ -->
@@ -150,7 +140,7 @@
     <div class="notes__switcher-box">
       <label class="notes__searchbar">
         <svg class="notes__search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/>
+          <circle cx="10" cy="10" r="7"/><line x1="15.5" y1="15.5" x2="21" y2="21"/>
         </svg>
         <input class="notes__search" id="notesSearch" aria-label="Search notes" type="text"
                placeholder="Search notes…" autocomplete="off" spellcheck="false">
@@ -194,7 +184,8 @@
        Same markup and same ids as the dashboard, so settings.js and
        theme.js drive it unchanged. The Layout Customizer row is
        omitted: it reorders dashboard sections that do not exist here.
-       Dashboard-only widgets still persist from this page. -->
+       Dashboard-only widgets still persist from this page. Notes is
+       the other way round: only this page has it. -->
   <div class="settings-panel" id="settingsPanel">
 
     <div class="settings-panel__header">Control Panel</div>
@@ -209,6 +200,18 @@
         <button class="theme__swatch" data-theme="black"  aria-label="Black"></button>
         <button class="theme__swatch" data-theme="white"  aria-label="White"></button>
         <span class="swatch-name" id="swatchName"></span>
+      </div>
+    </div>
+
+    <div class="settings__section">
+      <div class="settings__section-label">Notes</div>
+
+      <div class="settings__row">
+        <span>Mono Font</span>
+        <label class="settings__toggle">
+          <input type="checkbox" id="notesMonoToggle" aria-label="Mono Font">
+          <span class="settings__toggle-track"></span>
+        </label>
       </div>
     </div>
 

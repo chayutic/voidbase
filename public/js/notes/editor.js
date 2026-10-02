@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════
-//  EDITOR — CodeMirror surface, autosave, status
+//  EDITOR — CodeMirror surface, autosave, save state, trouble
 // ═══════════════════════════════════════════════════════════════
 //
 //  There is no save button. Typing schedules a save 600ms after you
@@ -10,19 +10,20 @@
 //  then the editor replaces it. If the import fails outright the plain
 //  textarea takes over — a worse editor, but still an editor.
 
-import * as api from "./api.js";
-import { formatEdited } from "./format.js";
+import * as api      from "./api.js";
+import * as dateline from "./dateline.js";
 import { renderPreview, renderPreviewNow } from "./preview.js";
 
 const paneEl     = document.querySelector(".notes__pane");
 const mountEl    = document.getElementById("noteEditor");
 const previewEl  = document.getElementById("notePreview");
 const fallbackEl = document.getElementById("noteFallback");
-const statusEl   = document.getElementById("noteStatus");
-const statusText = document.getElementById("noteStatusText");
-const metaEl     = document.getElementById("noteMeta");
+const troubleEl  = document.getElementById("noteTrouble");
+const troubleTxt = document.getElementById("noteTroubleText");
+const reloadBtn  = document.getElementById("noteTroubleReload");
 
 const SAVE_DEBOUNCE_MS = 600;
+const TROUBLE_MS       = 6000;
 
 let currentId = null;
 let lastSaved = "";
@@ -33,6 +34,8 @@ let saving    = Promise.resolve();
 let loadSeq   = 0;
 let onSaved   = () => {};
 let onShown   = () => {};
+let onSave    = () => {};
+let troubleTimer = null;
 
 // The active editing surface: "loading" | "cm6" | "fallback"
 let mode = "loading";
@@ -40,16 +43,28 @@ let view = null;           // CodeMirror EditorView once ready
 let cm   = null;           // the loaded module namespace
 let extensions = null;
 
-// ── Status line ────────────────────────────────────────────────
+// ── Save state and trouble ─────────────────────────────────────
 
-function setStatus(text, state = "") {
-  statusText.textContent = text;
-  statusEl.dataset.state = state;
-  statusEl.title = state === "error" ? text : "";
+// "" with no note, then saved | dirty | saving | error. The open tab
+// draws it.
+function setSave(state) {
+  onSave(state);
 }
 
-function setMeta(note) {
-  metaEl.textContent = note ? `Edited ${formatEdited(note.mtime)}` : "";
+// A failed save stays up until the next edit, a conflict until a save
+// succeeds, and both until another note opens. Anything else goes by
+// itself, unless it's `sticky`.
+function showTrouble(text, { sticky = false, reload = false } = {}) {
+  clearTimeout(troubleTimer);
+  troubleTxt.textContent = text;
+  reloadBtn.hidden = !reload;
+  troubleEl.dataset.shown = "true";
+  if (!sticky) troubleTimer = setTimeout(clearTrouble, TROUBLE_MS);
+}
+
+function clearTrouble() {
+  clearTimeout(troubleTimer);
+  troubleEl.dataset.shown = "false";
 }
 
 // ── Surface abstraction ────────────────────────────────────────
@@ -83,7 +98,8 @@ function isDirty() {
 }
 
 function onEdit() {
-  setStatus("Unsaved", "dirty");
+  setSave("dirty");
+  if (!conflict) clearTrouble();
   clearTimeout(saveTimer);
   saveTimer = setTimeout(() => save(), SAVE_DEBOUNCE_MS);
 }
@@ -94,7 +110,7 @@ async function saveNow() {
   const id      = currentId;
   const payload = getValue();
 
-  setStatus("Saving…", "saving");
+  setSave("saving");
 
   try {
     const summary = await api.saveNote(id, payload, baseMtime);
@@ -103,18 +119,19 @@ async function saveNow() {
     if (currentId === id) {
       lastSaved = payload;
       baseMtime = summary.mtime;
-      const dirty = isDirty();
-      setStatus(dirty ? "Unsaved" : "Saved", dirty ? "dirty" : "saved");
-      setMeta(summary);
+      setSave(isDirty() ? "dirty" : "saved");
+      clearTrouble();
+      dateline.set(summary);
     }
     onSaved(summary);
   } catch (err) {
     console.error("Save failed:", err);
     if (currentId !== id) return;
     if (err.status === 409) conflict = true;
-    setStatus(err.status === 409
+    setSave("error");
+    showTrouble(conflict
       ? "Changed elsewhere — not saved. Copy your edits, then reload"
-      : "Save failed — retrying on next edit", "error");
+      : "Save failed — retrying on next edit", { sticky: true, reload: conflict });
   }
 }
 
@@ -131,8 +148,8 @@ export async function flush() {
   await save();
 }
 
-export function reportError(text) {
-  setStatus(text, "error");
+export function reportError(text, { sticky = false } = {}) {
+  showTrouble(text, { sticky });
 }
 
 // ── CodeMirror bootstrap ───────────────────────────────────────
@@ -165,6 +182,7 @@ async function mountCodeMirror(initialText) {
     cm.EditorView.domEventHandlers({
       blur: () => { flush(); },
     }),
+    datelineField(cm),
   ];
 
   view = new cm.EditorView({
@@ -176,6 +194,42 @@ async function mountCodeMirror(initialText) {
   paneEl.classList.add("cm6-ready");
 }
 
+// A block widget before the first line, so the dateline scrolls with
+// the note. ignoreEvent keeps CodeMirror's hands off its button.
+function datelineField(cm) {
+  class Dateline extends cm.WidgetType {
+    constructor(info) {
+      super();
+      this.info = info;
+    }
+    eq(other) {
+      return other.info.folder === this.info.folder && other.info.mtime === this.info.mtime;
+    }
+    toDOM() {
+      return dateline.build(this.info);
+    }
+    ignoreEvent() {
+      return true;
+    }
+  }
+
+  const decorate = (info) => info
+    ? cm.Decoration.set(cm.Decoration.widget({ widget: new Dateline(info), block: true, side: -1 }).range(0))
+    : cm.Decoration.none;
+
+  const setInfo = cm.StateEffect.define();
+  dateline.watch((info) => view?.dispatch({ effects: setInfo.of(info) }));
+
+  return cm.StateField.define({
+    create: () => decorate(dateline.info()),
+    update(deco, tr) {
+      for (const e of tr.effects) if (e.is(setInfo)) return decorate(e.value);
+      return deco.map(tr.changes);
+    },
+    provide: (field) => cm.EditorView.decorations.from(field),
+  });
+}
+
 // ── Loading a note ─────────────────────────────────────────────
 
 function showNothing() {
@@ -183,10 +237,10 @@ function showNothing() {
   lastSaved = "";
   baseMtime = null;
   conflict  = false;
+  dateline.set(null);
   setValue("");
   setEditable(false);
-  setStatus("");
-  setMeta(null);
+  setSave("");
   onShown(null);
 }
 
@@ -220,7 +274,7 @@ export async function load(id, { discard = false } = {}) {
     note = await api.readNote(id);
   } catch (err) {
     console.error("Could not open note:", err);
-    if (seq === loadSeq) setStatus("Could not open that note", "error");
+    if (seq === loadSeq) showTrouble("Could not open that note");
     return false;
   }
   if (seq !== loadSeq) return false;
@@ -229,10 +283,11 @@ export async function load(id, { discard = false } = {}) {
   lastSaved = note.body;
   baseMtime = note.mtime;
   conflict  = false;
+  dateline.set(note);
   setValue(note.body);
   setEditable(true);
-  setStatus("Saved", "saved");
-  setMeta(note);
+  setSave("saved");
+  clearTrouble();
   onShown(note);
   return true;
 }
@@ -253,6 +308,9 @@ export function focus({ atEnd = false } = {}) {
 export async function initEditor(handlers = {}) {
   onSaved = handlers.onSaved ?? onSaved;
   onShown = handlers.onShown ?? onShown;
+  onSave  = handlers.onSave  ?? onSave;
+
+  reloadBtn.addEventListener("click", () => location.reload());
 
   // Fallback surface stays wired whether or not it is ever shown.
   fallbackEl.addEventListener("input", onEdit);
@@ -287,6 +345,6 @@ export async function initEditor(handlers = {}) {
     mode = "fallback";
     paneEl.classList.add("fallback-mode");
     fallbackEl.value = lastSaved;
-    setStatus("Plain editor — formatting unavailable", "error");
+    showTrouble("Plain editor — formatting unavailable");
   }
 }

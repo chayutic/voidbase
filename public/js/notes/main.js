@@ -12,16 +12,17 @@ import { KEYS }         from "../store.js";
 import * as library     from "./library.js";
 import * as tabs        from "./tabs.js";
 import * as switcher    from "./switcher.js";
-import * as band        from "./band.js";
 import * as editor      from "./editor.js";
 import * as move        from "./move.js";
-import { initFont }     from "./font.js";
+import * as dateline    from "./dateline.js";
 
 initTheme();
 
 // The Control Panel's Markets widgets repaint nothing here, but they
 // still write the preference — which is the point.
 initSettings();
+
+let openId = null;
 
 async function open(id) {
   const shown = await editor.load(id);
@@ -47,8 +48,10 @@ async function unpin(id) {
   await library.setPinned(id, false);
 }
 
-// The tab beside it takes over, as closing a tab would.
+// The open note's tab hands over to the one beside it, as closing a
+// tab would. Any other note just goes.
 async function remove(id) {
+  if (id !== openId) return library.remove(id);
   const next = tabs.neighbour(id) ?? library.all().find(n => n.id !== id)?.id ?? null;
   await library.remove(id);
   await editor.load(next, { discard: true });
@@ -56,8 +59,8 @@ async function remove(id) {
 
 function shown(note) {
   const id = note?.id ?? null;
+  openId = id;
   tabs.show(id);
-  band.show(id);
   move.show(note);
   store.set(KEYS.notesOpen, id);
   // Made since the last list, on another device; only search found it.
@@ -67,27 +70,25 @@ function shown(note) {
 library.initLibrary({
   onChange: () => {
     tabs.render();
-    band.render();
     switcher.render();
   },
 });
 
 tabs.initTabs({
   onSelect: open,
+  onUnpin:  unpin,
   onError:  (message) => editor.reportError(message),
 });
 
 switcher.initSwitcher({
   onOpen:    open,
   onCreate:  create,
+  onDelete:  remove,
   onError:   (message) => editor.reportError(message),
-  onRenamed: (from, to) => move.folderRenamed(from, to),
-});
-
-band.initBand({
-  onUnpin:  unpin,
-  onDelete: remove,
-  onError:  (message) => editor.reportError(message),
+  onRenamed: (from, to) => {
+    move.folderRenamed(from, to);
+    dateline.folderRenamed(from, to);
+  },
 });
 
 move.initMove({
@@ -95,12 +96,13 @@ move.initMove({
   // A save still in flight could land after the move, carrying the
   // old folder back into the list.
   beforeMove: () => editor.flush(),
-  onMoved:    (summary) => library.update(summary),
+  onMoved:    (summary) => {
+    library.update(summary);
+    dateline.set(summary);
+  },
   onCreated:  () => library.refreshQuietly(),
   onError:    (message) => editor.reportError(message),
 });
-
-initFont();
 
 document.getElementById("noteNew").addEventListener("click", () => create());
 
@@ -119,6 +121,7 @@ async function start() {
       editor.initEditor({
         onSaved: (summary) => library.update(summary),
         onShown: shown,
+        onSave:  (state) => tabs.showSave(state),
       }),
     ]);
 
@@ -126,7 +129,7 @@ async function start() {
     await open(library.get(last) ? last : library.all()[0]?.id ?? null);
   } catch (err) {
     console.error("Could not load notes:", err);
-    editor.reportError("Could not reach the notes service.");
+    editor.reportError("Could not reach the notes service.", { sticky: true });
   }
 }
 

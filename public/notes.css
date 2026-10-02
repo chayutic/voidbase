@@ -26,7 +26,7 @@
   --notes-font: 'Geist', 'Noto Sans Thai', sans-serif;
 
   /* The note itself: the editor, the rendered note and the fallback.
-     The band's font button swaps it for Geist Mono, on trial. */
+     The Control Panel's Mono Font swaps it for Geist Mono, on trial. */
   --notes-text-font: var(--notes-font);
 }
 
@@ -128,25 +128,22 @@ body.notes {
    The open tab drops it, and its glass joins the sheet's. */
 .notes__tab {
   flex: none;
-  max-width: 11rem;
-  padding: 0.55rem 1.1rem 0.6rem;
-  overflow: hidden;
+  display: flex;
+  align-items: baseline;
+  gap: 0.3rem;
+  max-width: 11.75rem;
+  padding: 0.55rem 0.45rem 0.6rem 1.1rem;
   border: 1px solid transparent;
   border-bottom-color: var(--border-color);
   border-radius: var(--radius) var(--radius) 0 0;
-  background: none;
-  font: inherit;
   line-height: var(--leading-body);
-  white-space: nowrap;
-  text-overflow: ellipsis;
   color: var(--text-secondary);
-  cursor: pointer;
   transition: color var(--transition-fast);
 }
 
 .notes__tab:hover { color: var(--text-primary); }
 
-.notes__tab[aria-current="true"] {
+.notes__tab.is-open {
   border-color: var(--border-color);
   border-bottom-color: transparent;
   background: var(--surface-glass);
@@ -156,9 +153,104 @@ body.notes {
 
 .notes__tab.is-temp { font-style: italic; }
 
+.notes__tab-title {
+  all: unset;
+  outline: revert;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+/* ── Tab action ── */
+
+/* Pin on the temporary tab, unpin on a pin. Baseline-aligned, the
+   glyph's foot sits on the title's baseline, and the translate lifts
+   its centre onto the capitals' centre: a box-centred icon lands about
+   a pixel under Geist's letters. 6px is half the glyph, because the
+   button's baseline comes from the svg, not from its own box. */
+.notes__tab-action {
+  all: unset;
+  outline: revert;
+  position: relative;
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 1.1rem;
+  height: 1.1rem;
+  border-radius: var(--radius-xs);
+  color: var(--text-secondary);
+  translate: 0 calc(6px - 0.5cap);
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition-fast), background var(--transition-fast), color var(--transition-fast);
+}
+
+.notes__tab-action svg {
+  width: 12px;
+  height: 12px;
+  transition: opacity var(--transition-fast);
+}
+
+.notes__tab-action:hover {
+  background: var(--surface-glass-hover);
+  color: var(--text-primary);
+}
+
+/* An invisible action is untouchable too: a tap on a phone would
+   otherwise unpin a tab it never showed. */
+.notes__tab.is-open .notes__tab-action,
+.notes__tab-action:focus-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+@media (hover: hover) {
+  .notes__tab:hover .notes__tab-action {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+/* The open tab's save state takes the action's slot while there is
+   one, as an editor's tab does, and hands it back on hover. Saved is
+   no dot at all. */
+.notes__tab-action::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: var(--dot);
+  height: var(--dot);
+  margin: auto;
+  border-radius: 50%;
+  background: var(--signal-mid);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.notes__tab[data-save="error"] .notes__tab-action::after { background: var(--signal-bad); }
+
+.notes__tab:is([data-save="dirty"], [data-save="saving"], [data-save="error"]):not(:hover)
+  .notes__tab-action:not(:focus-visible) {
+  svg { opacity: 0; }
+  &::after { opacity: 1; }
+}
+
+.notes__tab[data-save="saving"]:not(:hover) .notes__tab-action::after {
+  animation: notes-saving 0.6s ease-in-out infinite alternate;
+}
+
+@keyframes notes-saving {
+  to { opacity: 0.35; }
+}
+
 /* ── Dragging a tab ── */
 
 .notes__tab-strip.is-dragging { cursor: grabbing; }
+
+.notes__tab-strip.is-dragging .notes__tab > * { cursor: inherit; }
 
 .notes__tab-strip.is-dragging .notes__tab {
   cursor: inherit;
@@ -190,12 +282,14 @@ body.notes {
   border-bottom: 1px solid var(--border-color);
 }
 
+/* Baseline-aligned for the magnifier's sake, so the padding is what
+   centres the line in the button. */
 .notes__switch {
   display: inline-flex;
-  align-items: center;
+  align-items: baseline;
   gap: 0.5rem;
   height: 1.9rem;
-  padding: 0 0.4rem 0 0.55rem;
+  padding: calc((1.9rem - 1lh) / 2) 0.4rem calc((1.9rem - 1lh) / 2) 0.55rem;
   border: none;
   border-radius: var(--radius-xs);
   background: none;
@@ -207,7 +301,14 @@ body.notes {
   transition: background var(--transition-fast), color var(--transition-fast);
 }
 
-.notes__switch svg { width: 14px; height: 14px; flex: none; }
+/* On the capitals' centre, as the tab's action is: half the glyph
+   down from the baseline, half a cap height up. */
+.notes__switch svg {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  translate: 0 calc(7px - 0.5cap);
+}
 
 .notes__switch:hover {
   background: var(--surface-glass-hover);
@@ -232,12 +333,16 @@ body.notes {
    item's automatic minimum is min-content. Without it a long line
    inside `.markdown pre` widens the sheet instead of scrolling, and
    the pre's own overflow-x never gets to engage. */
+/* overflow: hidden keeps the trouble strip out of sight below the foot
+   until it rises. */
 .notes__pane {
+  position: relative;
   flex: 1;
   min-height: 0;
   min-width: 0;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
   border: 1px solid var(--border-color);
   border-top: none;
   border-radius: 0 0 var(--radius) var(--radius);
@@ -286,121 +391,149 @@ body.notes {
 
 .notes__fallback::placeholder { color: var(--text-secondary); }
 
-/* ── Band ── */
+/* ── Fallback dateline ── */
 
-/* Whole pixels on purpose: an 18px line (Micro x 1.5625) centred in a
-   44px row inside the hairline. Any fraction here, and the status dot
-   snaps a pixel off the text's cap centre while the text doesn't. */
-.notes__statusbar {
-  flex: none;
+/* The textarea can't hold the dateline, so it sits above it, still. */
+.notes__pane .notes__fallback-dateline { display: none; }
+
+.notes__pane.fallback-mode .notes__fallback-dateline:not([hidden]) {
   display: flex;
-  align-items: center;
-  gap: var(--gap);
-  min-height: calc(2.75rem + 1px);
-  padding: 0 0.6rem 0 1.25rem;
-  border-top: 1px solid var(--border-color);
-  border-radius: 0 0 var(--radius) var(--radius);
-  background: var(--surface-dark);
+  padding: var(--notes-pad);
+  padding-bottom: 0.9rem;
+}
+
+.notes__pane.fallback-mode .notes__fallback-dateline:not([hidden]) + .notes__fallback { padding-top: 0; }
+
+/* ── Dateline ── */
+
+/* Above line one on every surface, scrolling with the note. CodeMirror's
+   copy sits inside its content, so this sets its own face, style and
+   wrapping, and pads rather than margins: CodeMirror measures a block
+   widget's box. */
+.notes__dateline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 var(--dot-gap);
+  padding-bottom: 0.9rem;
+  font-family: var(--notes-font);
   font-size: var(--text-micro);
+  font-style: normal;
+  font-weight: var(--body-normal);
+  font-variant-numeric: tabular-nums;
   line-height: var(--leading-body);
   letter-spacing: var(--track-normal);
+  white-space: normal;
   color: var(--text-secondary);
+  user-select: none;
 }
 
-.notes__status {
+.notes__dateline[hidden] { display: none; }
+
+.notes__dateline-folder {
+  all: unset;
+  outline: revert;
+  anchor-name: --note-folder;
   display: inline-flex;
-  align-items: center;
-  gap: var(--dot-gap);
-  min-width: 0;
-  white-space: nowrap;
+  align-items: baseline;
+  gap: 0.2rem;
+  max-width: 16rem;
+  margin: 0 -0.25rem;
+  padding: 0 0.25rem;
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
 }
 
-.notes__status > span {
+.notes__dateline-folder span {
   overflow: hidden;
+  white-space: nowrap;
   text-overflow: ellipsis;
 }
 
-.notes__status::before {
+.notes__dateline-folder svg {
+  flex: none;
+  width: 11px;
+  height: 11px;
+  translate: 0 calc(5.5px - 0.5cap);
+}
+
+.notes__dateline-folder:hover,
+.notes__dateline-folder[aria-expanded="true"] {
+  background: var(--surface-glass-hover);
+  color: var(--text-primary);
+}
+
+/* ── Trouble ── */
+
+/* Rises over the sheet's foot when a save fails or an action does,
+   on transform so the note never reflows. Opaque, because the note's
+   last lines are under it. */
+.notes__trouble {
+  position: absolute;
+  inset: auto 0 0;
+  display: flex;
+  align-items: center;
+  gap: var(--dot-gap);
+  min-height: calc(2.75rem + 1px);
+  padding: 0 0.6rem 0 1.25rem;
+  border-top: 1px solid var(--border-color);
+  background: var(--panel-bg);
+  font-size: var(--text-micro);
+  line-height: var(--leading-body);
+  letter-spacing: var(--track-normal);
+  color: var(--text-primary);
+  transform: translateY(100%);
+  visibility: hidden;
+  transition: transform var(--transition-normal), visibility var(--transition-normal);
+}
+
+.notes__trouble[data-shown="true"] {
+  transform: none;
+  visibility: visible;
+}
+
+.notes__trouble::before {
   content: "";
   flex: none;
   width: var(--dot);
   height: var(--dot);
   border-radius: 50%;
-  background: var(--text-secondary);
-  opacity: 0.5;
+  background: var(--signal-bad);
 }
 
-.notes__status:is(:not([data-state]), [data-state=""])::before { display: none; }
-
-.notes__status[data-state="dirty"]::before { background: var(--signal-mid); opacity: 1; }
-.notes__status[data-state="error"]::before { background: var(--signal-bad); opacity: 1; }
-.notes__status[data-state="error"] { color: var(--text-primary); }
-
-.notes__meta {
-  margin-left: auto;
+.notes__trouble-text {
+  min-width: 0;
+  overflow: hidden;
   white-space: nowrap;
-  font-variant-numeric: tabular-nums;
+  text-overflow: ellipsis;
 }
 
-.notes__move-hint { white-space: nowrap; }
-
-.notes__font {
+.notes__trouble-reload {
   all: unset;
   outline: revert;
-  cursor: pointer;
-  padding: 0 0.35rem;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-xs);
-  font-size: var(--text-micro);
-  line-height: var(--leading-body);
-  color: var(--text-secondary);
-}
-
-.notes__font:hover {
-  border-color: var(--border-hover);
-  color: var(--text-primary);
-}
-
-.notes__pin[aria-pressed="true"] { color: var(--accent-bright); }
-.notes__pin[aria-pressed="true"] svg { fill: currentColor; }
-
-.notes__delete:hover { color: var(--signal-bad); }
-
-/* ── Folder button ── */
-
-/* margin-block cancels the border, so the bar is the same height with
-   a note open and without one. */
-.notes__note-folder {
-  anchor-name: --note-folder;
   flex: none;
-  max-width: 12rem;
-  overflow: hidden;
-  margin-block: -1px;
+  margin-left: auto;
   padding: 0 0.6rem;
   border: 1px solid var(--border-color);
   border-radius: var(--radius-pill);
   background: var(--surface-glass);
-  font: inherit;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  color: var(--text-secondary);
   cursor: pointer;
-  transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+  transition: background var(--transition-fast), border-color var(--transition-fast);
 }
 
-.notes__note-folder:hover { color: var(--text-primary); }
+.notes__trouble-reload[hidden] { display: none; }
 
-.notes__note-folder:has(+ .notes__picker:popover-open) {
+.notes__trouble-reload:hover {
   background: var(--surface-glass-hover);
   border-color: var(--border-hover);
-  color: var(--text-primary);
 }
 
 /* ── Folder picker ── */
 
 .notes__picker {
   position-anchor: --note-folder;
-  position-area: top span-right;
+  position-area: bottom span-right;
   position-try-fallbacks: flip-block;
   inset: auto;
   width: max-content;
@@ -408,7 +541,7 @@ body.notes {
   max-width: 16rem;
   max-height: 50dvh;
   overflow-y: auto;
-  margin: 0 0 0.4rem;
+  margin: 0.4rem 0 0;
   padding: 0.3rem;
   border: 1px solid var(--border-color);
   border-radius: var(--radius);
@@ -417,8 +550,8 @@ body.notes {
   font-size: var(--text-label);
   line-height: var(--leading-body);
   opacity: 0;
-  transform: translateY(4px) scale(0.97);
-  transform-origin: bottom left;
+  transform: translateY(-4px) scale(0.97);
+  transform-origin: top left;
   transition:
     opacity   var(--transition-normal),
     transform var(--transition-normal),
@@ -434,7 +567,7 @@ body.notes {
 @starting-style {
   .notes__picker:popover-open {
     opacity: 0;
-    transform: translateY(4px) scale(0.97);
+    transform: translateY(-4px) scale(0.97);
   }
 }
 
@@ -668,8 +801,27 @@ body.notes {
   scrollbar-color: var(--border-color) transparent;
 }
 
-.notes__row {
+/* A row and its delete, side by side: the row is a button, so the
+   delete can't go inside it. New note's item leaves the column empty
+   so its meta lines up. */
+.notes__item {
   flex: none;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  padding-right: 0.3rem;
+  border-radius: var(--radius-xs);
+  transition: background var(--transition-fast);
+}
+
+.notes__item.is-selected { background: var(--surface-glass-hover); }
+
+.notes__item--new::after {
+  content: "";
+  width: 1.9rem;
+}
+
+.notes__row {
   display: grid;
   grid-template-columns: 1rem minmax(0, 1fr) auto;
   column-gap: 0.6rem;
@@ -677,16 +829,18 @@ body.notes {
   width: 100%;
   padding: 0.45rem 0.7rem 0.5rem 0.55rem;
   border: none;
-  border-radius: var(--radius-xs);
   background: none;
   font: inherit;
   text-align: left;
   color: inherit;
   cursor: pointer;
-  transition: background var(--transition-fast);
 }
 
-.notes__row.is-selected { background: var(--surface-glass-hover); }
+.notes__row-delete:hover { color: var(--signal-bad); }
+
+@media (hover: hover) {
+  .notes__item:not(.is-selected) .notes__row-delete { visibility: hidden; }
+}
 
 .notes__row-glyph {
   display: grid;
@@ -738,12 +892,12 @@ body.notes {
   text-overflow: ellipsis;
 }
 
-.notes__row--new .notes__row-title {
+.notes__item--new .notes__row-title {
   font-weight: var(--body-normal);
   color: var(--text-secondary);
 }
 
-.notes__row--new.is-selected .notes__row-title { color: var(--text-primary); }
+.notes__item--new.is-selected .notes__row-title { color: var(--text-primary); }
 
 .notes__row mark {
   padding: 0 1px;
@@ -784,7 +938,7 @@ body.notes {
   overflow-wrap: break-word;
 }
 
-.notes__preview.empty {
+.notes__preview .empty {
   color: var(--text-secondary);
   font-style: italic;
 }
@@ -966,20 +1120,19 @@ body.notes {
 ====================================================== */
 
 @media (max-width: 700px) {
-  /* Clears the corner buttons, which would otherwise sit on the band. */
+  /* Clears the corner buttons, which would otherwise sit on the sheet's foot. */
   .notes__stage {
     width: calc(100% - 1.5rem);
     padding-bottom: 4.25rem;
   }
 
   .notes__tab {
-    max-width: 8.5rem;
-    padding: 0.5rem 0.85rem 0.55rem;
+    max-width: 9.25rem;
+    padding: 0.5rem 0.35rem 0.55rem 0.85rem;
   }
 
   .notes__switch span,
-  .notes__kbd,
-  .notes__move-hint { display: none; }
+  .notes__kbd { display: none; }
 
   .notes__icon-btn {
     width: 2.5rem;
@@ -991,7 +1144,9 @@ body.notes {
   .notes__pane.cm6-ready     .notes__preview,
   .notes__pane.fallback-mode .notes__preview  { display: block; }
 
-  .notes__status:not([data-state="error"]) > span { display: none; }
+  .notes__pane.fallback-mode .notes__fallback-dateline:not([hidden]) { display: none; }
+
+  .notes__item--new::after { width: 2.5rem; }
 
   .notes__switcher { margin-top: 0.75rem; }
   .notes__switcher-box { max-height: calc(100dvh - 1.5rem); }

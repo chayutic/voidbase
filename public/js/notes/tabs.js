@@ -7,16 +7,22 @@
 //  italics, which the next unpinned note replaces. Alt+Left and
 //  Alt+Right move the open note's tab, when it is a pin, and a mouse
 //  can drag any pin along the row.
+//
+//  Each tab ends in its action, pin or unpin. The open tab's slot
+//  shows its save state instead while there's one to show.
 
 import * as library from "./library.js";
 import { displayTitle, isUntitled } from "./format.js";
+import { PIN, CLOSE } from "../icons.js";
 
 const stripEl = document.getElementById("noteTabs");
 
 let active   = null;
 let temp     = null;
 let scrolled = null;   // the active tab's id and place, as last scrolled to
+let saveState = "";
 let onSelect = () => {};
+let onUnpin  = () => {};
 let onError  = () => {};
 
 function ids() {
@@ -25,23 +31,53 @@ function ids() {
 }
 
 function buildTab(note) {
-  const label = displayTitle(note);
-  const tab = document.createElement("button");
-  tab.type        = "button";
-  tab.className   = "notes__tab";
-  tab.textContent = label;
-  tab.title       = label;
-  tab.dataset.id  = note.id;
+  const label  = displayTitle(note);
+  const open   = note.id === active;
+  const pinned = library.isPinned(note.id);
+
+  const tab = document.createElement("div");
+  tab.className  = "notes__tab";
+  tab.dataset.id = note.id;
+  tab.classList.toggle("is-open", open);
   tab.classList.toggle("is-temp", note.id === temp);
   tab.classList.toggle("untitled", isUntitled(note));
-  if (note.id === active) tab.setAttribute("aria-current", "true");
-  if (note.id === active && library.isPinned(note.id)) {
-    tab.setAttribute("aria-keyshortcuts", "Alt+ArrowLeft Alt+ArrowRight");
+  if (open) tab.dataset.save = saveState;
+
+  const title = document.createElement("button");
+  title.type        = "button";
+  title.className   = "notes__tab-title";
+  title.textContent = label;
+  title.title       = label;
+  if (open) title.setAttribute("aria-current", "true");
+  if (open && pinned) {
+    title.setAttribute("aria-keyshortcuts", "Alt+ArrowLeft Alt+ArrowRight");
+    if (library.pinned().length > 1) title.title = `${label}\nAlt ← → moves this tab`;
   }
-  tab.addEventListener("click", () => {
+  title.addEventListener("click", () => {
     if (note.id !== active) onSelect(note.id);
   });
+
+  const action = document.createElement("button");
+  action.type      = "button";
+  action.className = "notes__tab-action";
+  action.title     = pinned ? "Unpin" : "Pin as a tab";
+  action.setAttribute("aria-label", `${pinned ? "Unpin" : "Pin"} ${label}`);
+  action.innerHTML = pinned ? CLOSE : PIN;
+  action.addEventListener("click", () => togglePin(note.id));
+
+  tab.append(title, action);
   return tab;
+}
+
+async function togglePin(id) {
+  try {
+    if (!library.isPinned(id)) await library.setPinned(id, true);
+    else if (id === active) await onUnpin(id);
+    else await library.setPinned(id, false);
+  } catch (err) {
+    console.error("Pin failed:", err);
+    onError(err.status === 404 ? "That note is gone" : "Could not change the pin");
+  }
 }
 
 function markOverflow() {
@@ -64,7 +100,7 @@ export function render() {
   const place = `${active}@${ids().indexOf(active)}`;
   if (place !== scrolled) {
     scrolled = place;
-    stripEl.querySelector('[aria-current="true"]')?.scrollIntoView({ block: "nearest", inline: "nearest" });
+    stripEl.querySelector(".notes__tab.is-open")?.scrollIntoView({ block: "nearest", inline: "nearest" });
   }
   markOverflow();
 }
@@ -73,6 +109,13 @@ export function render() {
 export function show(id) {
   active = id;
   render();
+}
+
+/** The open note's save state: "", saved, dirty, saving or error. */
+export function showSave(state) {
+  saveState = state;
+  const tab = stripEl.querySelector(".notes__tab.is-open");
+  if (tab) tab.dataset.save = state;
 }
 
 /** The tab to take over when `id`'s closes: its left neighbour, else its right. */
@@ -113,7 +156,7 @@ function pinnedTabs() {
 function pointerDown(e) {
   if (e.pointerType !== "mouse" || e.button !== 0) return;
   const tab = e.target.closest(".notes__tab");
-  if (!tab || !library.isPinned(tab.dataset.id)) return;
+  if (!tab || !library.isPinned(tab.dataset.id) || e.target.closest(".notes__tab-action")) return;
   drag = { id: tab.dataset.id, pointer: e.pointerId, startX: e.clientX, x: e.clientX, moving: false };
 }
 
@@ -225,6 +268,7 @@ function swallowClick(e) {
 
 export function initTabs(handlers = {}) {
   onSelect = handlers.onSelect ?? onSelect;
+  onUnpin  = handlers.onUnpin  ?? onUnpin;
   onError  = handlers.onError  ?? onError;
 
   document.addEventListener("keydown", moveKey);

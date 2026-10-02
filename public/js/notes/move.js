@@ -1,15 +1,15 @@
 // ═══════════════════════════════════════════════════════════════
-//  MOVE — the open note's folder, and the picker that changes it
+//  MOVE — the picker that changes the open note's folder
 // ═══════════════════════════════════════════════════════════════
 //
 //  The picker is a native popover, so light dismiss, Escape and the
 //  top layer come from the browser. Its list is built on open, from
-//  whatever folders the library last fetched.
+//  whatever folders the library last fetched. The dateline's folder
+//  button opens it, and says where the note is.
 
 import * as api   from "./api.js";
 import { reject } from "../inline-edit.js";
 
-const buttonEl = document.getElementById("noteFolder");
 const pickerEl = document.getElementById("folderPicker");
 const listEl   = document.getElementById("folderPickerList");
 const newEl    = document.getElementById("folderPickerNew");
@@ -32,16 +32,11 @@ function close() {
 /** The note now in the editor, or null for none. */
 export function show(summary) {
   note = summary ? { id: summary.id, folder: summary.folder } : null;
-  buttonEl.hidden = !note;
-  if (!note) {
-    close();
-    return;
-  }
-  buttonEl.textContent = label(note.folder);
+  if (!note) close();
 }
 
 export function folderRenamed(from, to) {
-  if (note?.folder === from) show({ ...note, folder: to });
+  if (note?.folder === from) note.folder = to;
 }
 
 // ── Picker ─────────────────────────────────────────────────────
@@ -100,6 +95,13 @@ export function initMove(handlers = {}) {
   onMoved    = handlers.onMoved    ?? onMoved;
   onCreated  = handlers.onCreated  ?? onCreated;
   onError    = handlers.onError    ?? onError;
+
+  // Whichever surface's button opened it lights up while it's open.
+  pickerEl.addEventListener("toggle", (e) => {
+    for (const el of document.querySelectorAll(".notes__dateline-folder")) {
+      el.setAttribute("aria-expanded", String(e.newState === "open" && el.checkVisibility()));
+    }
+  });
 
   pickerEl.addEventListener("beforetoggle", (e) => {
     if (e.newState === "open") {

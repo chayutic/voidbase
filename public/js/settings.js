@@ -7,7 +7,8 @@
 //  proxy route stay reachable. Do not put private data behind it.
 //
 //  The display toggles' classes are first set by the inline <head>
-//  script in index.html, before paint. Rename one here, rename it there.
+//  script in index.html, before paint, and notes-mono by notes.html's.
+//  Rename one here, rename it there.
 
 import * as store              from "./store.js";
 import { KEYS }                from "./store.js";
@@ -132,6 +133,21 @@ function initMarketsWidgets() {
   paint();
 }
 
+// ── Notes ──────────────────────────────────────────────────────
+//  Only notes.html has the row.
+
+function initNotesFont() {
+  const mono = document.getElementById("notesMonoToggle");
+  if (!mono) return;
+
+  mono.checked = store.str(KEYS.notesFont, "sans") === "mono";
+  mono.addEventListener("change", () => {
+    document.documentElement.classList.toggle("notes-mono", mono.checked);
+    store.set(KEYS.notesFont, mono.checked ? "mono" : "sans");
+    announce(KEYS.notesFont);
+  });
+}
+
 function initVersionStamps() {
   const year = new Date().getFullYear();
 
@@ -146,5 +162,6 @@ export function initSettings() {
   initPanel();
   initDisplayToggles();
   initMarketsWidgets();
+  initNotesFont();
   initVersionStamps();
 }

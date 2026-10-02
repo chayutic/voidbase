@@ -4,12 +4,13 @@
 
 ### Added
 - **The VOIDBASE title on `/ops` goes back to the dashboard.** It looks exactly as it did
-- **A Sans/Mono switch in the notes band**, to try a note in Geist Mono for a while. Only the note changes, not the tabs or the band, and it's remembered. Geist Mono is self-hosted next to Geist
+- **A Mono Font switch in the Control Panel**, only on the notes page, to try a note in Geist Mono for a while. Only the note changes, not the tabs or anything around it, and it's remembered. Geist Mono is self-hosted next to Geist
 - **Ctrl+click opens a link in the notes editor**, in a new tab. Holding Ctrl turns the pointer into a hand over a link, and hovering one shows where it goes, since the address is hidden. `google.com` and `www.` links go to https now, in the editor and on a phone, instead of to a page under /notes
 - **Tabs drag.** Pick a pinned tab up with the mouse and drop it where it goes; the others step aside, and the strip scrolls if you hold it at the edge. Not on a phone, where it would fight the scrolling, and I'm not editing there anyway
 - **Task lists tick in the notes editor.** `- [ ]` is a box now, without the bullet, and clicking it writes the `x` into the note. Ctrl+Z unticks. A done item goes grey, no strikethrough. On a phone the boxes are still just a picture of one
 
 ### Changed
+- **The notes band is gone.** Seven things in one strip, and half of them repeated what the page already said. The save state is a dot on the open tab now, and no dot means saved. Pin and unpin are on the tab. The folder and the edit time are a line above the note that scrolls away with it, and the folder still opens the move picker. Delete moved to Ctrl K: the trash on the selected row, or Shift+Delete. When a save fails, a strip rises over the bottom of the sheet until it's sorted, with a Reload button if the note changed somewhere else
 - **The corner button on `/ops` goes to Notes now**, the same button as the dashboard's. The title already goes home, so two ways back to the dashboard was one too many
 - **Voidport has its own mark**, the ringed O from its wordmark, on the dashboard card and on `/ops`. It used to be a generic browser window, which could have been anything
 - **Customizer Save fills by scaling now, not by growing its `width`.** It looks the same, left to right. It just stopped asking the browser to lay the button out again every frame
@@ -17,6 +18,7 @@
 - **CodeMirror's patch releases and esbuild 0.28 are in**, so the notes editor's bundle is rebuilt. Nothing should look different. dotenv 18 still isn't, because it's put out six releases in two weeks
 
 ### Fixed
+- **The magnifier next to All notes sat low**, its handle hanging below the text. It's drawn one unit up and left now, there, in the switcher and on the dashboard's search button, and icons next to words line up with the capitals instead of their box
 - **A bare `https://…` link in a note no longer vanishes** when the cursor leaves its line, and neither does a `<https://…>`. The editor hid every URL it saw, on the theory that it was the tail of a `[text](url)`
 - **`[google.com]` on its own stays `[google.com]` in the editor.** It isn't a link without a URL or a definition, and the phone already showed it with its brackets. The editor dressed it up as one anyway
 
