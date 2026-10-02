@@ -821,8 +821,8 @@ body.notes {
   margin: 0.3em 0 0;
 }
 
-/* Task lists — GFM `- [ ]`. Checkboxes render disabled; making them
-   write back to the source is deferred. A loose list wraps each item,
+/* Task lists — GFM `- [ ]`. Checkboxes render disabled: phones read,
+   and the desktop editor draws its own. A loose list wraps each item,
    box included, in a <p>. */
 .markdown li:has(> input[type="checkbox"], > p:first-child > input[type="checkbox"]) {
   list-style: none;
@@ -988,5 +988,23 @@ body.notes {
   border-top: 1px solid var(--border-hover);
   pointer-events: none;
 }
+
+/* ======================================================
+   EDITOR — task boxes
+   ======================================================
+   Drawn over `[ ]` off the cursor line, and sized like the rendered
+   note's. A ticked item greys on every line, the cursor's included.
+====================================================== */
+
+.cm-md-task {
+  width: 13px;
+  height: 13px;
+  margin: 0;
+  vertical-align: -0.1em;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.cm-md-task-done { color: var(--text-secondary); }
 
 } /* @layer components */

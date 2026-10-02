@@ -11,11 +11,12 @@
 //  1. HighlightStyle — the visual weight. Driven by the syntax tree, so
 //     a heading looks like a heading and strong text is bold.
 //  2. The hide plugin — replaces syntax markers (#, **, ~~, backticks,
-//     link brackets) with nothing, except on active lines.
+//     link brackets) with nothing, and a task's [ ] with a box that
+//     ticks, except on active lines.
 
 
 import {
-  Decoration, ViewPlugin, EditorView,
+  Decoration, ViewPlugin, EditorView, WidgetType,
   HighlightStyle, syntaxHighlighting, syntaxTree, tags,
 } from "../vendor/cm6.min.js";
 
@@ -44,6 +45,47 @@ const hide = Decoration.replace({});
  * the glyphs and paints the rule.
  */
 const ruleLine = Decoration.line({ class: "cm-md-rule" });
+
+const doneLine = Decoration.line({ class: "cm-md-task-done" });
+
+/** Whether a Task node's `[ ]` holds an x. */
+function isChecked(state, task) {
+  const marker = task.getChild("TaskMarker");
+  return !!marker && /x/i.test(state.sliceDoc(marker.from, marker.to));
+}
+
+/** The box drawn over a `[ ]` or `[x]`, off the cursor line. */
+class TaskBox extends WidgetType {
+  constructor(checked) {
+    super();
+    this.checked = checked;
+  }
+  eq(other) { return other.checked === this.checked; }
+  toDOM() {
+    const box = document.createElement("input");
+    box.type      = "checkbox";
+    box.className = "cm-md-task";
+    box.checked   = this.checked;
+    box.tabIndex  = -1;
+    return box;
+  }
+  // The editor's own handlers below have to see the click.
+  ignoreEvent() { return false; }
+}
+
+/** Flips the `[ ]` a box was drawn over. A plain edit, so Ctrl+Z unticks. */
+function toggleTask(view, box) {
+  const from = view.posAtDOM(box);
+  const marker = view.state.sliceDoc(from, from + 3);
+  if (!/^\[[ xX]\]$/.test(marker)) return false;
+  view.dispatch({
+    changes: { from: from + 1, to: from + 2, insert: marker[1] === " " ? "x" : " " },
+    userEvent: "input.toggle",
+  });
+  return true;
+}
+
+const isTaskBox = el => el instanceof HTMLInputElement && el.classList.contains("cm-md-task");
 
 const isSpace = ch => ch === " " || ch === "\t";
 
@@ -110,12 +152,31 @@ function buildDecorations(view) {
       from, to,
       enter(node) {
         const line = state.doc.lineAt(node.from);
+
+        if (node.name === "Task" && isChecked(state, node.node)) {
+          const last = state.doc.lineAt(node.to).number;
+          for (let n = line.number; n <= last; n++) ranges.push(doneLine.range(state.doc.line(n).from));
+        }
+
         // Leave the line under the cursor as raw source so it stays
         // editable — you cannot fix a link you cannot see.
         if (active.has(line.number)) return;
 
         if (node.name === "HorizontalRule") {
           ranges.push(ruleLine.range(line.from));
+          return;
+        }
+
+        if (node.name === "TaskMarker") {
+          const widget = new TaskBox(isChecked(state, node.node.parent));
+          ranges.push(Decoration.replace({ widget }).range(node.from, node.to));
+          return;
+        }
+
+        // The bullet goes with the box, and the spaces up to it.
+        if (node.name === "ListMark") {
+          const task = node.node.nextSibling;
+          if (task?.name === "Task") ranges.push(hide.range(node.from, task.from));
           return;
         }
 
@@ -149,7 +210,25 @@ export const hideMarkers = ViewPlugin.fromClass(
       }
     }
   },
-  { decorations: v => v.decorations },
+  {
+    decorations: v => v.decorations,
+    // Handled on mousedown so the caret never moves onto the line,
+    // which would reveal the source and take the box away mid-click.
+    // The click is cancelled too, or the browser ticks the redrawn box
+    // a second time.
+    eventHandlers: {
+      mousedown(e, view) {
+        if (!isTaskBox(e.target)) return false;
+        e.preventDefault();
+        return toggleTask(view, e.target);
+      },
+      click(e) {
+        if (!isTaskBox(e.target)) return false;
+        e.preventDefault();
+        return true;
+      },
+    },
+  },
 );
 
 /**
